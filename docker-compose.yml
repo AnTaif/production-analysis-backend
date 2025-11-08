@@ -1,0 +1,14 @@
+﻿services:
+  productionanalysis.api:
+    container_name: productionanalysis.api
+    image: productionanalysis.api
+    build:
+      context: .
+      dockerfile: ProductionAnalysis.Api/Dockerfile
+    restart: always
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
