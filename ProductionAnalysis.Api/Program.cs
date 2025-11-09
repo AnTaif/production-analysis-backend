@@ -4,12 +4,13 @@ using Core.Logger;
 using Core.Swagger;
 using DotNetEnv;
 using FluentValidation;
+using Microsoft.OpenApi.Models;
 using ProductionAnalysis.Application;
 using ProductionAnalysis.Data;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using Swashbuckle.AspNetCore.Filters;
 
-Env.Load("../../.env");
+Env.Load("../.env");
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,9 +19,15 @@ builder.Services
     .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
     .AddFluentValidationAutoValidation();
 
+builder.Services.AddEndpointsApiExplorer();
 builder.Services
     .AddSwaggerGen(options =>
     {
+        options.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Title = "ProductionAnalysis API",
+            Version = "v1"
+        });
         options.AddJwtSecurity();
         options.AddDocs();
     })
@@ -51,7 +58,10 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+    app.UseSwagger(c =>
+    {
+        c.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi2_0;
+    });
     app.UseSwaggerUI();
 }
 
