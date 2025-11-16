@@ -4,31 +4,22 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using ProductionAnalysis.Data.Context;
 using ProductionAnalysis.Data.Models;
-using Serilog;
 
 namespace ProductionAnalysis.Data.Seeding;
 
-public class DataSeeder(
+public class PaDataSeeder(
     PaDbContext dbContext,
     UserManager<UserDbo> userManager,
-    ILogger<DataSeeder> logger
+    ILogger<PaDataSeeder> logger
 )
-    : IDataSeeder
+    : DataSeeder(dbContext, logger)
 {
-    public async Task<bool> TrySeedAsync()
+    protected override async Task<bool> ShouldSeedAsync() =>
+        await dbContext.Database.EnsureCreatedAsync() || !dbContext.Users.Any();
+
+    protected override async Task SeedAsync()
     {
-        logger.LogInformation("Starting database seeding...");
-
-        if (!await dbContext.Database.EnsureCreatedAsync() && dbContext.Users.Any())
-        {
-            logger.LogInformation("Database already has some data, skipping...");
-            return false;
-        }
-
         await SeedUsersAsync();
-        await dbContext.SaveChangesAsync();
-        logger.LogWarning("Database seeding completed.");
-        return true;
     }
 
     private async Task SeedUsersAsync()

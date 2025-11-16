@@ -13,7 +13,7 @@ public static class DependencyInjection
     public static IServiceCollection AddDataLayer(this IServiceCollection services, IConfigurationManager config)
     {
         services.AddNpgsqlDbContext<PaDbContext>(config);
-        services.AddDataSeeder<DataSeeder>();
+        services.AddDataSeeder<PaDataSeeder>();
         services.AddIdentity();
 
         services.AddProductionAnalysisData();
