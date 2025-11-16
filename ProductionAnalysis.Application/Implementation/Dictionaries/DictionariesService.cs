@@ -1,4 +1,4 @@
-﻿namespace ProductionAnalysis.Application.Services;
+﻿namespace ProductionAnalysis.Application.Implementation.Dictionaries;
 
 public interface IDictionariesService
 {

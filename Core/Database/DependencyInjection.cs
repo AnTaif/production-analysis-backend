@@ -13,7 +13,7 @@ public static class DependencyInjection
         var dbOptions = new DatabaseOptions();
         config.GetSection("DatabaseOptions").Bind(dbOptions);
         dbOptions.Host = Environment.GetEnvironmentVariable("DB_CONTAINER") ?? "localhost";
-        dbOptions.Port = Environment.GetEnvironmentVariable("DATABASE_PORT") ?? "3306";
+        dbOptions.Port = Environment.GetEnvironmentVariable("DATABASE_PORT") ?? "5432";
         dbOptions.User = Environment.GetEnvironmentVariable("DATABASE_USER")!;
         dbOptions.Password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD")!;
 

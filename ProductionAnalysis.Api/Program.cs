@@ -1,5 +1,6 @@
 using System.Reflection;
 using Core.Auth;
+using Core.Database;
 using Core.Logger;
 using Core.Swagger;
 using DotNetEnv;
@@ -55,12 +56,13 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+await app.TrySeedDatabaseAsync();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger(c =>
     {
-        c.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi2_0;
+        c.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_0;
     });
     app.UseSwaggerUI();
 }

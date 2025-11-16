@@ -6,7 +6,7 @@ using ProductionAnalysis.Data.Models;
 
 namespace ProductionAnalysis.Data.Context;
 
-public class PaDbContext(DbContextOptions<PaDbContext> options) : IdentityDbContext<User, IdentityRole<Guid>, Guid>(options)
+public class PaDbContext(DbContextOptions<PaDbContext> options) : IdentityDbContext<UserDbo, IdentityRole<Guid>, Guid>(options)
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

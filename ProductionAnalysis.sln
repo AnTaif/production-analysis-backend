@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductionAnalysis.Data", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductionAnalysis.Application", "ProductionAnalysis.Application\ProductionAnalysis.Application.csproj", "{4D44C69B-9D29-49F7-895C-D1F5AB6506ED}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductionAnalysis.Client.Models", "ProductionAnalysis.Client.Models\ProductionAnalysis.Client.Models.csproj", "{0C06C7C7-F2DC-48B7-B331-328FADBD6231}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{4D44C69B-9D29-49F7-895C-D1F5AB6506ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D44C69B-9D29-49F7-895C-D1F5AB6506ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D44C69B-9D29-49F7-895C-D1F5AB6506ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C06C7C7-F2DC-48B7-B331-328FADBD6231}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C06C7C7-F2DC-48B7-B331-328FADBD6231}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C06C7C7-F2DC-48B7-B331-328FADBD6231}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C06C7C7-F2DC-48B7-B331-328FADBD6231}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

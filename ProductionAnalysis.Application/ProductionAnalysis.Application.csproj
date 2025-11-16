@@ -8,11 +8,13 @@
 
     <ItemGroup>
       <PackageReference Include="Injectio" Version="5.1.0" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.10" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.11" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Domain\" />
+      <ProjectReference Include="..\Core\Core.csproj" />
+      <ProjectReference Include="..\ProductionAnalysis.Client.Models\ProductionAnalysis.Client.Models.csproj" />
+      <ProjectReference Include="..\ProductionAnalysis.Data\ProductionAnalysis.Data.csproj" />
     </ItemGroup>
 
 </Project>

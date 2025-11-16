@@ -4,9 +4,9 @@ namespace Core.Auth;
 
 public static class RolesConstants
 {
-    public const string Admin = "Operator";
-    public const string Tutor = "Analyst";
-    public const string Student = "Admin";
+    public const string Operator = "Operator";
+    public const string Analyst = "Analyst";
+    public const string Admin = "Admin";
 
     public static IReadOnlyCollection<string> GetRoles()
     {
