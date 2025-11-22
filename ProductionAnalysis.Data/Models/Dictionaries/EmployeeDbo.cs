@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProductionAnalysis.Data.Models.Dictionaries;
 
@@ -20,7 +19,4 @@ public class EmployeeDbo
     public required string Position { get; set; }
     
     public int DepartmentId { get; set; }
-    
-    [ForeignKey(nameof(DepartmentId))]
-    public virtual DepartmentDbo?  Department { get; set; }
 }

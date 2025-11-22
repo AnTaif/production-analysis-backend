@@ -12,7 +12,6 @@ public class PaDbContext(DbContextOptions<PaDbContext> options) : IdentityDbCont
     #region Dictionaries
 
     public DbSet<DepartmentDbo> Departments { get; set; }
-    public DbSet<DowntimeReasonDbo> DowntimeReasons { get; set; }
     public DbSet<DowntimeReasonGroupDbo> DowntimeReasonGroups { get; set; }
     public DbSet<EmployeeDbo> Employees { get; set; }
     public DbSet<EnterpriseDbo> Enterprises { get; set; }

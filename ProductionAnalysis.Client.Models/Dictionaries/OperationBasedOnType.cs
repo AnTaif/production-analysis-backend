@@ -1,4 +1,4 @@
-﻿namespace ProductionAnalysis.Data.Models.Dictionaries;
+﻿namespace ProductionAnalysis.Client.Models.Dictionaries;
 
 public enum OperationBasedOnType
 {

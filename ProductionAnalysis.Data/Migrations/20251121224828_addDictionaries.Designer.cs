@@ -316,10 +316,10 @@ namespace ProductionAnalysis.Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<int>("OperationBasedOn")
+                    b.Property<int>("BasedOn")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("TimeToCompleteInSeconds")
+                    b.Property<int?>("DurationInSeconds")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
