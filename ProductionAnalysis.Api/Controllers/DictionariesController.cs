@@ -46,6 +46,15 @@ public class DictionariesController(IDictionariesService dictionariesService) : 
         return Ok(dtos);
     }
 
+    [HttpGet("additional-operations")]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerableAdditionalOperationDtoExample))]
+    [ProducesResponseType<IEnumerable<AdditionalOperationDto>>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAdditionalOperations()
+    {
+        var dtos = await dictionariesService.GetAdditionalOperationsAsync();
+        return Ok(dtos);
+    }
+
     [HttpGet("operations")]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerableOperationDtoExample))]
     [ProducesResponseType<IEnumerable<OperationDto>>(StatusCodes.Status200OK)]

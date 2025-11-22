@@ -44,6 +44,15 @@ public static class DictionariesConverter
         );
     }
 
+    public static AdditionalOperationDto ToDto(this AdditionalOperationDbo dbo)
+    {
+        return new AdditionalOperationDto(
+            dbo.Id,
+            dbo.Name,
+            TimeSpan.FromSeconds(dbo.DurationInSeconds)
+        );
+    }
+
     public static OperationDto ToDto(this OperationDbo dbo)
     {
         return new OperationDto(

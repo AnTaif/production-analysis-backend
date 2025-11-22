@@ -10,6 +10,7 @@ public interface IDictionariesService
     Task<ICollection<DowntimeReasonGroupDto>> GetDowntimeReasonGroupsAsync();
     Task<ICollection<EmployeeDto>> GetEmployeesAsync();
     Task<ICollection<EnterpriseDto>> GetEnterpriseAsync();
+    Task<ICollection<AdditionalOperationDto>> GetAdditionalOperationsAsync();
     Task<ICollection<OperationDto>> GetOperationsAsync();
     Task<ICollection<PaTypeDto>> GetPaTypesAsync();
     Task<ICollection<ProductDto>> GetProductsAsync();
@@ -41,6 +42,12 @@ public class DictionariesService(IDictionariesRepository dictionariesRepository)
     {
         var dbos = await dictionariesRepository.SelectEnterprisesAsync();
         return dbos.Select(e => e.ToDto()).ToList();
+    }
+
+    public async Task<ICollection<AdditionalOperationDto>> GetAdditionalOperationsAsync()
+    {
+        var dbos = await dictionariesRepository.SelectAdditionalOperationsAsync();
+        return dbos.Select(d => d.ToDto()).ToList();
     }
 
     public async Task<ICollection<OperationDto>> GetOperationsAsync()

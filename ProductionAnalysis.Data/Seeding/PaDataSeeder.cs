@@ -28,6 +28,7 @@ public class PaDataSeeder(
         await SeedDowntimeReasonGroupsAsync();
         await SeedEmployeesAsync();
         await SeedPaTypesAsync();
+        await SeedAdditionalOperationsAsync();
         await SeedOperationsAsync();
         await SeedProductsAsync();
         await SeedShiftsAsync();
@@ -265,6 +266,41 @@ public class PaDataSeeder(
 
     #region Operations
 
+    private Task SeedAdditionalOperationsAsync()
+    {
+        if (dbContext.AdditionalOperations.Any())
+            return Task.CompletedTask;
+
+        dbContext.AdditionalOperations.AddRange(
+            new AdditionalOperationDbo
+            {
+                Id = 1,
+                Name = "Обед 30 мин",
+                DurationInSeconds = 1800
+            },
+            new AdditionalOperationDbo
+            {
+                Id = 2,
+                Name = "Перерыв 15 мин",
+                DurationInSeconds = 900
+            },
+            new AdditionalOperationDbo
+            {
+                Id = 3,
+                Name = "Уборка 15 мин",
+                DurationInSeconds = 900
+            },
+            new AdditionalOperationDbo
+            {
+                Id = 4,
+                Name = "Переналадка 15 мин",
+                DurationInSeconds = 900
+            }
+        );
+        
+        return Task.CompletedTask;
+    }
+    
     private Task SeedOperationsAsync()
     {
         if (dbContext.Operations.Any())
