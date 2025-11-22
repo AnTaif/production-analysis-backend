@@ -14,3 +14,16 @@ public class DepartmentDtoExample : IExamplesProvider<DepartmentDto>
         );
     }
 }
+
+public class EnumerableDepartmentDtoExample : IExamplesProvider<IEnumerable<DepartmentDto>>
+{
+    public IEnumerable<DepartmentDto> GetExamples()
+    {
+        return new List<DepartmentDto>
+        {
+            new(1, "Цех №1", 1),
+            new(2, "Цех №2", 1),
+            new(3, "Литейный участок", 2)
+        };
+    }
+}

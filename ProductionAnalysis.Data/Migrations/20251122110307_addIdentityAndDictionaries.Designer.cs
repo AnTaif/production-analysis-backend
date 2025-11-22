@@ -12,8 +12,8 @@ using ProductionAnalysis.Data.Context;
 namespace ProductionAnalysis.Data.Migrations
 {
     [DbContext(typeof(PaDbContext))]
-    [Migration("20251116215126_addIdentity")]
-    partial class addIdentity
+    [Migration("20251122110307_addIdentityAndDictionaries")]
+    partial class addIdentityAndDictionaries
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,29 +50,6 @@ namespace ProductionAnalysis.Data.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("6ad1d197-59ba-484f-9bcb-a8e3865c09ae"),
-                            ConcurrencyStamp = "0a156a8c-f86c-4ded-88d4-dff0374672cb",
-                            Name = "Operator",
-                            NormalizedName = "OPERATOR"
-                        },
-                        new
-                        {
-                            Id = new Guid("75539807-779b-478c-b2ee-01b779a797dc"),
-                            ConcurrencyStamp = "6022d4ed-9caa-4e01-8a00-e8c2b3f41c79",
-                            Name = "Analyst",
-                            NormalizedName = "ANALYST"
-                        },
-                        new
-                        {
-                            Id = new Guid("2af9fa74-63d3-40ba-9da7-e6dc7e88c34c"),
-                            ConcurrencyStamp = "76b04ae6-72ca-4c84-a49c-38a16705397b",
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -176,6 +153,206 @@ namespace ProductionAnalysis.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.DepartmentDbo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("EnterpriseId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EnterpriseId");
+
+                    b.ToTable("departments", (string)null);
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.DowntimeReasonGroupDbo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("downtime_reason_groups", (string)null);
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.EmployeeDbo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("MiddleName")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Position")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.ToTable("employees", (string)null);
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.EnterpriseDbo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("enterprises", (string)null);
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.OperationDbo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BasedOnType")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("BasedOperationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("BasedProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("DurationInSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BasedOperationId");
+
+                    b.HasIndex("BasedProductId");
+
+                    b.ToTable("operations", (string)null);
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.PaTypeDbo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("pa_types", (string)null);
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.ProductDbo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("EnterpriseId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<int>("TactTimeInSeconds")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EnterpriseId");
+
+                    b.ToTable("products", (string)null);
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.ShiftDbo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time without time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Shifts");
                 });
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.UserDbo", b =>
@@ -304,6 +481,44 @@ namespace ProductionAnalysis.Data.Migrations
                     b.HasOne("ProductionAnalysis.Data.Models.UserDbo", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.DepartmentDbo", b =>
+                {
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.EnterpriseDbo", null)
+                        .WithMany()
+                        .HasForeignKey("EnterpriseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.EmployeeDbo", b =>
+                {
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.DepartmentDbo", null)
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.OperationDbo", b =>
+                {
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.OperationDbo", null)
+                        .WithMany()
+                        .HasForeignKey("BasedOperationId");
+
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.ProductDbo", null)
+                        .WithMany()
+                        .HasForeignKey("BasedProductId");
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.ProductDbo", b =>
+                {
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.EnterpriseDbo", null)
+                        .WithMany()
+                        .HasForeignKey("EnterpriseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -8,4 +8,7 @@ public class DowntimeReasonGroupDbo
     
     [MaxLength(255)]
     public required string Name { get; set; }
+    
+    [MaxLength(300)]
+    public required string Description { get; set; }
 }

@@ -4,12 +4,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace ProductionAnalysis.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class addIdentity : Migration
+    public partial class addIdentityAndDictionaries : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -54,6 +52,60 @@ namespace ProductionAnalysis.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "downtime_reason_groups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Description = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_downtime_reason_groups", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "enterprises",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_enterprises", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "pa_types",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_pa_types", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "shifts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    StartTime = table.Column<TimeOnly>(type: "time without time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_shifts", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -162,14 +214,95 @@ namespace ProductionAnalysis.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.InsertData(
-                table: "AspNetRoles",
-                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[,]
+            migrationBuilder.CreateTable(
+                name: "departments",
+                columns: table => new
                 {
-                    { new Guid("2af9fa74-63d3-40ba-9da7-e6dc7e88c34c"), "76b04ae6-72ca-4c84-a49c-38a16705397b", "Admin", "ADMIN" },
-                    { new Guid("6ad1d197-59ba-484f-9bcb-a8e3865c09ae"), "0a156a8c-f86c-4ded-88d4-dff0374672cb", "Operator", "OPERATOR" },
-                    { new Guid("75539807-779b-478c-b2ee-01b779a797dc"), "6022d4ed-9caa-4e01-8a00-e8c2b3f41c79", "Analyst", "ANALYST" }
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    EnterpriseId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_departments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_departments_enterprises_EnterpriseId",
+                        column: x => x.EnterpriseId,
+                        principalTable: "enterprises",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "products",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    TactTimeInSeconds = table.Column<int>(type: "integer", nullable: false),
+                    EnterpriseId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_products", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_products_enterprises_EnterpriseId",
+                        column: x => x.EnterpriseId,
+                        principalTable: "enterprises",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "employees",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    FirstName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    LastName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    MiddleName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    Position = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    DepartmentId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_employees", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_employees_departments_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "departments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "operations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    DurationInSeconds = table.Column<int>(type: "integer", nullable: true),
+                    BasedOnType = table.Column<int>(type: "integer", nullable: false),
+                    BasedOperationId = table.Column<int>(type: "integer", nullable: true),
+                    BasedProductId = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_operations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_operations_operations_BasedOperationId",
+                        column: x => x.BasedOperationId,
+                        principalTable: "operations",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_operations_products_BasedProductId",
+                        column: x => x.BasedProductId,
+                        principalTable: "products",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -208,6 +341,31 @@ namespace ProductionAnalysis.Data.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_departments_EnterpriseId",
+                table: "departments",
+                column: "EnterpriseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_employees_DepartmentId",
+                table: "employees",
+                column: "DepartmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_operations_BasedOperationId",
+                table: "operations",
+                column: "BasedOperationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_operations_BasedProductId",
+                table: "operations",
+                column: "BasedProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_products_EnterpriseId",
+                table: "products",
+                column: "EnterpriseId");
         }
 
         /// <inheritdoc />
@@ -229,10 +387,34 @@ namespace ProductionAnalysis.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "downtime_reason_groups");
+
+            migrationBuilder.DropTable(
+                name: "employees");
+
+            migrationBuilder.DropTable(
+                name: "operations");
+
+            migrationBuilder.DropTable(
+                name: "pa_types");
+
+            migrationBuilder.DropTable(
+                name: "shifts");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "departments");
+
+            migrationBuilder.DropTable(
+                name: "products");
+
+            migrationBuilder.DropTable(
+                name: "enterprises");
         }
     }
 }

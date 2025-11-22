@@ -9,7 +9,19 @@ public class EnterpriseDtoExample : IExamplesProvider<EnterpriseDto>
     {
         return new EnterpriseDto(
             1,
-            "Предприятие 1"
+            "Предприятие №1"
         );
+    }
+}
+
+public class EnumerableEnterpriseDtoExample : IExamplesProvider<IEnumerable<EnterpriseDto>>
+{
+    public IEnumerable<EnterpriseDto> GetExamples()
+    {
+        return new List<EnterpriseDto>
+        {
+            new(1, "Предприятие №1"),
+            new(2, "Завод в свердловской области")
+        };
     }
 }

@@ -17,3 +17,16 @@ public class OperationDtoExample : IExamplesProvider<OperationDto>
         );
     }
 }
+
+public class EnumerableOperationDtoExample : IExamplesProvider<IEnumerable<OperationDto>>
+{
+    public IEnumerable<OperationDto> GetExamples()
+    {
+        return new List<OperationDto>
+        {
+            new(1, "Установка рамы", TimeSpan.FromMinutes(10), OperationBasedOnType.Nothing, null, null),
+            new(2, "Установка", TimeSpan.FromMinutes(15), OperationBasedOnType.Operation, 2, null),
+            new(3, "Настройка", TimeSpan.FromMinutes(20), OperationBasedOnType.Product, null, 1)
+        };
+    }
+}

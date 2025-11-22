@@ -12,6 +12,7 @@ public interface IDictionariesRepository
     Task<ICollection<EnterpriseDbo>> SelectEnterprisesAsync();
     Task<ICollection<OperationDbo>> SelectOperationsAsync();
     Task<ICollection<PaTypeDbo>> SelectPaTypesAsync();
+    Task<ICollection<ProductDbo>> SelectProductsAsync();
     Task<ICollection<ShiftDbo>> SelectShiftsAsync();
 }
 
@@ -46,6 +47,11 @@ public class DictionariesRepository(PaDbContext dbContext) : IDictionariesReposi
     public async Task<ICollection<PaTypeDbo>> SelectPaTypesAsync()
     {
         return await dbContext.PaTypes.ToListAsync();
+    }
+
+    public async Task<ICollection<ProductDbo>> SelectProductsAsync()
+    {
+        return await dbContext.Products.ToListAsync();
     }
 
     public async Task<ICollection<ShiftDbo>> SelectShiftsAsync()

@@ -13,3 +13,16 @@ public class PaTypeDtoExample : IExamplesProvider<PaTypeDto>
         );
     }
 }
+
+public class EnumerablePaTypeDtoExample : IExamplesProvider<IEnumerable<PaTypeDto>>
+{
+    public IEnumerable<PaTypeDto> GetExamples()
+    {
+        return new List<PaTypeDto>
+        {
+            new(1, "Более 1 шт. в час (по времени такта)"),
+            new(2, "Более 1 шт. в час исходя из мощности рабочего  места"),
+            new(3, "Более 1 шт. в час нескольких номенклатур")
+        };
+    }
+}

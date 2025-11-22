@@ -19,7 +19,8 @@ public static class DictionariesConverter
     {
         return new DowntimeReasonGroupDto(
             dbo.Id,
-            dbo.Name
+            dbo.Name,
+            dbo.Description
         );
     }
 

@@ -47,29 +47,6 @@ namespace ProductionAnalysis.Data.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("1f85d72f-2507-46b4-afea-32fd66f5d294"),
-                            ConcurrencyStamp = "93b52181-7c5e-4aef-af09-881999296a5b",
-                            Name = "Operator",
-                            NormalizedName = "OPERATOR"
-                        },
-                        new
-                        {
-                            Id = new Guid("106a1a33-95cd-4956-9c9a-f0860b8cc9cd"),
-                            ConcurrencyStamp = "94e350a3-628e-4324-967f-994b3e982565",
-                            Name = "Analyst",
-                            NormalizedName = "ANALYST"
-                        },
-                        new
-                        {
-                            Id = new Guid("a77d5438-bd6d-4175-9538-3694933ad162"),
-                            ConcurrencyStamp = "d9fa7a53-dcfe-473c-a638-8f9b5837d4e7",
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -195,30 +172,7 @@ namespace ProductionAnalysis.Data.Migrations
 
                     b.HasIndex("EnterpriseId");
 
-                    b.ToTable("Departments");
-                });
-
-            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.DowntimeReasonDbo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("DowntimeReasonGroupId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DowntimeReasonGroupId");
-
-                    b.ToTable("DowntimeReasons");
+                    b.ToTable("departments", (string)null);
                 });
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.DowntimeReasonGroupDbo", b =>
@@ -229,6 +183,11 @@ namespace ProductionAnalysis.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -236,7 +195,7 @@ namespace ProductionAnalysis.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DowntimeReasonGroups");
+                    b.ToTable("downtime_reason_groups", (string)null);
                 });
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.EmployeeDbo", b =>
@@ -273,7 +232,7 @@ namespace ProductionAnalysis.Data.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("Employees");
+                    b.ToTable("employees", (string)null);
                 });
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.EnterpriseDbo", b =>
@@ -291,7 +250,7 @@ namespace ProductionAnalysis.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Enterprises");
+                    b.ToTable("enterprises", (string)null);
                 });
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.OperationDbo", b =>
@@ -302,10 +261,16 @@ namespace ProductionAnalysis.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("BasedOnType")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("BasedOperationId")
                         .HasColumnType("integer");
 
                     b.Property<int?>("BasedProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("DurationInSeconds")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
@@ -313,19 +278,13 @@ namespace ProductionAnalysis.Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<int>("BasedOn")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("DurationInSeconds")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("BasedOperationId");
 
                     b.HasIndex("BasedProductId");
 
-                    b.ToTable("Operations");
+                    b.ToTable("operations", (string)null);
                 });
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.PaTypeDbo", b =>
@@ -343,7 +302,7 @@ namespace ProductionAnalysis.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PaTypes");
+                    b.ToTable("pa_types", (string)null);
                 });
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.ProductDbo", b =>
@@ -369,7 +328,7 @@ namespace ProductionAnalysis.Data.Migrations
 
                     b.HasIndex("EnterpriseId");
 
-                    b.ToTable("ProductDbo");
+                    b.ToTable("products", (string)null);
                 });
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.ShiftDbo", b =>
@@ -390,7 +349,7 @@ namespace ProductionAnalysis.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Shifts");
+                    b.ToTable("shifts");
                 });
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.UserDbo", b =>
@@ -525,61 +484,40 @@ namespace ProductionAnalysis.Data.Migrations
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.DepartmentDbo", b =>
                 {
-                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.EnterpriseDbo", "Enterprise")
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.EnterpriseDbo", null)
                         .WithMany()
                         .HasForeignKey("EnterpriseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Enterprise");
-                });
-
-            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.DowntimeReasonDbo", b =>
-                {
-                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.DowntimeReasonGroupDbo", "DowntimeReasonGroup")
-                        .WithMany()
-                        .HasForeignKey("DowntimeReasonGroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DowntimeReasonGroup");
                 });
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.EmployeeDbo", b =>
                 {
-                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.DepartmentDbo", "Department")
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.DepartmentDbo", null)
                         .WithMany()
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.OperationDbo", b =>
                 {
-                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.OperationDbo", "BasedOperation")
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.OperationDbo", null)
                         .WithMany()
                         .HasForeignKey("BasedOperationId");
 
-                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.ProductDbo", "BasedProduct")
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.ProductDbo", null)
                         .WithMany()
                         .HasForeignKey("BasedProductId");
-
-                    b.Navigation("BasedOperation");
-
-                    b.Navigation("BasedProduct");
                 });
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.ProductDbo", b =>
                 {
-                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.EnterpriseDbo", "Enterprise")
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.EnterpriseDbo", null)
                         .WithMany()
                         .HasForeignKey("EnterpriseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Enterprise");
                 });
 #pragma warning restore 612, 618
         }

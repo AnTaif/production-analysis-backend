@@ -15,3 +15,16 @@ public class EmployeeDtoExample : IExamplesProvider<EmployeeDto>
         );
     }
 }
+
+public class EnumerableEmployeeDtoExample : IExamplesProvider<IEnumerable<EmployeeDto>>
+{
+    public IEnumerable<EmployeeDto> GetExamples()
+    {
+        return new List<EmployeeDto>
+        {
+            new(1, "Иван Иванов Иванович", "Оператор", 1),
+            new(2, "Пётр Петров Петрович", "Старший оператор", 1),
+            new(3, "Алексей Сидоров Алексеевич", "Мастер участка", 2)
+        };
+    }
+}

@@ -11,17 +11,17 @@ namespace ProductionAnalysis.Api.Controllers;
 public class DictionariesController(IDictionariesService dictionariesService) : ControllerBase
 {
     [HttpGet("departments")]
-    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(DepartmentDtoExample))]
-    [ProducesResponseType<DepartmentDto>(StatusCodes.Status200OK)]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerableDepartmentDtoExample))]
+    [ProducesResponseType<IEnumerable<DepartmentDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetDepartments()
     {
         var dtos = await dictionariesService.GetDepartmentsAsync();
         return Ok(dtos);
     }
-    
+
     [HttpGet("downtime-reason-groups")]
-    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(DowntimeReasonGroupDtoExample))]
-    [ProducesResponseType<DowntimeReasonGroupDto>(StatusCodes.Status200OK)]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerableDowntimeReasonGroupDtoExample))]
+    [ProducesResponseType<IEnumerable<DowntimeReasonGroupDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetDowntimeReasonGroups()
     {
         var dtos = await dictionariesService.GetDowntimeReasonGroupsAsync();
@@ -29,8 +29,8 @@ public class DictionariesController(IDictionariesService dictionariesService) : 
     }
 
     [HttpGet("employees")]
-    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EmployeeDtoExample))]
-    [ProducesResponseType<EmployeeDto>(StatusCodes.Status200OK)]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerableEmployeeDtoExample))]
+    [ProducesResponseType<IEnumerable<EmployeeDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetEmployees()
     {
         var dtos = await dictionariesService.GetEmployeesAsync();
@@ -38,8 +38,8 @@ public class DictionariesController(IDictionariesService dictionariesService) : 
     }
 
     [HttpGet("enterprises")]
-    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnterpriseDtoExample))]
-    [ProducesResponseType<EnterpriseDto>(StatusCodes.Status200OK)]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerableEnterpriseDtoExample))]
+    [ProducesResponseType<IEnumerable<EnterpriseDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetEnterprises()
     {
         var dtos = await dictionariesService.GetEnterpriseAsync();
@@ -47,8 +47,8 @@ public class DictionariesController(IDictionariesService dictionariesService) : 
     }
 
     [HttpGet("operations")]
-    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(OperationDtoExample))]
-    [ProducesResponseType<OperationDto>(StatusCodes.Status200OK)]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerableOperationDtoExample))]
+    [ProducesResponseType<IEnumerable<OperationDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetOperations()
     {
         var dtos = await dictionariesService.GetOperationsAsync();
@@ -56,17 +56,26 @@ public class DictionariesController(IDictionariesService dictionariesService) : 
     }
 
     [HttpGet("pa-types")]
-    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(PaTypeDtoExample))]
-    [ProducesResponseType<PaTypeDto>(StatusCodes.Status200OK)]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerablePaTypeDtoExample))]
+    [ProducesResponseType<IEnumerable<PaTypeDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPaTypes()
     {
         var dtos = await dictionariesService.GetPaTypesAsync();
         return Ok(dtos);
     }
 
+    [HttpGet("products")]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerableProductDtoExample))]
+    [ProducesResponseType<IEnumerable<ProductDto>>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetProducts()
+    {
+        var dtos = await dictionariesService.GetProductsAsync();
+        return Ok(dtos);
+    }
+
     [HttpGet("shifts")]
-    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(ShiftDtoExample))]
-    [ProducesResponseType<ShiftDto>(StatusCodes.Status200OK)]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerableShiftDtoExample))]
+    [ProducesResponseType<IEnumerable<ShiftDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetShifts()
     {
         var dtos = await dictionariesService.GetShiftsAsync();
