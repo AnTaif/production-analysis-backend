@@ -9,6 +9,7 @@ public interface IDbMaintenanceService
     Task ApplyMigrationsAsync();
 }
 
+[RegisterScoped]
 public class DbMaintenanceService(
     PaDbContext dbContext,
     IDataSeeder dataSeeder
