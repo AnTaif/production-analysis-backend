@@ -6,7 +6,7 @@ namespace Core.Database;
 public abstract class DataSeeder(
     DbContext dbContext,
     ILogger<DataSeeder> logger
-    ) : IDataSeeder
+) : IDataSeeder
 {
     public async Task TrySeedAsync()
     {
@@ -23,7 +23,17 @@ public abstract class DataSeeder(
             logger.LogInformation("Skipping database seeding.");
         }
     }
-    
+
+    public async Task ForceSeedAsync()
+    {
+        logger.LogInformation("Starting database seeding...");
+
+        await SeedAsync();
+        await dbContext.SaveChangesAsync();
+
+        logger.LogWarning("Seeding database completed.");
+    }
+
     protected abstract Task<bool> ShouldSeedAsync();
 
     protected abstract Task SeedAsync();
