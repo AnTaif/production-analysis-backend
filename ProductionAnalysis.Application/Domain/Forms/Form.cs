@@ -7,4 +7,6 @@ public class Form
     public FormStatus Status { get; set; }
     public DateTime CreationDate { get; set; }
     public DateTime UpdateDate { get; set; }
+    public Dictionary<string, object> Context { get; set; } = new();
+    public string TemplateSnapshot { get; set; } = string.Empty;
 }

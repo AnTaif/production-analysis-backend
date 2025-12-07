@@ -9,7 +9,7 @@ public interface IFormsService
 {
     Task<PaginatedResult<FormShortDto>> SearchFormsAsync(SearchFormsFilterDto searchFilter);
     Task<Result<FormShortDto>> CreateAsync(CreateFormRequest request, Guid creatorId);
-    Task<FormDto> GetByIdAsync(Guid formId);
+    Task<Result<FormDto>> GetByIdAsync(Guid formId);
 }
 
 [RegisterScoped]
@@ -40,8 +40,15 @@ public class FormsService(IFormsRepository formsRepository) : IFormsService
         return form.ToShortDto();
     }
 
-    public Task<FormDto> GetByIdAsync(Guid formId)
+    public async Task<Result<FormDto>> GetByIdAsync(Guid formId)
     {
-        throw new NotImplementedException();
+        var form = await formsRepository.GetByIdAsync(formId);
+
+        if (form == null)
+        {
+            return StatusError.NotFound($"Form with id {formId} not found");
+        }
+
+        return form.ToDto();
     }
 }

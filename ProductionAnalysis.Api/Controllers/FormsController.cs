@@ -35,6 +35,7 @@ public class FormsController(IFormsService formsService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<FormDto>> GetFormById(Guid id)
     {
-        throw new NotImplementedException();
+        var result = await formsService.GetByIdAsync(id);
+        return result.ToActionResult(this);
     }
 }

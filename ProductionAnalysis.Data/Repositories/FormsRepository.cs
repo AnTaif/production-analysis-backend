@@ -69,4 +69,12 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
 
         return formDbo.ToDomain();
     }
+
+    public async Task<Form?> GetByIdAsync(Guid formId)
+    {
+        var formDbo = await dbContext.Forms
+            .FirstOrDefaultAsync(f => f.Id == formId);
+
+        return formDbo?.ToDomain();
+    }
 }
