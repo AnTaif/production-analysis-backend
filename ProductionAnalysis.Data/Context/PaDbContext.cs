@@ -3,12 +3,15 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ProductionAnalysis.Data.Models;
 using ProductionAnalysis.Data.Models.Dictionaries;
+using ProductionAnalysis.Data.Models.Forms;
 
 namespace ProductionAnalysis.Data.Context;
 
 public class PaDbContext(DbContextOptions<PaDbContext> options)
     : IdentityDbContext<UserDbo, IdentityRole<Guid>, Guid>(options)
 {
+    public DbSet<FormDbo> Forms { get; set; }
+    
     #region Dictionaries
 
     public DbSet<DepartmentDbo> Departments { get; set; }

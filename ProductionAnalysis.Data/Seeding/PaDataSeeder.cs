@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using ProductionAnalysis.Data.Context;
 using ProductionAnalysis.Data.Models;
 using ProductionAnalysis.Data.Models.Dictionaries;
+using ProductionAnalysis.Data.Models.Forms;
 
 namespace ProductionAnalysis.Data.Seeding;
 
@@ -32,6 +33,8 @@ public class PaDataSeeder(
         await SeedOperationsAsync();
         await SeedProductsAsync();
         await SeedShiftsAsync();
+        
+        await SeedFormsAsync();
 
         await dbContext.SaveChangesAsync();
     }
@@ -115,7 +118,7 @@ public class PaDataSeeder(
     }
 
     #endregion
-
+    
     #region Enterprises
 
     private Task SeedEnterprisesAsync()
@@ -379,6 +382,47 @@ public class PaDataSeeder(
             new ShiftDbo { Id = 1, Name = "1", StartTime = new TimeOnly(7, 0) },
             new ShiftDbo { Id = 2, Name = "2", StartTime = new TimeOnly(16, 0) },
             new ShiftDbo { Id = 3, Name = "3 (ночная)", StartTime = new TimeOnly(0, 0) }
+        );
+
+        return Task.CompletedTask;
+    }
+
+    #endregion
+    
+    #region Forms
+
+    private Task SeedFormsAsync()
+    {
+        if (dbContext.Forms.Any())
+            return Task.CompletedTask;
+
+        var now = DateTime.UtcNow;
+
+        dbContext.Forms.AddRange(
+            new FormDbo
+            {
+                Id = Guid.NewGuid(),
+                PaTypeId = 1,
+                Status = 1,
+                Context = "{\"shift\": 1, \"department\": 1}",
+                TemplateSnapshot = "{\"tableColumns\": [{\"id\": 1, \"name\": \"value\", \"inputType\": 2, \"valueType\": 3}]}",
+                CreationDate = now,
+                UpdateDate = now,
+                CreatorId = dbContext.Users.First().Id,
+                LastEditorId = dbContext.Users.First().Id
+            },
+            new FormDbo
+            {
+                Id = Guid.NewGuid(),
+                PaTypeId = 2,
+                Status = 2,
+                Context = "{\"shift\": 1, \"department\": 1}",
+                TemplateSnapshot = "{\"tableColumns\": [{\"id\": 1, \"name\": \"value\", \"inputType\": 2, \"valueType\": 3}]}",
+                CreationDate = now,
+                UpdateDate = now,
+                CreatorId = dbContext.Users.First().Id,
+                LastEditorId = dbContext.Users.First().Id
+            }
         );
 
         return Task.CompletedTask;
