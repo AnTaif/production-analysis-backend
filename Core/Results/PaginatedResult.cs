@@ -14,7 +14,7 @@ public class PaginatedResult<T> : Result<PaginatedResponse<T>>
     {
         return new PaginatedResult<T>(value);
     }
-    
+
     public static implicit operator PaginatedResult<T>(Error error)
     {
         return new PaginatedResult<T>(error);
