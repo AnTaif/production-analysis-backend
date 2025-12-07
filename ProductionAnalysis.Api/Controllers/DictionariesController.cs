@@ -42,7 +42,7 @@ public class DictionariesController(IDictionariesService dictionariesService) : 
     [ProducesResponseType<IEnumerable<EnterpriseDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetEnterprises()
     {
-        var dtos = await dictionariesService.GetEnterpriseAsync();
+        var dtos = await dictionariesService.GetEnterprisesAsync();
         return Ok(dtos);
     }
 

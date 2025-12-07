@@ -14,6 +14,7 @@ public class FormsController(IFormsService formsService) : ControllerBase
 {
     [HttpPost("search")]
     [ProducesResponseType<PaginatedResponse<FormShortDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<PaginatedResponse<FormShortDto>>> SearchForms(SearchFormsFilterDto searchFormsFilter)
     {
         var result = await formsService.SearchFormsAsync(searchFormsFilter);
@@ -22,19 +23,27 @@ public class FormsController(IFormsService formsService) : ControllerBase
 
     [HttpPost]
     [ProducesResponseType<FormShortDto>(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<string>(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<FormShortDto>> CreateNewForm(CreateFormRequest createFormRequest)
     {
         var userId = User.ReadSid();
         var result = await formsService.CreateAsync(createFormRequest, userId);
-        return result.ToActionResult(this);
+
+        return result.ToActionResult(this, dto => CreatedAtAction(nameof(GetFormById), dto));
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType<FormDto>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<string>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<FormDto>> GetFormById(int id)
     {
+        if (id <= 0)
+        {
+            return BadRequest("Form ID must be greater than zero.");
+        }
+
         var result = await formsService.GetByIdAsync(id);
         return result.ToActionResult(this);
     }

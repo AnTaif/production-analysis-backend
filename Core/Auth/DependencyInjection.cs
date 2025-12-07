@@ -7,7 +7,7 @@ namespace Core.Auth;
 
 public static class DependencyInjection
 {
-    public static void AddJwtAuth(this IServiceCollection services, ConfigurationManager configuration)
+    public static void AddJwtAuth(this IServiceCollection services, IConfiguration configuration)
     {
         var jwtOptions = new JwtOptions();
         configuration.GetSection("JwtOptions").Bind(jwtOptions);

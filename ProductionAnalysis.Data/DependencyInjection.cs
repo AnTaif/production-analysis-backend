@@ -10,14 +10,14 @@ namespace ProductionAnalysis.Data;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddDataLayer(this IServiceCollection services, IConfigurationManager config)
+    public static IServiceCollection AddDataLayer(this IServiceCollection services, IConfiguration config)
     {
         services.AddNpgsqlDbContext<PaDbContext>(config);
         services.AddDataSeeder<PaDataSeeder>();
         services.AddIdentity();
 
         services.AddProductionAnalysisData();
-        
+
         return services;
     }
 

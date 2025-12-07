@@ -30,9 +30,9 @@ public class UserRepository(
         };
     }
 
-    public async Task<bool> CheckPasswordAsync(User user, string password)
+    public async Task<bool> CheckPasswordAsync(Guid userId, string password)
     {
-        var userDbo = await userManager.FindByEmailAsync(user.Email);
+        var userDbo = await userManager.FindByIdAsync(userId.ToString());
         if (userDbo == null)
         {
             return false;
@@ -41,9 +41,9 @@ public class UserRepository(
         return await userManager.CheckPasswordAsync(userDbo, password);
     }
 
-    public async Task<ICollection<string>> GetRolesAsync(User user)
+    public async Task<ICollection<string>> GetRolesAsync(Guid userId)
     {
-        var userDbo = await userManager.FindByEmailAsync(user.Email);
+        var userDbo = await userManager.FindByIdAsync(userId.ToString());
         if (userDbo == null)
         {
             return new List<string>();

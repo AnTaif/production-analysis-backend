@@ -5,6 +5,6 @@ namespace ProductionAnalysis.Application.Repositories;
 public interface IUserRepository
 {
     Task<User?> FindByEmailAsync(string email);
-    Task<bool> CheckPasswordAsync(User user, string password);
-    Task<ICollection<string>> GetRolesAsync(User user);
+    Task<bool> CheckPasswordAsync(Guid userId, string password);
+    Task<ICollection<string>> GetRolesAsync(Guid userId);
 }

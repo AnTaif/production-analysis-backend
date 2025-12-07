@@ -23,8 +23,11 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
         if (filter.DepartmentId.HasValue)
         {
             var departmentIdValue = filter.DepartmentId.Value;
+            // Используем PostgreSQL JSONB оператор -> для извлечения значения
+            // и сравниваем его с departmentIdValue
+            var departmentJson = $"{{\"department\": {departmentIdValue}}}";
             query = query.Where(f =>
-                EF.Functions.JsonContains(f.Context, $"{{\"department\": {departmentIdValue}}}"));
+                EF.Functions.JsonContains(f.Context, departmentJson));
         }
 
         var totalCount = await query.CountAsync();
@@ -46,14 +49,16 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
 
         var contextJson = JsonSerializer.Serialize(createForm.Context);
 
+        // Создаем пустой шаблон по умолчанию
+        // В будущем здесь можно добавить логику копирования шаблона из PaType
         var defaultTemplateSnapshot = JsonSerializer.Serialize(new
         {
-            tableColumns = new object[0] // TODO: заменить на копирование текущего шаблона
-        });
+            contextFields = Array.Empty<object>(),
+            tableColumns = Array.Empty<object>()
+        }, new JsonSerializerOptions { WriteIndented = false });
 
         var formDbo = new FormDbo
         {
-            Id = 0, // Будет сгенерировано автоматически при сохранении
             PaTypeId = createForm.PaTypeId,
             Status = (int)FormStatus.InProgress,
             Context = contextJson,

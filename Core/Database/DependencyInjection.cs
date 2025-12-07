@@ -7,7 +7,7 @@ namespace Core.Database;
 
 public static class DependencyInjection
 {
-    public static void AddNpgsqlDbContext<TContext>(this IServiceCollection services, IConfigurationManager config)
+    public static void AddNpgsqlDbContext<TContext>(this IServiceCollection services, IConfiguration config)
         where TContext : DbContext
     {
         var dbOptions = new DatabaseOptions();
@@ -26,10 +26,7 @@ public static class DependencyInjection
             options.Password = dbOptions.Password;
         });
 
-        services.AddDbContext<TContext>(options =>
-        {
-            options.UseNpgsql(dbOptions.GetConnectionString());
-        });
+        services.AddDbContext<TContext>(options => { options.UseNpgsql(dbOptions.GetConnectionString()); });
     }
 
     public static void AddDataSeeder<TDataSeeder>(this IServiceCollection services)

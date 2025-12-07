@@ -1,12 +1,12 @@
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 
 namespace Core.Logger;
 
 public static class DependencyInjection
 {
-    public static void UseSerilogLogging(this ConfigureHostBuilder hostBuilder, ConfigurationManager config)
+    public static void UseSerilogLogging(this IHostBuilder hostBuilder, IConfiguration config)
     {
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(config)

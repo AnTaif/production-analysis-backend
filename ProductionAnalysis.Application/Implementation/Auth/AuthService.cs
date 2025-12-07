@@ -24,14 +24,13 @@ public class AuthService(
             return StatusError.NotFound($"User with email {request.Email} not found");
         }
 
-        var isSuccess = await userRepository.CheckPasswordAsync(user, request.Password);
+        var isSuccess = await userRepository.CheckPasswordAsync(user.Id, request.Password);
         if (!isSuccess)
         {
             return StatusError.BadRequest("Bad credentials.");
         }
 
-        // Обновляем роли пользователя
-        user.Roles = await userRepository.GetRolesAsync(user);
+        user.Roles = await userRepository.GetRolesAsync(user.Id);
         var token = tokenProvider.GenerateToken(user);
 
         return new LoginResponse(user.Email, token);

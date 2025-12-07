@@ -17,7 +17,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(LoginResponseExample))]
     [ProducesResponseType<LoginResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<string>(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<LoginResponse>> Login(LoginRequest loginRequest)
     {
         var result = await authService.LoginAsync(loginRequest);
