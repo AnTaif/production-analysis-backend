@@ -1,7 +1,6 @@
 ﻿using Core.Results;
-using Microsoft.AspNetCore.Identity;
+using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Client.Models.Auth;
-using ProductionAnalysis.Data.Models;
 
 namespace ProductionAnalysis.Application.Implementation.Auth;
 
@@ -12,28 +11,29 @@ public interface IAuthService
 
 [RegisterScoped]
 public class AuthService(
-    UserManager<UserDbo> userManager,
+    IUserRepository userRepository,
     ITokenProvider tokenProvider
 )
     : IAuthService
 {
     public async Task<Result<LoginResponse>> LoginAsync(LoginRequest request)
     {
-        var user = await userManager.FindByEmailAsync(request.Email);
+        var user = await userRepository.FindByEmailAsync(request.Email);
         if (user == null)
         {
             return StatusError.NotFound($"User with email {request.Email} not found");
         }
 
-        var isSuccess = await userManager.CheckPasswordAsync(user, request.Password);
+        var isSuccess = await userRepository.CheckPasswordAsync(user, request.Password);
         if (!isSuccess)
         {
             return StatusError.BadRequest("Bad credentials.");
         }
 
-        var roles = await userManager.GetRolesAsync(user);
-        var token = tokenProvider.GenerateToken(user, roles);
+        // Обновляем роли пользователя
+        user.Roles = await userRepository.GetRolesAsync(user);
+        var token = tokenProvider.GenerateToken(user);
 
-        return new LoginResponse(user.Email!, token);
+        return new LoginResponse(user.Email, token);
     }
 }

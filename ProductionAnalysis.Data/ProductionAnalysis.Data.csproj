@@ -15,6 +15,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Core\Core.csproj" />
+        <ProjectReference Include="..\ProductionAnalysis.Application\ProductionAnalysis.Application.csproj"/>
+        <ProjectReference Include="..\ProductionAnalysis.Client.Models\ProductionAnalysis.Client.Models.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

@@ -1,4 +1,6 @@
 ﻿using Core.Results;
+using ProductionAnalysis.Application.Converters;
+using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Client.Models.Forms;
 
 namespace ProductionAnalysis.Application.Implementation.Forms;
@@ -11,11 +13,23 @@ public interface IFormsService
 }
 
 [RegisterScoped]
-public class FormsService : IFormsService
+public class FormsService(IFormsRepository formsRepository) : IFormsService
 {
-    public Task<PaginatedResult<FormShortDto>> SearchFormsAsync(SearchFormsFilterDto searchFilter)
+    public async Task<PaginatedResult<FormShortDto>> SearchFormsAsync(SearchFormsFilterDto searchFilter)
     {
-        throw new NotImplementedException();
+        var domainFilter = searchFilter.ToDomain();
+        var (forms, totalCount) = await formsRepository.SearchFormsAsync(domainFilter);
+
+        var dtos = forms.Select(f => f.ToShortDto()).ToList();
+
+        var response = new PaginatedResponse<FormShortDto>(
+            dtos,
+            totalCount,
+            domainFilter.PageNumber,
+            domainFilter.PageSize
+        );
+
+        return response;
     }
 
     public Task<FormShortDto> CreateAsync(CreateFormRequest request)

@@ -1,8 +1,8 @@
-﻿using ProductionAnalysis.Application.Domain.Common.ValueTypes;
+using ProductionAnalysis.Application.Domain.Common.ValueTypes;
 using ProductionAnalysis.Client.Models.Dictionaries;
 using ProductionAnalysis.Data.Models.Dictionaries;
 
-namespace ProductionAnalysis.Application.Converters;
+namespace ProductionAnalysis.Data.Converters;
 
 public static class DictionariesConverter
 {

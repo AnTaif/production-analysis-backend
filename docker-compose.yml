@@ -22,7 +22,7 @@ services:
       
   productionanalysis.db:
     container_name: productionanalysis.db
-    image: postgres:18.0
+    image: postgres:18.0-alpine
     restart: always
     environment:
       - POSTGRES_DB=${DATABASE_NAME}

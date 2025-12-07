@@ -33,7 +33,7 @@ public class PaDataSeeder(
         await SeedOperationsAsync();
         await SeedProductsAsync();
         await SeedShiftsAsync();
-        
+
         await SeedFormsAsync();
 
         await dbContext.SaveChangesAsync();
@@ -118,7 +118,7 @@ public class PaDataSeeder(
     }
 
     #endregion
-    
+
     #region Enterprises
 
     private Task SeedEnterprisesAsync()
@@ -300,10 +300,10 @@ public class PaDataSeeder(
                 DurationInSeconds = 900
             }
         );
-        
+
         return Task.CompletedTask;
     }
-    
+
     private Task SeedOperationsAsync()
     {
         if (dbContext.Operations.Any())
@@ -388,7 +388,7 @@ public class PaDataSeeder(
     }
 
     #endregion
-    
+
     #region Forms
 
     private Task SeedFormsAsync()
@@ -403,9 +403,10 @@ public class PaDataSeeder(
             {
                 Id = Guid.NewGuid(),
                 PaTypeId = 1,
-                Status = 1,
+                Status = 0,
                 Context = "{\"shift\": 1, \"department\": 1}",
-                TemplateSnapshot = "{\"tableColumns\": [{\"id\": 1, \"name\": \"value\", \"inputType\": 2, \"valueType\": 3}]}",
+                TemplateSnapshot =
+                    "{\"tableColumns\": [{\"id\": 1, \"name\": \"value\", \"inputType\": 2, \"valueType\": 3}]}",
                 CreationDate = now,
                 UpdateDate = now,
                 CreatorId = dbContext.Users.First().Id,
@@ -415,9 +416,10 @@ public class PaDataSeeder(
             {
                 Id = Guid.NewGuid(),
                 PaTypeId = 2,
-                Status = 2,
+                Status = 1,
                 Context = "{\"shift\": 1, \"department\": 1}",
-                TemplateSnapshot = "{\"tableColumns\": [{\"id\": 1, \"name\": \"value\", \"inputType\": 2, \"valueType\": 3}]}",
+                TemplateSnapshot =
+                    "{\"tableColumns\": [{\"id\": 1, \"name\": \"value\", \"inputType\": 2, \"valueType\": 3}]}",
                 CreationDate = now,
                 UpdateDate = now,
                 CreatorId = dbContext.Users.First().Id,

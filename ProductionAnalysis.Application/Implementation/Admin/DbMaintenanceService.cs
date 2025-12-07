@@ -1,6 +1,5 @@
 ﻿using Core.Database;
-using Microsoft.EntityFrameworkCore;
-using ProductionAnalysis.Data.Context;
+using ProductionAnalysis.Application.Repositories;
 
 namespace ProductionAnalysis.Application.Implementation.Admin;
 
@@ -11,14 +10,14 @@ public interface IDbMaintenanceService
 
 [RegisterScoped]
 public class DbMaintenanceService(
-    PaDbContext dbContext,
+    IDatabaseMigrator databaseMigrator,
     IDataSeeder dataSeeder
 )
     : IDbMaintenanceService
 {
     public async Task ApplyMigrationsAsync()
     {
-        await dbContext.Database.MigrateAsync();
+        await databaseMigrator.ApplyMigrationsAsync();
         await dataSeeder.ForceSeedAsync();
     }
 }

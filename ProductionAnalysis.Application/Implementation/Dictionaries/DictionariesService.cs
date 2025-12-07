@@ -1,6 +1,5 @@
-﻿using ProductionAnalysis.Application.Converters;
+﻿using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Client.Models.Dictionaries;
-using ProductionAnalysis.Data.Repositories;
 
 namespace ProductionAnalysis.Application.Implementation.Dictionaries;
 
@@ -22,55 +21,46 @@ public class DictionariesService(IDictionariesRepository dictionariesRepository)
 {
     public async Task<ICollection<DepartmentDto>> GetDepartmentsAsync()
     {
-        var dbos = await dictionariesRepository.SelectDepartmentsAsync();
-        return dbos.Select(d => d.ToDto()).ToList();
+        return await dictionariesRepository.SelectDepartmentsAsync();
     }
 
     public async Task<ICollection<DowntimeReasonGroupDto>> GetDowntimeReasonGroupsAsync()
     {
-        var dbos = await dictionariesRepository.SelectDowntimeReasonGroupsAsync();
-        return dbos.Select(d => d.ToDto()).ToList();
+        return await dictionariesRepository.SelectDowntimeReasonGroupsAsync();
     }
 
     public async Task<ICollection<EmployeeDto>> GetEmployeesAsync()
     {
-        var dbos = await dictionariesRepository.SelectEmployeesAsync();
-        return dbos.Select(e => e.ToDto()).ToList();
+        return await dictionariesRepository.SelectEmployeesAsync();
     }
 
     public async Task<ICollection<EnterpriseDto>> GetEnterpriseAsync()
     {
-        var dbos = await dictionariesRepository.SelectEnterprisesAsync();
-        return dbos.Select(e => e.ToDto()).ToList();
+        return await dictionariesRepository.SelectEnterprisesAsync();
     }
 
     public async Task<ICollection<AdditionalOperationDto>> GetAdditionalOperationsAsync()
     {
-        var dbos = await dictionariesRepository.SelectAdditionalOperationsAsync();
-        return dbos.Select(d => d.ToDto()).ToList();
+        return await dictionariesRepository.SelectAdditionalOperationsAsync();
     }
 
     public async Task<ICollection<OperationDto>> GetOperationsAsync()
     {
-        var dbos = await dictionariesRepository.SelectOperationsAsync();
-        return dbos.Select(o => o.ToDto()).ToList();
+        return await dictionariesRepository.SelectOperationsAsync();
     }
 
     public async Task<ICollection<PaTypeDto>> GetPaTypesAsync()
     {
-        var dbos = await dictionariesRepository.SelectPaTypesAsync();
-        return dbos.Select(p => p.ToDto()).ToList();
+        return await dictionariesRepository.SelectPaTypesAsync();
     }
 
     public async Task<ICollection<ProductDto>> GetProductsAsync()
     {
-        var dbos = await dictionariesRepository.SelectProductsAsync();
-        return dbos.Select(d => d.ToDto()).ToList();
+        return await dictionariesRepository.SelectProductsAsync();
     }
 
     public async Task<ICollection<ShiftDto>> GetShiftsAsync()
     {
-        var dbos = await dictionariesRepository.SelectShiftsAsync();
-        return dbos.Select(s => s.ToDto()).ToList();
+        return await dictionariesRepository.SelectShiftsAsync();
     }
 }

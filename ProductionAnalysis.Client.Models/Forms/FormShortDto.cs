@@ -1,7 +1,7 @@
 ﻿namespace ProductionAnalysis.Client.Models.Forms;
 
 public record FormShortDto(
-    int Id,
+    Guid Id,
     int PaTypeId,
     FormStatus Status,
     DateTime CreationDate,

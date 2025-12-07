@@ -1,67 +1,65 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ProductionAnalysis.Application.Repositories;
+using ProductionAnalysis.Client.Models.Dictionaries;
 using ProductionAnalysis.Data.Context;
-using ProductionAnalysis.Data.Models.Dictionaries;
+using ProductionAnalysis.Data.Converters;
 
 namespace ProductionAnalysis.Data.Repositories;
-
-public interface IDictionariesRepository
-{
-    Task<ICollection<DepartmentDbo>> SelectDepartmentsAsync();
-    Task<ICollection<DowntimeReasonGroupDbo>> SelectDowntimeReasonGroupsAsync();
-    Task<ICollection<EmployeeDbo>> SelectEmployeesAsync();
-    Task<ICollection<EnterpriseDbo>> SelectEnterprisesAsync();
-    Task<ICollection<AdditionalOperationDbo>> SelectAdditionalOperationsAsync();
-    Task<ICollection<OperationDbo>> SelectOperationsAsync();
-    Task<ICollection<PaTypeDbo>> SelectPaTypesAsync();
-    Task<ICollection<ProductDbo>> SelectProductsAsync();
-    Task<ICollection<ShiftDbo>> SelectShiftsAsync();
-}
 
 [RegisterScoped]
 public class DictionariesRepository(PaDbContext dbContext) : IDictionariesRepository
 {
-    public async Task<ICollection<DepartmentDbo>> SelectDepartmentsAsync()
+    public async Task<ICollection<DepartmentDto>> SelectDepartmentsAsync()
     {
-        return await dbContext.Departments.ToListAsync();
+        var dbos = await dbContext.Departments.ToListAsync();
+        return dbos.Select(d => d.ToDto()).ToList();
     }
 
-    public async Task<ICollection<DowntimeReasonGroupDbo>> SelectDowntimeReasonGroupsAsync()
+    public async Task<ICollection<DowntimeReasonGroupDto>> SelectDowntimeReasonGroupsAsync()
     {
-        return await dbContext.DowntimeReasonGroups.ToListAsync();
+        var dbos = await dbContext.DowntimeReasonGroups.ToListAsync();
+        return dbos.Select(d => d.ToDto()).ToList();
     }
 
-    public async Task<ICollection<EmployeeDbo>> SelectEmployeesAsync()
+    public async Task<ICollection<EmployeeDto>> SelectEmployeesAsync()
     {
-        return await dbContext.Employees.ToListAsync();
+        var dbos = await dbContext.Employees.ToListAsync();
+        return dbos.Select(e => e.ToDto()).ToList();
     }
 
-    public async Task<ICollection<EnterpriseDbo>> SelectEnterprisesAsync()
+    public async Task<ICollection<EnterpriseDto>> SelectEnterprisesAsync()
     {
-        return await dbContext.Enterprises.ToListAsync();
+        var dbos = await dbContext.Enterprises.ToListAsync();
+        return dbos.Select(e => e.ToDto()).ToList();
     }
 
-    public async Task<ICollection<AdditionalOperationDbo>> SelectAdditionalOperationsAsync()
+    public async Task<ICollection<AdditionalOperationDto>> SelectAdditionalOperationsAsync()
     {
-        return await dbContext.AdditionalOperations.ToListAsync();
+        var dbos = await dbContext.AdditionalOperations.ToListAsync();
+        return dbos.Select(d => d.ToDto()).ToList();
     }
 
-    public async Task<ICollection<OperationDbo>> SelectOperationsAsync()
+    public async Task<ICollection<OperationDto>> SelectOperationsAsync()
     {
-        return await dbContext.Operations.ToListAsync();
+        var dbos = await dbContext.Operations.ToListAsync();
+        return dbos.Select(o => o.ToDto()).ToList();
     }
 
-    public async Task<ICollection<PaTypeDbo>> SelectPaTypesAsync()
+    public async Task<ICollection<PaTypeDto>> SelectPaTypesAsync()
     {
-        return await dbContext.PaTypes.ToListAsync();
+        var dbos = await dbContext.PaTypes.ToListAsync();
+        return dbos.Select(p => p.ToDto()).ToList();
     }
 
-    public async Task<ICollection<ProductDbo>> SelectProductsAsync()
+    public async Task<ICollection<ProductDto>> SelectProductsAsync()
     {
-        return await dbContext.Products.ToListAsync();
+        var dbos = await dbContext.Products.ToListAsync();
+        return dbos.Select(d => d.ToDto()).ToList();
     }
 
-    public async Task<ICollection<ShiftDbo>> SelectShiftsAsync()
+    public async Task<ICollection<ShiftDto>> SelectShiftsAsync()
     {
-        return await dbContext.Shifts.ToListAsync();
+        var dbos = await dbContext.Shifts.ToListAsync();
+        return dbos.Select(s => s.ToDto()).ToList();
     }
 }

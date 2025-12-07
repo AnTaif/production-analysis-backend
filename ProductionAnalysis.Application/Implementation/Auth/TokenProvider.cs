@@ -4,13 +4,13 @@ using System.Text;
 using Core.Auth;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using ProductionAnalysis.Data.Models;
+using ProductionAnalysis.Application.Domain;
 
 namespace ProductionAnalysis.Application.Implementation.Auth;
 
 public interface ITokenProvider
-{ 
-    string GenerateToken(UserDbo user, IEnumerable<string> roles);
+{
+    string GenerateToken(User user);
 }
 
 [RegisterScoped]
@@ -18,9 +18,9 @@ public class JwtTokenProvider(IOptions<JwtOptions> options) : ITokenProvider
 {
     private readonly JwtOptions options = options.Value;
 
-    public string GenerateToken(UserDbo user, IEnumerable<string> roles)
+    public string GenerateToken(User user)
     {
-        var claims = CreateClaims(user, roles);
+        var claims = CreateClaims(user);
         var signingCredentials = CreateSigningCredentials();
         var token = CreateJwtToken(claims, signingCredentials);
 
@@ -48,7 +48,7 @@ public class JwtTokenProvider(IOptions<JwtOptions> options) : ITokenProvider
             SecurityAlgorithms.HmacSha256);
     }
 
-    private static List<Claim> CreateClaims(UserDbo user, IEnumerable<string> roles)
+    private static List<Claim> CreateClaims(User user)
     {
         var claims = new List<Claim>
         {
@@ -56,11 +56,11 @@ public class JwtTokenProvider(IOptions<JwtOptions> options) : ITokenProvider
             new(JwtRegisteredClaimNames.GivenName, user.FirstName),
             new(JwtRegisteredClaimNames.FamilyName, user.LastName),
             new(JwtRegisteredClaimNames.MiddleName, user.MiddleName ?? ""),
-            new(JwtRegisteredClaimNames.Email, user.Email!),
+            new(JwtRegisteredClaimNames.Email, user.Email),
             new(JwtRegisteredClaimNames.Sid, user.Id.ToString()),
-            new(JwtRegisteredClaimNames.Sub, user.Email!),
+            new(JwtRegisteredClaimNames.Sub, user.Email),
         };
-        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+        claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         return claims;
     }

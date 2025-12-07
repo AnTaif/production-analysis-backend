@@ -2,5 +2,7 @@
 
 public record SearchFormsFilterDto(
     int? DepartmentId,
-    FormStatus? Status
+    FormStatus? Status,
+    int PageNumber = 1,
+    int PageSize = 10
 );
