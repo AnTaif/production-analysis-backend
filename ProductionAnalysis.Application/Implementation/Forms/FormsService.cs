@@ -8,7 +8,7 @@ namespace ProductionAnalysis.Application.Implementation.Forms;
 public interface IFormsService
 {
     Task<PaginatedResult<FormShortDto>> SearchFormsAsync(SearchFormsFilterDto searchFilter);
-    Task<FormShortDto> CreateAsync(CreateFormRequest request);
+    Task<Result<FormShortDto>> CreateAsync(CreateFormRequest request, Guid creatorId);
     Task<FormDto> GetByIdAsync(Guid formId);
 }
 
@@ -32,9 +32,12 @@ public class FormsService(IFormsRepository formsRepository) : IFormsService
         return response;
     }
 
-    public Task<FormShortDto> CreateAsync(CreateFormRequest request)
+    public async Task<Result<FormShortDto>> CreateAsync(CreateFormRequest request, Guid creatorId)
     {
-        throw new NotImplementedException();
+        var createForm = request.ToDomain(creatorId);
+        var form = await formsRepository.CreateAsync(createForm);
+
+        return form.ToShortDto();
     }
 
     public Task<FormDto> GetByIdAsync(Guid formId)

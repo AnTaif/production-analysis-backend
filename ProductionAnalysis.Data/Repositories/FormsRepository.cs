@@ -1,8 +1,10 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Data.Context;
 using ProductionAnalysis.Data.Converters;
+using ProductionAnalysis.Data.Models.Forms;
 
 namespace ProductionAnalysis.Data.Repositories;
 
@@ -36,5 +38,35 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
         var forms = formsDbo.Select(f => f.ToDomain()).ToList();
 
         return (forms, totalCount);
+    }
+
+    public async Task<Form> CreateAsync(CreateForm createForm)
+    {
+        var now = DateTime.UtcNow;
+
+        var contextJson = JsonSerializer.Serialize(createForm.Context);
+
+        var defaultTemplateSnapshot = JsonSerializer.Serialize(new
+        {
+            tableColumns = new object[0] // TODO: заменить на копирование текущего шаблона
+        });
+
+        var formDbo = new FormDbo
+        {
+            Id = Guid.NewGuid(),
+            PaTypeId = createForm.PaTypeId,
+            Status = (int)FormStatus.InProgress,
+            Context = contextJson,
+            TemplateSnapshot = defaultTemplateSnapshot,
+            CreationDate = now,
+            UpdateDate = now,
+            CreatorId = createForm.CreatorId,
+            LastEditorId = createForm.CreatorId
+        };
+
+        dbContext.Forms.Add(formDbo);
+        await dbContext.SaveChangesAsync();
+
+        return formDbo.ToDomain();
     }
 }

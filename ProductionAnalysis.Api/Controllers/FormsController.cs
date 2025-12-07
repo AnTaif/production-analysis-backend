@@ -1,4 +1,6 @@
-﻿using Core.Results;
+﻿using Core.Auth;
+using Core.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProductionAnalysis.Application.Implementation.Forms;
 using ProductionAnalysis.Client.Models.Forms;
@@ -7,6 +9,7 @@ namespace ProductionAnalysis.Api.Controllers;
 
 [ApiController]
 [Route("forms")]
+[Authorize]
 public class FormsController(IFormsService formsService) : ControllerBase
 {
     [HttpPost("search")]
@@ -22,7 +25,9 @@ public class FormsController(IFormsService formsService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<FormShortDto>> CreateNewForm(CreateFormRequest createFormRequest)
     {
-        throw new NotImplementedException();
+        var userId = User.ReadSid();
+        var result = await formsService.CreateAsync(createFormRequest, userId);
+        return result.ToActionResult(this);
     }
 
     [HttpGet("{id}")]

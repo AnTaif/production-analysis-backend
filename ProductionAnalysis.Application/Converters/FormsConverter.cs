@@ -29,6 +29,16 @@ public static class FormsConverter
         };
     }
 
+    public static CreateForm ToDomain(this CreateFormRequest request, Guid creatorId)
+    {
+        return new CreateForm
+        {
+            PaTypeId = request.PaTypeId,
+            Context = request.Context,
+            CreatorId = creatorId
+        };
+    }
+
     private static FormStatus ConvertToDomainFormStatus(Client.Models.Forms.FormStatus clientStatus)
     {
         return clientStatus switch
