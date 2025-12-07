@@ -401,7 +401,7 @@ public class PaDataSeeder(
         dbContext.Forms.AddRange(
             new FormDbo
             {
-                Id = Guid.NewGuid(),
+                Id = 0, // Будет сгенерировано автоматически
                 PaTypeId = 1,
                 Status = 0,
                 Context = "{\"shift\": 1, \"department\": 1}",
@@ -414,7 +414,7 @@ public class PaDataSeeder(
             },
             new FormDbo
             {
-                Id = Guid.NewGuid(),
+                Id = 0, // Будет сгенерировано автоматически
                 PaTypeId = 2,
                 Status = 1,
                 Context = "{\"shift\": 1, \"department\": 1}",

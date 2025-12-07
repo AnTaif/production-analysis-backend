@@ -53,7 +53,7 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
 
         var formDbo = new FormDbo
         {
-            Id = Guid.NewGuid(),
+            Id = 0, // Будет сгенерировано автоматически при сохранении
             PaTypeId = createForm.PaTypeId,
             Status = (int)FormStatus.InProgress,
             Context = contextJson,
@@ -70,7 +70,7 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
         return formDbo.ToDomain();
     }
 
-    public async Task<Form?> GetByIdAsync(Guid formId)
+    public async Task<Form?> GetByIdAsync(int formId)
     {
         var formDbo = await dbContext.Forms
             .FirstOrDefaultAsync(f => f.Id == formId);

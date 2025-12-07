@@ -1,7 +1,7 @@
 ﻿namespace ProductionAnalysis.Client.Models.Forms;
 
 public record FormDto(
-    Guid Id,
+    int Id,
     int PaTypeId,
     FormStatus Status,
     DateTime CreationDate,

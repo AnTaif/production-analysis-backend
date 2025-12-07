@@ -9,7 +9,7 @@ public interface IFormsService
 {
     Task<PaginatedResult<FormShortDto>> SearchFormsAsync(SearchFormsFilterDto searchFilter);
     Task<Result<FormShortDto>> CreateAsync(CreateFormRequest request, Guid creatorId);
-    Task<Result<FormDto>> GetByIdAsync(Guid formId);
+    Task<Result<FormDto>> GetByIdAsync(int formId);
 }
 
 [RegisterScoped]
@@ -40,7 +40,7 @@ public class FormsService(IFormsRepository formsRepository) : IFormsService
         return form.ToShortDto();
     }
 
-    public async Task<Result<FormDto>> GetByIdAsync(Guid formId)
+    public async Task<Result<FormDto>> GetByIdAsync(int formId)
     {
         var form = await formsRepository.GetByIdAsync(formId);
 

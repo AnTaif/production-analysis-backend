@@ -33,7 +33,7 @@ public class FormsController(IFormsService formsService) : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType<FormDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<FormDto>> GetFormById(Guid id)
+    public async Task<ActionResult<FormDto>> GetFormById(int id)
     {
         var result = await formsService.GetByIdAsync(id);
         return result.ToActionResult(this);
