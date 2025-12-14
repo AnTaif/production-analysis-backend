@@ -1,7 +1,9 @@
 ﻿using Core.Auth;
 using Core.Database;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using ProductionAnalysis.Application.Domain;
 using ProductionAnalysis.Data.Context;
 using ProductionAnalysis.Data.Models;
 using ProductionAnalysis.Data.Models.Dictionaries;
@@ -33,6 +35,8 @@ public class PaDataSeeder(
         await SeedOperationsAsync();
         await SeedProductsAsync();
         await SeedShiftsAsync();
+        await SeedIndicatorsAsync();
+        await SeedTemplatesAsync();
 
         await SeedFormsAsync();
 
@@ -385,6 +389,138 @@ public class PaDataSeeder(
         );
 
         return Task.CompletedTask;
+    }
+
+    #endregion
+
+    #region Indicators
+
+    private Task SeedIndicatorsAsync()
+    {
+        if (dbContext.Indicators.Any())
+            return Task.CompletedTask;
+
+        dbContext.Indicators.AddRange(
+            new IndicatorDbo
+            {
+                Id = 1,
+                Name = "План, шт.",
+                ValueType = FieldValueTypes.Number,
+                ValueSelector = "",
+                Formula = "",
+                IsCumulative = true,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 2,
+                Name = "Факт, шт.",
+                ValueType = FieldValueTypes.Number,
+                ValueSelector = "",
+                Formula = "",
+                IsCumulative = true,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 3,
+                Name = "Отклонение, шт.",
+                ValueType = "number",
+                ValueSelector = "",
+                Formula = "",
+                IsCumulative = true,
+                HasSummation = false
+            },
+            new IndicatorDbo
+            {
+                Id = 4,
+                Name = "Простой, мин.",
+                ValueType = "number",
+                ValueSelector = "quality.defectRate",
+                Formula = "(defects / total) * 100",
+                IsCumulative = false,
+                HasSummation = false
+            },
+            new IndicatorDbo
+            {
+                Id = 5,
+                Name = "Ответственный за простой",
+                ValueType = "",
+                ValueSelector = "",
+                Formula = null,
+                IsCumulative = false,
+                HasSummation = false
+            },
+            new IndicatorDbo
+            {
+                Id = 6,
+                Name = "Причина отклонения/комментарий",
+                ValueType = "",
+                ValueSelector = "",
+                Formula = null,
+                IsCumulative = false,
+                HasSummation = false
+            },
+            new IndicatorDbo
+            {
+                Id = 7,
+                Name = "Группы причин",
+                ValueType = "",
+                ValueSelector = "",
+                Formula = null,
+                IsCumulative = false,
+                HasSummation = false
+            },
+            new IndicatorDbo
+            {
+                Id = 8,
+                Name = "Принятые меры",
+                ValueType = "",
+                ValueSelector = "",
+                Formula = null,
+                IsCumulative = false,
+                HasSummation = false
+            }
+        );
+
+        return Task.CompletedTask;
+    }
+
+    #endregion
+
+    #region Templates
+
+    private async Task SeedTemplatesAsync()
+    {
+        if (await dbContext.Templates.AnyAsync())
+            return;
+
+        var plan = await dbContext.Indicators.FirstAsync(i => i.Id == 1);
+        var fact = await dbContext.Indicators.FirstAsync(i => i.Id == 2);
+        var deviation = await dbContext.Indicators.FirstAsync(i => i.Id == 3);
+        var downtime = await dbContext.Indicators.FirstAsync(i => i.Id == 4);
+        var downtimeResponsible = await dbContext.Indicators.FirstAsync(i => i.Id == 5);
+        var downtimeReason = await dbContext.Indicators.FirstAsync(i => i.Id == 6);
+        var downTimeReasonsGroup = await dbContext.Indicators.FirstAsync(i => i.Id == 7);
+        var actionsTaken = await dbContext.Indicators.FirstAsync(i => i.Id == 8);
+
+        var template1 = new TemplateDbo
+        {
+            Id = 1,
+            Name = "Шаблон для изготовления продукции  более 1 шт. в час (по времени такта)",
+            PaTypeId = 1,
+            Version = 1
+        };
+        template1.Indicators.Add(plan);
+        template1.Indicators.Add(fact);
+        template1.Indicators.Add(deviation);
+        template1.Indicators.Add(downtime);
+        template1.Indicators.Add(downtimeResponsible);
+        template1.Indicators.Add(downtimeReason);
+        template1.Indicators.Add(downTimeReasonsGroup);
+        template1.Indicators.Add(actionsTaken);
+
+        dbContext.Templates.AddRange(template1);
     }
 
     #endregion
