@@ -406,18 +406,20 @@ public class PaDataSeeder(
                 Id = 1,
                 Name = "План, шт.",
                 ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Formula,
                 ValueSelector = "",
                 Formula = "",
                 IsCumulative = true,
-                HasSummation = true
+                HasSummation = true,
             },
             new IndicatorDbo
             {
                 Id = 2,
                 Name = "Факт, шт.",
                 ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Manual,
                 ValueSelector = "",
-                Formula = "",
+                Formula = null,
                 IsCumulative = true,
                 HasSummation = true
             },
@@ -425,7 +427,8 @@ public class PaDataSeeder(
             {
                 Id = 3,
                 Name = "Отклонение, шт.",
-                ValueType = "number",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Formula,
                 ValueSelector = "",
                 Formula = "",
                 IsCumulative = true,
@@ -435,8 +438,9 @@ public class PaDataSeeder(
             {
                 Id = 4,
                 Name = "Простой, мин.",
-                ValueType = "number",
-                ValueSelector = "quality.defectRate",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Formula,
+                ValueSelector = null,
                 Formula = "(defects / total) * 100",
                 IsCumulative = false,
                 HasSummation = false
@@ -445,8 +449,9 @@ public class PaDataSeeder(
             {
                 Id = 5,
                 Name = "Ответственный за простой",
-                ValueType = "",
-                ValueSelector = "",
+                ValueType = FieldValueTypes.Complex,
+                InputType = FieldInputTypes.Dictionary,
+                ValueSelector = "employees",
                 Formula = null,
                 IsCumulative = false,
                 HasSummation = false
@@ -455,8 +460,9 @@ public class PaDataSeeder(
             {
                 Id = 6,
                 Name = "Причина отклонения/комментарий",
-                ValueType = "",
-                ValueSelector = "",
+                ValueType = FieldValueTypes.Text,
+                InputType = FieldInputTypes.Manual,
+                ValueSelector = null,
                 Formula = null,
                 IsCumulative = false,
                 HasSummation = false
@@ -465,8 +471,9 @@ public class PaDataSeeder(
             {
                 Id = 7,
                 Name = "Группы причин",
-                ValueType = "",
-                ValueSelector = "",
+                ValueType = FieldValueTypes.Complex,
+                InputType = FieldInputTypes.Dictionary,
+                ValueSelector = "downtime-reason-groups",
                 Formula = null,
                 IsCumulative = false,
                 HasSummation = false
@@ -475,8 +482,9 @@ public class PaDataSeeder(
             {
                 Id = 8,
                 Name = "Принятые меры",
-                ValueType = "",
-                ValueSelector = "",
+                ValueType = FieldValueTypes.Text,
+                InputType = FieldInputTypes.Manual,
+                ValueSelector = null,
                 Formula = null,
                 IsCumulative = false,
                 HasSummation = false

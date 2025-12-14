@@ -10,9 +10,9 @@ public class IndicatorDbo
 
     [MaxLength(50)] public required string ValueType { get; set; }
 
-    // TODO: add InputType
+    [MaxLength(50)] public required string InputType { get; set; }
 
-    [MaxLength(100)] public required string ValueSelector { get; set; } // TODO: null
+    [MaxLength(100)] public string? ValueSelector { get; set; }
 
     [MaxLength(255)] public string? Formula { get; set; }
 
