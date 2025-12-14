@@ -11,7 +11,7 @@ public class PaDbContext(DbContextOptions<PaDbContext> options)
     : IdentityDbContext<UserDbo, IdentityRole<Guid>, Guid>(options)
 {
     public DbSet<FormDbo> Forms { get; set; }
-    
+
     #region Dictionaries
 
     public DbSet<DepartmentDbo> Departments { get; set; }
@@ -23,6 +23,8 @@ public class PaDbContext(DbContextOptions<PaDbContext> options)
     public DbSet<PaTypeDbo> PaTypes { get; set; }
     public DbSet<ProductDbo> Products { get; set; }
     public DbSet<ShiftDbo> Shifts { get; set; }
+    public DbSet<IndicatorDbo> Indicators { get; set; }
+    public DbSet<TemplateDbo> Templates { get; set; }
 
     #endregion
 
