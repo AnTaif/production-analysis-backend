@@ -5,6 +5,7 @@ using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Data.Context;
 using ProductionAnalysis.Data.Converters;
 using ProductionAnalysis.Data.Models.Forms;
+using FormStatus = ProductionAnalysis.Application.Domain.Forms.FormStatus;
 
 namespace ProductionAnalysis.Data.Repositories;
 
@@ -49,19 +50,12 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
 
         var contextJson = JsonSerializer.Serialize(createForm.Context);
 
-        // Создаем пустой шаблон по умолчанию
-        // В будущем здесь можно добавить логику копирования шаблона из PaType
-        var defaultTemplateSnapshot = JsonSerializer.Serialize(new
-        {
-            tableColumns = Array.Empty<object>()
-        }, new JsonSerializerOptions { WriteIndented = false });
-
         var formDbo = new FormDbo
         {
             PaTypeId = createForm.PaTypeId,
             Status = (int)FormStatus.InProgress,
             Context = contextJson,
-            TemplateSnapshot = defaultTemplateSnapshot,
+            TemplateSnapshot = createForm.TemplateSnapshot,
             CreationDate = now,
             UpdateDate = now,
             CreatorId = createForm.CreatorId,

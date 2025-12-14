@@ -13,7 +13,11 @@ public interface IFormsService
 }
 
 [RegisterScoped]
-public class FormsService(IFormsRepository formsRepository) : IFormsService
+public class FormsService(
+    IFormsRepository formsRepository,
+    ITemplatesRepository templatesRepository
+)
+    : IFormsService
 {
     public async Task<PaginatedResult<FormShortDto>> SearchFormsAsync(SearchFormsFilterDto searchFilter)
     {
@@ -35,6 +39,10 @@ public class FormsService(IFormsRepository formsRepository) : IFormsService
     public async Task<Result<FormShortDto>> CreateAsync(CreateFormRequest request, Guid creatorId)
     {
         var createForm = request.ToDomain(creatorId);
+
+        var template = await templatesRepository.GetLatestByPaTypeIdAsync(createForm.PaTypeId);
+        createForm.TemplateSnapshot = TemplateSerializer.SerializeTemplateSnapshot(template);
+
         var form = await formsRepository.CreateAsync(createForm);
 
         return form.ToShortDto();

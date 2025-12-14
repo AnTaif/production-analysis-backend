@@ -45,8 +45,8 @@ internal static class FormTemplateParser
                     : string.Empty;
 
                 var inputType = fieldElement.TryGetProperty("inputType", out var inputTypeElement)
-                    ? (FormFieldInputType)inputTypeElement.GetInt32()
-                    : FormFieldInputType.Manual;
+                    ? inputTypeElement.GetString()
+                    : null;
 
                 var inputSelector = fieldElement.TryGetProperty("inputSelector", out var inputSelectorElement)
                     ? inputSelectorElement.GetString()

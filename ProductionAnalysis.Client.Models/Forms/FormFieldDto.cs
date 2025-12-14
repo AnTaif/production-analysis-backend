@@ -3,7 +3,7 @@
 public record FormFieldDto(
     int Id,
     string Name,
-    FormFieldInputType InputType,
+    string InputType,
     string? InputSelector,
     string? ValueType
 );
