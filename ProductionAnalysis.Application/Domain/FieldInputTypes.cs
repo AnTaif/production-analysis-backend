@@ -7,4 +7,6 @@ public static class FieldInputTypes
     public const string Dictionary = "dictionary";
 
     public const string Formula = "formula";
+
+    public const string Context = "context";
 }

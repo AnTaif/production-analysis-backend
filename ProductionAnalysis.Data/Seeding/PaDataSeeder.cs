@@ -432,24 +432,24 @@ public class PaDataSeeder(
                 ValueSelector = "",
                 Formula = "",
                 IsCumulative = true,
-                HasSummation = false
+                HasSummation = true
             },
             new IndicatorDbo
             {
                 Id = 4,
                 Name = "Простой, мин.",
                 ValueType = FieldValueTypes.Number,
-                InputType = FieldInputTypes.Formula,
+                InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
-                Formula = "(defects / total) * 100",
-                IsCumulative = false,
-                HasSummation = false
+                Formula = null,
+                IsCumulative = true,
+                HasSummation = true
             },
             new IndicatorDbo
             {
                 Id = 5,
                 Name = "Ответственный за простой",
-                ValueType = FieldValueTypes.Complex,
+                ValueType = FieldValueTypes.Text,
                 InputType = FieldInputTypes.Dictionary,
                 ValueSelector = "employees",
                 Formula = null,
@@ -471,7 +471,7 @@ public class PaDataSeeder(
             {
                 Id = 7,
                 Name = "Группы причин",
-                ValueType = FieldValueTypes.Complex,
+                ValueType = FieldValueTypes.Text,
                 InputType = FieldInputTypes.Dictionary,
                 ValueSelector = "downtime-reason-groups",
                 Formula = null,
@@ -488,6 +488,83 @@ public class PaDataSeeder(
                 Formula = null,
                 IsCumulative = false,
                 HasSummation = false
+            },
+            new IndicatorDbo
+            {
+                Id = 9,
+                Name = "Наименование операции",
+                ValueType = FieldValueTypes.Text,
+                InputType = FieldInputTypes.Dictionary,
+                ValueSelector = null,
+                Formula = null,
+                IsCumulative = false,
+                HasSummation = false
+            },
+            new IndicatorDbo
+            {
+                Id = 9,
+                Name = "Время операции/элемента, мин.",
+                ValueType = FieldValueTypes.Text,
+                InputType = FieldInputTypes.Context,
+                ValueSelector = null,
+                Formula = null,
+                IsCumulative = false,
+                HasSummation = false
+            },
+            new IndicatorDbo
+            {
+                Id = 10,
+                Name = "Время начала план, мин.",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Formula,
+                ValueSelector = null,
+                Formula = null,
+                IsCumulative = true,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 11,
+                Name = "Время начала факт, мин.",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Manual,
+                ValueSelector = null,
+                Formula = null,
+                IsCumulative = true,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 12,
+                Name = "Время окончания план, мин.",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Formula,
+                ValueSelector = null,
+                Formula = null,
+                IsCumulative = true,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 13,
+                Name = "Время окончания факт, мин.",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Manual,
+                ValueSelector = null,
+                Formula = null,
+                IsCumulative = true,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 14,
+                Name = "Отклонение, мин.",
+                ValueType = FieldValueTypes.Text,
+                InputType = FieldInputTypes.Formula,
+                ValueSelector = null,
+                Formula = null,
+                IsCumulative = true,
+                HasSummation = true
             }
         );
 

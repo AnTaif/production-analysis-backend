@@ -5,6 +5,4 @@ public static class FieldValueTypes
     public const string Number = "number";
 
     public const string Text = "text";
-
-    public const string Complex = "complex";
 }
