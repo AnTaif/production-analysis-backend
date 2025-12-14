@@ -12,25 +12,19 @@ internal static class FormTemplateParser
             var jsonDoc = JsonDocument.Parse(templateSnapshot);
             var root = jsonDoc.RootElement;
 
-            var contextFields = new List<FormFieldDto>();
             var tableColumns = new List<FormFieldDto>();
-
-            if (root.TryGetProperty("contextFields", out var contextFieldsElement))
-            {
-                contextFields = ParseFormFields(contextFieldsElement);
-            }
 
             if (root.TryGetProperty("tableColumns", out var tableColumnsElement))
             {
                 tableColumns = ParseFormFields(tableColumnsElement);
             }
 
-            return new FormTemplateDto(contextFields, tableColumns);
+            return new FormTemplateDto(tableColumns);
         }
         catch
         {
             // Если не удалось распарсить, возвращаем пустой шаблон
-            return new FormTemplateDto(new List<FormFieldDto>(), new List<FormFieldDto>());
+            return new FormTemplateDto(new List<FormFieldDto>());
         }
     }
 

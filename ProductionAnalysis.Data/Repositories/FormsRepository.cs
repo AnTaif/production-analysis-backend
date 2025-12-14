@@ -53,7 +53,6 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
         // В будущем здесь можно добавить логику копирования шаблона из PaType
         var defaultTemplateSnapshot = JsonSerializer.Serialize(new
         {
-            contextFields = Array.Empty<object>(),
             tableColumns = Array.Empty<object>()
         }, new JsonSerializerOptions { WriteIndented = false });
 
