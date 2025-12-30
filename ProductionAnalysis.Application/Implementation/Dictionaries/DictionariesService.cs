@@ -17,50 +17,50 @@ public interface IDictionariesService
 }
 
 [RegisterScoped]
-public class DictionariesService(IDictionariesRepository dictionariesRepository) : IDictionariesService
+public class DictionariesService(IPaUnitOfWork unitOfWork) : IDictionariesService
 {
     public async Task<ICollection<DepartmentDto>> GetDepartmentsAsync()
     {
-        return await dictionariesRepository.SelectDepartmentsAsync();
+        return await unitOfWork.Dictionaries.SelectDepartmentsAsync();
     }
 
     public async Task<ICollection<DowntimeReasonGroupDto>> GetDowntimeReasonGroupsAsync()
     {
-        return await dictionariesRepository.SelectDowntimeReasonGroupsAsync();
+        return await unitOfWork.Dictionaries.SelectDowntimeReasonGroupsAsync();
     }
 
     public async Task<ICollection<EmployeeDto>> GetEmployeesAsync()
     {
-        return await dictionariesRepository.SelectEmployeesAsync();
+        return await unitOfWork.Dictionaries.SelectEmployeesAsync();
     }
 
     public async Task<ICollection<EnterpriseDto>> GetEnterprisesAsync()
     {
-        return await dictionariesRepository.SelectEnterprisesAsync();
+        return await unitOfWork.Dictionaries.SelectEnterprisesAsync();
     }
 
     public async Task<ICollection<AdditionalOperationDto>> GetAdditionalOperationsAsync()
     {
-        return await dictionariesRepository.SelectAdditionalOperationsAsync();
+        return await unitOfWork.Dictionaries.SelectAdditionalOperationsAsync();
     }
 
     public async Task<ICollection<OperationDto>> GetOperationsAsync()
     {
-        return await dictionariesRepository.SelectOperationsAsync();
+        return await unitOfWork.Dictionaries.SelectOperationsAsync();
     }
 
     public async Task<ICollection<PaTypeDto>> GetPaTypesAsync()
     {
-        return await dictionariesRepository.SelectPaTypesAsync();
+        return await unitOfWork.Dictionaries.SelectPaTypesAsync();
     }
 
     public async Task<ICollection<ProductDto>> GetProductsAsync()
     {
-        return await dictionariesRepository.SelectProductsAsync();
+        return await unitOfWork.Dictionaries.SelectProductsAsync();
     }
 
     public async Task<ICollection<ShiftDto>> GetShiftsAsync()
     {
-        return await dictionariesRepository.SelectShiftsAsync();
+        return await unitOfWork.Dictionaries.SelectShiftsAsync();
     }
 }

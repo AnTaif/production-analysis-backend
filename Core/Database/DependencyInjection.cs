@@ -1,3 +1,4 @@
+using Core.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,10 +13,10 @@ public static class DependencyInjection
     {
         var dbOptions = new DatabaseOptions();
         config.GetSection("DatabaseOptions").Bind(dbOptions);
-        dbOptions.Host = Environment.GetEnvironmentVariable("DB_CONTAINER") ?? "localhost";
-        dbOptions.Port = Environment.GetEnvironmentVariable("DATABASE_PORT") ?? "5432";
-        dbOptions.User = Environment.GetEnvironmentVariable("DATABASE_USER")!;
-        dbOptions.Password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD")!;
+        dbOptions.Host = EnvHelper.Get("DB_CONTAINER", "localhost");
+        dbOptions.Port = EnvHelper.Get("DATABASE_PORT", "5432");
+        dbOptions.User = EnvHelper.Require("DATABASE_USER");
+        dbOptions.Password = EnvHelper.Require("DATABASE_PASSWORD");
 
         services.Configure<DatabaseOptions>(options =>
         {

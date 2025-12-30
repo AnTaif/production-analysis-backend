@@ -24,8 +24,6 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
         if (filter.DepartmentId.HasValue)
         {
             var departmentIdValue = filter.DepartmentId.Value;
-            // Используем PostgreSQL JSONB оператор -> для извлечения значения
-            // и сравниваем его с departmentIdValue
             var departmentJson = $"{{\"department\": {departmentIdValue}}}";
             query = query.Where(f =>
                 EF.Functions.JsonContains(f.Context, departmentJson));
@@ -44,7 +42,7 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
         return (forms, totalCount);
     }
 
-    public async Task<Form> CreateAsync(CreateForm createForm)
+    public Form Create(CreateForm createForm)
     {
         var now = DateTime.UtcNow;
 
@@ -63,15 +61,13 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
         };
 
         dbContext.Forms.Add(formDbo);
-        await dbContext.SaveChangesAsync();
 
         return formDbo.ToDomain();
     }
 
-    public async Task<Form?> GetByIdAsync(int formId)
+    public async Task<Form?> FindAsync(int formId)
     {
-        var formDbo = await dbContext.Forms
-            .FirstOrDefaultAsync(f => f.Id == formId);
+        var formDbo = await dbContext.Forms.FirstOrDefaultAsync(f => f.Id == formId);
 
         return formDbo?.ToDomain();
     }

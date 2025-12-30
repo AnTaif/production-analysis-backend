@@ -1,9 +1,9 @@
+using Core.Configuration;
 using Core.Database;
-using DotNetEnv;
 using Microsoft.OpenApi;
 using ProductionAnalysis.Api;
 
-Env.Load("../.env");
+EnvLoader.LoadEnvFile();
 
 var builder = WebApplication.CreateBuilder(args);
 

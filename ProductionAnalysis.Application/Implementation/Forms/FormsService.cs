@@ -14,15 +14,14 @@ public interface IFormsService
 
 [RegisterScoped]
 public class FormsService(
-    IFormsRepository formsRepository,
-    ITemplatesRepository templatesRepository
+    IPaUnitOfWork unitOfWork
 )
     : IFormsService
 {
     public async Task<PaginatedResult<FormShortDto>> SearchFormsAsync(SearchFormsFilterDto searchFilter)
     {
         var domainFilter = searchFilter.ToDomain();
-        var (forms, totalCount) = await formsRepository.SearchFormsAsync(domainFilter);
+        var (forms, totalCount) = await unitOfWork.Forms.SearchFormsAsync(domainFilter);
 
         var dtos = forms.Select(f => f.ToShortDto()).ToList();
 
@@ -40,21 +39,22 @@ public class FormsService(
     {
         var createForm = request.ToDomain(creatorId);
 
-        var template = await templatesRepository.GetLatestByPaTypeIdAsync(createForm.PaTypeId);
+        var template = await unitOfWork.Templates.GetLatestByPaTypeIdAsync(createForm.PaTypeId);
         createForm.TemplateSnapshot = TemplateSerializer.SerializeTemplateSnapshot(template);
 
-        var form = await formsRepository.CreateAsync(createForm);
+        var form = unitOfWork.Forms.Create(createForm);
+        await unitOfWork.SaveChangesAsync();
 
         return form.ToShortDto();
     }
 
     public async Task<Result<FormDto>> GetByIdAsync(int formId)
     {
-        var form = await formsRepository.GetByIdAsync(formId);
+        var form = await unitOfWork.Forms.FindAsync(formId);
 
         if (form == null)
         {
-            return StatusError.NotFound($"Form with id {formId} not found");
+            return ServiceError.NotFound($"Form with id {formId} not found");
         }
 
         return form.ToDto();

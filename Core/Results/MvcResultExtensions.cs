@@ -10,7 +10,7 @@ public static class MvcResultExtensions
     {
         if (result.IsFailure)
         {
-            return result.Error is StatusError httpError
+            return result.Error is ServiceError httpError
                 ? HandleStatusError(httpError, thisController)
                 : HandleAsBadRequest(result.Error, thisController);
         }
@@ -22,7 +22,7 @@ public static class MvcResultExtensions
     {
         if (result.IsFailure)
         {
-            return result.Error is StatusError httpError
+            return result.Error is ServiceError httpError
                 ? HandleStatusError(httpError, thisController)
                 : HandleAsBadRequest(result.Error, thisController);
         }
@@ -30,7 +30,7 @@ public static class MvcResultExtensions
         return thisController.NoContent();
     }
 
-    private static ActionResult HandleStatusError(StatusError error, ControllerBase thisController)
+    private static ActionResult HandleStatusError(ServiceError error, ControllerBase thisController)
     {
         return thisController.StatusCode((int)error.HttpStatus, error.Message);
     }
