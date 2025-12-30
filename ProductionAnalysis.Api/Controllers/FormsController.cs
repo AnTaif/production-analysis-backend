@@ -47,4 +47,19 @@ public class FormsController(IFormsService formsService) : ControllerBase
         var result = await formsService.GetByIdAsync(id);
         return result.ToActionResult(this);
     }
+
+    [HttpGet("{id:int}/rows")]
+    [ProducesResponseType<ICollection<FormRowDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<string>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ICollection<FormRowDto>>> GetFormRows(int id)
+    {
+        if (id <= 0)
+        {
+            return BadRequest("Form ID must be greater than zero.");
+        }
+
+        var result = await formsService.GetFormRowsAsync(id);
+        return result.ToActionResult(this);
+    }
 }

@@ -10,6 +10,7 @@ public interface IFormsService
     Task<PaginatedResult<FormShortDto>> SearchFormsAsync(SearchFormsFilterDto searchFilter);
     Task<Result<FormShortDto>> CreateAsync(CreateFormRequest request, Guid creatorId);
     Task<Result<FormDto>> GetByIdAsync(int formId);
+    Task<Result<ICollection<FormRowDto>>> GetFormRowsAsync(int formId);
 }
 
 [RegisterScoped]
@@ -78,5 +79,26 @@ public class FormsService(
         }
 
         return form.ToDto();
+    }
+
+    public async Task<Result<ICollection<FormRowDto>>> GetFormRowsAsync(int formId)
+    {
+        var form = await unitOfWork.Forms.FindAsync(formId);
+
+        if (form == null)
+        {
+            return ServiceError.NotFound($"Form with id {formId} not found");
+        }
+
+        var rows = form.Rows
+            .OrderBy(r => r.Order)
+            .Select(r => new FormRowDto(
+                r.Order,
+                r.IsAdditionalOperation,
+                r.Values
+            ))
+            .ToList();
+
+        return rows;
     }
 }
