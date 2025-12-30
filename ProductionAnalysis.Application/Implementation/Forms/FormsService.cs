@@ -46,27 +46,28 @@ public class FormsService(
         var form = unitOfWork.Forms.Create(createForm);
         await unitOfWork.SaveChangesAsync();
 
-        // Заполняем строки времени работы и обедов/перерывов на основе смены
-        if (createForm.Context.TryGetValue("shift", out var shiftValue))
+        // После SaveChangesAsync Entity Framework автоматически обновляет ID в отслеживаемой сущности
+        // Получаем актуальный ID из репозитория
+        var formId = await unitOfWork.Forms.GetCreatedFormIdAsync(form);
+
+        var shifts = await unitOfWork.Dictionaries.SelectShiftsAsync();
+        var shift = shifts.FirstOrDefault(s => s.Id == createForm.ShiftId);
+
+        if (shift != null)
         {
-            var shiftId = Convert.ToInt32(shiftValue);
-            var shifts = await unitOfWork.Dictionaries.SelectShiftsAsync();
-            var shift = shifts.FirstOrDefault(s => s.Id == shiftId);
+            var schedules = await unitOfWork.Dictionaries.SelectShiftSchedulesByShiftIdAsync(createForm.ShiftId);
+            var rows = await FormRowGenerator.GenerateRowsForShiftAsync(
+                shift.StartTime,
+                schedules,
+                template,
+                unitOfWork);
 
-            if (shift != null)
-            {
-                var schedules = await unitOfWork.Dictionaries.SelectShiftSchedulesByShiftIdAsync(shiftId);
-                var rows = await FormRowGenerator.GenerateRowsForShiftAsync(
-                    shift.StartTime,
-                    schedules,
-                    template,
-                    unitOfWork);
-
-                await unitOfWork.Forms.CreateFormRowsAsync(form.Id, rows);
-                await unitOfWork.SaveChangesAsync();
-            }
+            await unitOfWork.Forms.CreateFormRowsAsync(formId, rows);
+            await unitOfWork.SaveChangesAsync();
         }
 
+        // Обновляем ID в доменной модели перед возвратом
+        form.Id = formId;
         return form.ToShortDto();
     }
 

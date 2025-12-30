@@ -19,29 +19,15 @@ public class FormRowGenerator
         var rows = new List<FormRowData>();
         short order = 1;
 
-        // Получаем индикаторы из шаблона
-        // Ищем индикатор для времени работы - может быть "Время работы, час" или подобный
         var workTimeIndicator = template.Indicators.FirstOrDefault(i =>
-            i.Name.Contains("Время работы", StringComparison.OrdinalIgnoreCase) ||
-            i.Name.Contains("workTime", StringComparison.OrdinalIgnoreCase) ||
-            i.Name.Contains("Время", StringComparison.OrdinalIgnoreCase));
+            i.Id == 16);
 
-        // Ищем индикатор для наименования операции
         var operationNameIndicator = template.Indicators.FirstOrDefault(i =>
-            i.Name.Contains("Наименование", StringComparison.OrdinalIgnoreCase) ||
-            i.Name.Contains("операции", StringComparison.OrdinalIgnoreCase));
+            i.Name.Contains("Наименование операции", StringComparison.OrdinalIgnoreCase));
 
         if (workTimeIndicator == null)
         {
-            // Если не нашли специальный индикатор, используем первый доступный текстовый индикатор
-            workTimeIndicator = template.Indicators.FirstOrDefault(i =>
-                                    i.ValueType.Equals("Text", StringComparison.OrdinalIgnoreCase))
-                                ?? template.Indicators.First();
-
-            if (workTimeIndicator == null)
-            {
-                throw new InvalidOperationException("Template must contain at least one indicator");
-            }
+            throw new InvalidOperationException("Template must contain worktime indicator");
         }
 
         // Получаем все дополнительные операции для быстрого доступа

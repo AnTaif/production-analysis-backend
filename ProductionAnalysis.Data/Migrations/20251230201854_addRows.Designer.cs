@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ProductionAnalysis.Data.Context;
@@ -11,9 +12,11 @@ using ProductionAnalysis.Data.Context;
 namespace ProductionAnalysis.Data.Migrations
 {
     [DbContext(typeof(PaDbContext))]
-    partial class PaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251230201854_addRows")]
+    partial class addRows
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -538,6 +541,9 @@ namespace ProductionAnalysis.Data.Migrations
                     b.Property<int?>("AdditionalOperationId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("FormDboId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("FormId")
                         .HasColumnType("integer");
 
@@ -548,6 +554,8 @@ namespace ProductionAnalysis.Data.Migrations
                         .HasColumnType("smallint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FormDboId");
 
                     b.HasIndex("FormId");
 
@@ -821,8 +829,12 @@ namespace ProductionAnalysis.Data.Migrations
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Forms.FormRowDbo", b =>
                 {
-                    b.HasOne("ProductionAnalysis.Data.Models.Forms.FormDbo", "Form")
+                    b.HasOne("ProductionAnalysis.Data.Models.Forms.FormDbo", null)
                         .WithMany("FormRows")
+                        .HasForeignKey("FormDboId");
+
+                    b.HasOne("ProductionAnalysis.Data.Models.Forms.FormDbo", "Form")
+                        .WithMany()
                         .HasForeignKey("FormId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

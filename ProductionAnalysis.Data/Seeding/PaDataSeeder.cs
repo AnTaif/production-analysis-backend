@@ -443,10 +443,10 @@ public class PaDataSeeder(
 
     #region Indicators
 
-    private Task SeedIndicatorsAsync()
+    private async Task SeedIndicatorsAsync()
     {
         if (dbContext.Indicators.Any())
-            return Task.CompletedTask;
+            return;
 
         dbContext.Indicators.AddRange(
             new IndicatorDbo
@@ -550,7 +550,7 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 9,
+                Id = 10,
                 Name = "Время операции/элемента, мин.",
                 ValueType = FieldValueTypes.Text,
                 InputType = FieldInputTypes.Context,
@@ -561,7 +561,7 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 10,
+                Id = 11,
                 Name = "Время начала план, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Formula,
@@ -572,7 +572,7 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 11,
+                Id = 12,
                 Name = "Время начала факт, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
@@ -583,7 +583,7 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 12,
+                Id = 13,
                 Name = "Время окончания план, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Formula,
@@ -594,7 +594,7 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 13,
+                Id = 14,
                 Name = "Время окончания факт, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
@@ -605,8 +605,19 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 14,
+                Id = 15,
                 Name = "Отклонение, мин.",
+                ValueType = FieldValueTypes.Text,
+                InputType = FieldInputTypes.Formula,
+                ValueSelector = null,
+                Formula = null,
+                IsCumulative = true,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 16,
+                Name = "Время работы, час.",
                 ValueType = FieldValueTypes.Text,
                 InputType = FieldInputTypes.Formula,
                 ValueSelector = null,
@@ -616,7 +627,7 @@ public class PaDataSeeder(
             }
         );
 
-        return Task.CompletedTask;
+        await dbContext.SaveChangesAsync();
     }
 
     #endregion
@@ -628,6 +639,7 @@ public class PaDataSeeder(
         if (await dbContext.Templates.AnyAsync())
             return;
 
+        var worktime = await dbContext.Indicators.FirstAsync(i => i.Id == 16);
         var plan = await dbContext.Indicators.FirstAsync(i => i.Id == 1);
         var fact = await dbContext.Indicators.FirstAsync(i => i.Id == 2);
         var deviation = await dbContext.Indicators.FirstAsync(i => i.Id == 3);
@@ -644,6 +656,7 @@ public class PaDataSeeder(
             PaTypeId = 1,
             Version = 1
         };
+        template1.Indicators.Add(worktime);
         template1.Indicators.Add(plan);
         template1.Indicators.Add(fact);
         template1.Indicators.Add(deviation);
@@ -653,7 +666,7 @@ public class PaDataSeeder(
         template1.Indicators.Add(downTimeReasonsGroup);
         template1.Indicators.Add(actionsTaken);
 
-        dbContext.Templates.AddRange(template1);
+        dbContext.Templates.Add(template1);
     }
 
     #endregion

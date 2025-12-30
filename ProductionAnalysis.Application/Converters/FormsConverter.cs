@@ -57,6 +57,7 @@ public static class FormsConverter
         return new CreateForm
         {
             PaTypeId = request.PaTypeId,
+            ShiftId = request.ShiftId,
             Context = request.Context,
             CreatorId = creatorId
         };

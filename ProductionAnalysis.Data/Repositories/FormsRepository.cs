@@ -65,6 +65,36 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
         return formDbo.ToDomain();
     }
 
+    public async Task<int> GetCreatedFormIdAsync(Form form)
+    {
+        var formDbo = dbContext.Forms
+            .Local
+            .OrderByDescending(f => f.CreationDate)
+            .FirstOrDefault(f =>
+                f.PaTypeId == form.PaTypeId &&
+                f.CreatorId.ToString() == form.Context.GetValueOrDefault("creatorId")?.ToString() &&
+                Math.Abs((f.CreationDate - form.CreationDate).TotalSeconds) < 5);
+
+        if (formDbo != null && formDbo.Id > 0)
+        {
+            return formDbo.Id;
+        }
+
+        // Если не нашли в локальном контексте, ищем в БД
+        var formFromDb = await dbContext.Forms
+            .Where(f => f.PaTypeId == form.PaTypeId &&
+                        Math.Abs((f.CreationDate - form.CreationDate).TotalSeconds) < 5)
+            .OrderByDescending(f => f.CreationDate)
+            .FirstOrDefaultAsync();
+
+        if (formFromDb != null)
+        {
+            return formFromDb.Id;
+        }
+
+        throw new InvalidOperationException("Cannot determine form ID after creation");
+    }
+
     public async Task<Form?> FindAsync(int formId)
     {
         var formDbo = await dbContext.Forms

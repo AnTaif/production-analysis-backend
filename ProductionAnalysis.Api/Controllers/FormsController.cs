@@ -30,7 +30,10 @@ public class FormsController(IFormsService formsService) : ControllerBase
         var userId = User.ReadSid();
         var result = await formsService.CreateAsync(createFormRequest, userId);
 
-        return result.ToActionResult(this, dto => CreatedAtAction(nameof(GetFormById), dto));
+        return result.ToActionResult(this, dto => CreatedAtAction(
+            nameof(GetFormById),
+            new { id = dto.Id },
+            dto));
     }
 
     [HttpGet("{id:int}")]

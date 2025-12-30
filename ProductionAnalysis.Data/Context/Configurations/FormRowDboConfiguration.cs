@@ -17,7 +17,7 @@ public class FormRowDboConfiguration : IEntityTypeConfiguration<FormRowDbo>
             .UseIdentityColumn();
 
         builder.HasOne(x => x.Form)
-            .WithMany()
+            .WithMany(x => x.FormRows)
             .HasForeignKey(x => x.FormId)
             .OnDelete(DeleteBehavior.Cascade);
 
