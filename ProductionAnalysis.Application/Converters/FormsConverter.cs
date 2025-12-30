@@ -62,4 +62,16 @@ public static class FormsConverter
             CreatorId = creatorId
         };
     }
+
+    public static List<FormRowDto> ToRowDtos(this ICollection<FormRow> rows)
+    {
+        return rows
+            .OrderBy(r => r.Order)
+            .Select(r => new FormRowDto(
+                r.Order,
+                r.IsAdditionalOperation,
+                r.Values
+            ))
+            .ToList();
+    }
 }

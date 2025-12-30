@@ -1,5 +1,6 @@
 ﻿using Core.Results;
 using ProductionAnalysis.Application.Converters;
+using ProductionAnalysis.Application.Domain.Templates;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Client.Models.Forms;
 
@@ -15,7 +16,8 @@ public interface IFormsService
 
 [RegisterScoped]
 public class FormsService(
-    IPaUnitOfWork unitOfWork
+    IPaUnitOfWork unitOfWork,
+    IFormRowGenerator formRowGenerator
 )
     : IFormsService
 {
@@ -41,33 +43,18 @@ public class FormsService(
         var createForm = request.ToDomain(creatorId);
 
         var template = await unitOfWork.Templates.GetLatestByPaTypeIdAsync(createForm.PaTypeId);
-        createForm.TemplateSnapshot = TemplateSerializer.SerializeTemplateSnapshot(template);
-
-        var form = unitOfWork.Forms.Create(createForm);
-        await unitOfWork.SaveChangesAsync();
-
-        // После SaveChangesAsync Entity Framework автоматически обновляет ID в отслеживаемой сущности
-        // Получаем актуальный ID из репозитория
-        var formId = await unitOfWork.Forms.GetCreatedFormIdAsync(form);
-
-        var shifts = await unitOfWork.Dictionaries.SelectShiftsAsync();
-        var shift = shifts.FirstOrDefault(s => s.Id == createForm.ShiftId);
-
-        if (shift != null)
+        if (template == null)
         {
-            var schedules = await unitOfWork.Dictionaries.SelectShiftSchedulesByShiftIdAsync(createForm.ShiftId);
-            var rows = await FormRowGenerator.GenerateRowsForShiftAsync(
-                shift.StartTime,
-                schedules,
-                template,
-                unitOfWork);
-
-            await unitOfWork.Forms.CreateFormRowsAsync(formId, rows);
-            await unitOfWork.SaveChangesAsync();
+            return ServiceError.NotFound($"Template for PaType {createForm.PaTypeId} not found");
         }
 
-        // Обновляем ID в доменной модели перед возвратом
-        form.Id = formId;
+        createForm.TemplateSnapshot = TemplateSerializer.SerializeTemplateSnapshot(template);
+
+        var form = await unitOfWork.Forms.CreateAsync(createForm);
+
+        await CreateFormRowsIfNeededAsync(form.Id, createForm.ShiftId, template);
+        await unitOfWork.SaveChangesAsync();
+
         return form.ToShortDto();
     }
 
@@ -92,15 +79,23 @@ public class FormsService(
             return ServiceError.NotFound($"Form with id {formId} not found");
         }
 
-        var rows = form.Rows
-            .OrderBy(r => r.Order)
-            .Select(r => new FormRowDto(
-                r.Order,
-                r.IsAdditionalOperation,
-                r.Values
-            ))
-            .ToList();
+        return form.Rows.ToRowDtos();
+    }
 
-        return rows;
+    private async Task CreateFormRowsIfNeededAsync(int formId, int shiftId, Template template)
+    {
+        var shift = await unitOfWork.Dictionaries.SelectShiftByIdAsync(shiftId);
+        if (shift == null)
+        {
+            return;
+        }
+
+        var schedules = await unitOfWork.Dictionaries.SelectShiftSchedulesByShiftIdAsync(shiftId);
+        var rows = await formRowGenerator.GenerateRowsForShiftAsync(
+            shift.StartTime,
+            schedules,
+            template);
+
+        await unitOfWork.Forms.CreateFormRowsAsync(formId, rows);
     }
 }

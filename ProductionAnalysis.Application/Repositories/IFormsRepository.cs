@@ -5,8 +5,7 @@ namespace ProductionAnalysis.Application.Repositories;
 public interface IFormsRepository
 {
     Task<(ICollection<Form> Forms, int TotalCount)> SearchFormsAsync(SearchFormsFilter filter);
-    Form Create(CreateForm createForm);
-    Task<int> GetCreatedFormIdAsync(Form form);
+    Task<Form> CreateAsync(CreateForm createForm);
     Task<Form?> FindAsync(int formId);
     Task CreateFormRowsAsync(int formId, ICollection<FormRowData> rows);
 }
