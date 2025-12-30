@@ -9,4 +9,5 @@ public class Form
     public DateTime UpdateDate { get; set; }
     public Dictionary<string, object> Context { get; set; } = new();
     public string TemplateSnapshot { get; set; } = string.Empty;
+    public ICollection<FormRow> Rows { get; set; } = new List<FormRow>();
 }

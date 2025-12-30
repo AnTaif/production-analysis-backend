@@ -45,6 +45,26 @@ public class FormsService(
         var form = unitOfWork.Forms.Create(createForm);
         await unitOfWork.SaveChangesAsync();
 
+        // Заполняем строки времени работы и обедов/перерывов на основе смены
+        if (createForm.Context.TryGetValue("shift", out var shiftValue))
+        {
+            var shiftId = Convert.ToInt32(shiftValue);
+            var shifts = await unitOfWork.Dictionaries.SelectShiftsAsync();
+            var shift = shifts.FirstOrDefault(s => s.Id == shiftId);
+
+            if (shift != null)
+            {
+                var schedules = await unitOfWork.Dictionaries.SelectShiftSchedulesByShiftIdAsync(shiftId);
+                var rows = await FormRowGenerator.GenerateRowsForShiftAsync(
+                    shift.StartTime,
+                    schedules,
+                    unitOfWork);
+
+                await unitOfWork.Forms.CreateFormRowsAsync(form.Id, rows);
+                await unitOfWork.SaveChangesAsync();
+            }
+        }
+
         return form.ToShortDto();
     }
 

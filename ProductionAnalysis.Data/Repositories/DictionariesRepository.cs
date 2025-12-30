@@ -62,4 +62,13 @@ public class DictionariesRepository(PaDbContext dbContext) : IDictionariesReposi
         var dbos = await dbContext.Shifts.ToListAsync();
         return dbos.Select(s => s.ToDto()).ToList();
     }
+
+    public async Task<ICollection<ShiftScheduleDto>> SelectShiftSchedulesByShiftIdAsync(int shiftId)
+    {
+        var dbos = await dbContext.ShiftSchedules
+            .Where(s => s.ShiftId == shiftId)
+            .OrderBy(s => s.StartTime)
+            .ToListAsync();
+        return dbos.Select(s => s.ToDto()).ToList();
+    }
 }

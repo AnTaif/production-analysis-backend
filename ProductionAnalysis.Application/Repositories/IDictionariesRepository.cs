@@ -13,4 +13,5 @@ public interface IDictionariesRepository
     Task<ICollection<PaTypeDto>> SelectPaTypesAsync();
     Task<ICollection<ProductDto>> SelectProductsAsync();
     Task<ICollection<ShiftDto>> SelectShiftsAsync();
+    Task<ICollection<ShiftScheduleDto>> SelectShiftSchedulesByShiftIdAsync(int shiftId);
 }

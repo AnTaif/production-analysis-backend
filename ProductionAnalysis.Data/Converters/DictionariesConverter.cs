@@ -91,4 +91,14 @@ public static class DictionariesConverter
             dbo.StartTime
         );
     }
+
+    public static ShiftScheduleDto ToDto(this ShiftScheduleDbo dbo)
+    {
+        return new ShiftScheduleDto(
+            dbo.Id,
+            dbo.ShiftId,
+            dbo.AdditionalOperationId,
+            dbo.StartTime
+        );
+    }
 }

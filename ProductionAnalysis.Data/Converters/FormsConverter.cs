@@ -1,6 +1,8 @@
 using System.Text.Json;
 using ProductionAnalysis.Application.Domain.Forms;
+using ProductionAnalysis.Client.Models.Forms;
 using ProductionAnalysis.Data.Models.Forms;
+using FormStatus = ProductionAnalysis.Application.Domain.Forms.FormStatus;
 
 namespace ProductionAnalysis.Data.Converters;
 
@@ -11,6 +13,11 @@ public static class FormsConverter
         var context = JsonSerializer.Deserialize<Dictionary<string, object>>(dbo.Context)
                       ?? new Dictionary<string, object>();
 
+        var rows = dbo.FormRows
+            .OrderBy(r => r.Order)
+            .Select(r => r.ToDomain())
+            .ToList();
+
         return new Form
         {
             Id = dbo.Id,
@@ -19,7 +26,75 @@ public static class FormsConverter
             CreationDate = dbo.CreationDate,
             UpdateDate = dbo.UpdateDate,
             Context = context,
-            TemplateSnapshot = dbo.TemplateSnapshot
+            TemplateSnapshot = dbo.TemplateSnapshot,
+            Rows = rows
         };
+    }
+
+    public static FormRow ToDomain(this FormRowDbo dbo)
+    {
+        var values = new Dictionary<string, object>();
+
+        foreach (var valueDbo in dbo.Values)
+        {
+            var value = DeserializeValue(valueDbo.Value);
+            if (value != null)
+            {
+                values[valueDbo.FieldKey] = value;
+            }
+        }
+
+        return new FormRow
+        {
+            Order = dbo.Order,
+            IsAdditionalOperation = dbo.IsAdditionalOperation,
+            AdditionalOperationId = dbo.AdditionalOperationId,
+            Values = values
+        };
+    }
+
+    public static FormRowDto ToDto(this FormRowDbo dbo)
+    {
+        var values = new Dictionary<string, object>();
+
+        foreach (var valueDbo in dbo.Values)
+        {
+            var value = DeserializeValue(valueDbo.Value);
+            if (value != null)
+            {
+                values[valueDbo.FieldKey] = value;
+            }
+        }
+
+        return new FormRowDto(
+            dbo.Order,
+            dbo.IsAdditionalOperation,
+            values
+        );
+    }
+
+    private static object? DeserializeValue(string jsonValue)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(jsonValue);
+            var root = doc.RootElement;
+
+            return root.ValueKind switch
+            {
+                JsonValueKind.String => root.GetString(),
+                JsonValueKind.Number => root.TryGetInt64(out var intVal)
+                    ? intVal
+                    : root.GetDouble(),
+                JsonValueKind.True => true,
+                JsonValueKind.False => false,
+                JsonValueKind.Null => null,
+                _ => jsonValue
+            };
+        }
+        catch
+        {
+            return jsonValue;
+        }
     }
 }

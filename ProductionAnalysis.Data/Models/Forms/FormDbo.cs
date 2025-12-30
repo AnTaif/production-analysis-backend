@@ -19,4 +19,6 @@ public class FormDbo
     public Guid CreatorId { get; set; }
 
     public Guid LastEditorId { get; set; }
+
+    public ICollection<FormRowDbo> FormRows { get; set; } = new List<FormRowDbo>();
 }

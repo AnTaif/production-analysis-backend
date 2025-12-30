@@ -67,8 +67,51 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
 
     public async Task<Form?> FindAsync(int formId)
     {
-        var formDbo = await dbContext.Forms.FirstOrDefaultAsync(f => f.Id == formId);
+        var formDbo = await dbContext.Forms
+            .Include(f => f.FormRows)
+            .ThenInclude(r => r.Values)
+            .FirstOrDefaultAsync(f => f.Id == formId);
 
         return formDbo?.ToDomain();
+    }
+
+    public async Task CreateFormRowsAsync(int formId, ICollection<FormRowData> rows)
+    {
+        var formDbo = await dbContext.Forms.FirstOrDefaultAsync(f => f.Id == formId);
+
+        if (formDbo == null)
+            return;
+
+        var formRows = new List<FormRowDbo>();
+
+        foreach (var row in rows)
+        {
+            var formRow = new FormRowDbo
+            {
+                FormId = formId,
+                Order = row.Order,
+                IsAdditionalOperation = row.IsAdditionalOperation,
+                AdditionalOperationId = row.AdditionalOperationId,
+                Values = new List<FormRowValueDbo>()
+            };
+
+            // Создаем отдельные записи для каждого значения
+            foreach (var (key, value) in row.Values)
+            {
+                var valueJson = JsonSerializer.Serialize(value);
+                var valueType = value?.GetType().Name ?? "null";
+
+                formRow.Values.Add(new FormRowValueDbo
+                {
+                    FieldKey = key,
+                    Value = valueJson,
+                    ValueType = valueType
+                });
+            }
+
+            formRows.Add(formRow);
+        }
+
+        dbContext.FormRows.AddRange(formRows);
     }
 }

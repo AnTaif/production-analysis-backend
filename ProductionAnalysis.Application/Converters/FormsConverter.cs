@@ -20,6 +20,15 @@ public static class FormsConverter
     {
         var template = FormTemplateParser.ParseTemplateSnapshot(form.TemplateSnapshot);
 
+        var rows = form.Rows
+            .OrderBy(r => r.Order)
+            .Select(r => new FormRowDto(
+                r.Order,
+                r.IsAdditionalOperation,
+                r.Values
+            ))
+            .ToList();
+
         return new FormDto(
             form.Id,
             form.PaTypeId,
@@ -27,7 +36,7 @@ public static class FormsConverter
             form.CreationDate,
             form.UpdateDate,
             form.Context,
-            new List<FormRowDto>(), // Пока пустой список, будет заполняться при реализации функционала строк
+            rows,
             template
         );
     }
