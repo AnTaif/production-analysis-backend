@@ -109,4 +109,47 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
 
         dbContext.FormRows.AddRange(formRows);
     }
+
+    public async Task UpdateFormRowValuesAsync(int formId, short rowOrder, ICollection<FormRowValueData> values,
+        Guid userId)
+    {
+        var formRow = await dbContext.FormRows
+            .Include(r => r.Values)
+            .FirstOrDefaultAsync(r => r.FormId == formId && r.Order == rowOrder);
+
+        if (formRow == null)
+        {
+            throw new InvalidOperationException($"Form row with FormId={formId} and Order={rowOrder} not found");
+        }
+
+        var now = DateTime.UtcNow;
+
+        foreach (var valueData in values)
+        {
+            var valueDbo = formRow.Values.FirstOrDefault(v => v.IndicatorId == valueData.IndicatorId);
+
+            if (valueDbo == null)
+            {
+                // Создаем новое значение
+                var valueJson = JsonSerializer.Serialize(valueData.Value);
+                formRow.Values.Add(new FormRowValueDbo
+                {
+                    IndicatorId = valueData.IndicatorId,
+                    Value = valueJson
+                });
+            }
+            else
+            {
+                var valueJson = JsonSerializer.Serialize(valueData.Value);
+                valueDbo.Value = valueJson;
+            }
+        }
+
+        var formDbo = await dbContext.Forms.FirstOrDefaultAsync(f => f.Id == formId);
+        if (formDbo != null)
+        {
+            formDbo.UpdateDate = now;
+            formDbo.LastEditorId = userId;
+        }
+    }
 }

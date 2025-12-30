@@ -8,4 +8,5 @@ public interface IFormsRepository
     Task<Form> CreateAsync(CreateForm createForm);
     Task<Form?> FindAsync(int formId);
     Task CreateFormRowsAsync(int formId, ICollection<FormRowData> rows);
+    Task UpdateFormRowValuesAsync(int formId, short rowOrder, ICollection<FormRowValueData> values, Guid userId);
 }

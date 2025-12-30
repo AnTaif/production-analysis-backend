@@ -74,4 +74,13 @@ public static class FormsConverter
             ))
             .ToList();
     }
+
+    public static FormRowDto ToRowDto(this FormRow row)
+    {
+        return new FormRowDto(
+            row.Order,
+            row.IsAdditionalOperation,
+            row.Values
+        );
+    }
 }

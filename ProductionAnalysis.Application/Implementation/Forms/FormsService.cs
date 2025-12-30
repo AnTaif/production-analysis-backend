@@ -1,5 +1,7 @@
 ﻿using Core.Results;
 using ProductionAnalysis.Application.Converters;
+using ProductionAnalysis.Application.Domain;
+using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Templates;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Client.Models.Forms;
@@ -12,6 +14,7 @@ public interface IFormsService
     Task<Result<FormShortDto>> CreateAsync(CreateFormRequest request, Guid creatorId);
     Task<Result<FormDto>> GetByIdAsync(int formId);
     Task<Result<ICollection<FormRowDto>>> GetFormRowsAsync(int formId);
+    Task<Result<FormRowDto>> UpdateFormRowAsync(UpdateFormRowRequest request, Guid userId);
 }
 
 [RegisterScoped]
@@ -97,5 +100,61 @@ public class FormsService(
             template);
 
         await unitOfWork.Forms.CreateFormRowsAsync(formId, rows);
+    }
+
+    public async Task<Result<FormRowDto>> UpdateFormRowAsync(UpdateFormRowRequest request, Guid userId)
+    {
+        var form = await unitOfWork.Forms.FindAsync(request.FormId);
+        if (form == null)
+        {
+            return ServiceError.NotFound($"Form with id {request.FormId} not found");
+        }
+
+        var row = form.Rows.SingleOrDefault(r => r.Order == request.RowOrder);
+        if (row == null)
+        {
+            return ServiceError.NotFound($"Form row with Order={request.RowOrder} not found in form {request.FormId}");
+        }
+
+        var templateSnapshot = FormTemplateParser.ParseTemplateSnapshot(form.TemplateSnapshot);
+        var indicatorsDict = templateSnapshot.TableColumns
+            .Where(c => c.Id > 0 && !string.IsNullOrEmpty(c.InputType))
+            .ToDictionary(c => c.Id, c => c.InputType);
+
+        var filteredValues = new List<FormRowValueData>();
+        foreach (var (indicatorId, value) in request.Values)
+        {
+            if (!indicatorsDict.TryGetValue(indicatorId, out var inputType))
+            {
+                continue;
+            }
+
+            if (inputType is FieldInputTypes.Manual or FieldInputTypes.Dictionary)
+            {
+                filteredValues.Add(new FormRowValueData
+                {
+                    IndicatorId = indicatorId,
+                    Value = value
+                });
+            }
+        }
+
+        await unitOfWork.Forms.UpdateFormRowValuesAsync(
+            request.FormId,
+            request.RowOrder,
+            filteredValues,
+            userId);
+
+        await unitOfWork.SaveChangesAsync();
+
+        var updatedForm = await unitOfWork.Forms.FindAsync(request.FormId);
+        var updatedRow = updatedForm?.Rows.SingleOrDefault(r => r.Order == request.RowOrder);
+
+        if (updatedRow == null)
+        {
+            return ServiceError.NotFound($"Form row with Order={request.RowOrder} not found after update");
+        }
+
+        return updatedRow.ToRowDto();
     }
 }
