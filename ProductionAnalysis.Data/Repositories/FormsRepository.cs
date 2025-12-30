@@ -70,6 +70,7 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
         var formDbo = await dbContext.Forms
             .Include(f => f.FormRows)
             .ThenInclude(r => r.Values)
+            .ThenInclude(v => v.Indicator)
             .FirstOrDefaultAsync(f => f.Id == formId);
 
         return formDbo?.ToDomain();
@@ -96,16 +97,14 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
             };
 
             // Создаем отдельные записи для каждого значения
-            foreach (var (key, value) in row.Values)
+            foreach (var valueData in row.Values)
             {
-                var valueJson = JsonSerializer.Serialize(value);
-                var valueType = value?.GetType().Name ?? "null";
+                var valueJson = JsonSerializer.Serialize(valueData.Value);
 
                 formRow.Values.Add(new FormRowValueDbo
                 {
-                    FieldKey = key,
-                    Value = valueJson,
-                    ValueType = valueType
+                    IndicatorId = valueData.IndicatorId,
+                    Value = valueJson
                 });
             }
 

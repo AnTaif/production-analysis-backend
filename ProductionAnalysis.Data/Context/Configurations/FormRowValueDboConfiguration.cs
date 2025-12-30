@@ -23,8 +23,13 @@ public class FormRowValueDboConfiguration : IEntityTypeConfiguration<FormRowValu
             .HasForeignKey(x => x.FormRowId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasOne(x => x.Indicator)
+            .WithMany()
+            .HasForeignKey(x => x.IndicatorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(x => x.FormRowId);
-        builder.HasIndex(x => new { x.FormRowId, x.FieldKey })
+        builder.HasIndex(x => new { x.FormRowId, x.IndicatorId })
             .IsUnique();
     }
 }

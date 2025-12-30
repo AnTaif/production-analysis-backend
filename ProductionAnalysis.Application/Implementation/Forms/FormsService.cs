@@ -59,6 +59,7 @@ public class FormsService(
                 var rows = await FormRowGenerator.GenerateRowsForShiftAsync(
                     shift.StartTime,
                     schedules,
+                    template,
                     unitOfWork);
 
                 await unitOfWork.Forms.CreateFormRowsAsync(form.Id, rows);

@@ -1,4 +1,5 @@
 using ProductionAnalysis.Application.Domain.Forms;
+using ProductionAnalysis.Application.Domain.Templates;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Client.Models.Dictionaries;
 
@@ -12,10 +13,36 @@ public class FormRowGenerator
     public static async Task<ICollection<FormRowData>> GenerateRowsForShiftAsync(
         TimeOnly shiftStartTime,
         ICollection<ShiftScheduleDto> schedules,
+        Template template,
         IPaUnitOfWork unitOfWork)
     {
         var rows = new List<FormRowData>();
         short order = 1;
+
+        // Получаем индикаторы из шаблона
+        // Ищем индикатор для времени работы - может быть "Время работы, час" или подобный
+        var workTimeIndicator = template.Indicators.FirstOrDefault(i =>
+            i.Name.Contains("Время работы", StringComparison.OrdinalIgnoreCase) ||
+            i.Name.Contains("workTime", StringComparison.OrdinalIgnoreCase) ||
+            i.Name.Contains("Время", StringComparison.OrdinalIgnoreCase));
+
+        // Ищем индикатор для наименования операции
+        var operationNameIndicator = template.Indicators.FirstOrDefault(i =>
+            i.Name.Contains("Наименование", StringComparison.OrdinalIgnoreCase) ||
+            i.Name.Contains("операции", StringComparison.OrdinalIgnoreCase));
+
+        if (workTimeIndicator == null)
+        {
+            // Если не нашли специальный индикатор, используем первый доступный текстовый индикатор
+            workTimeIndicator = template.Indicators.FirstOrDefault(i =>
+                                    i.ValueType.Equals("Text", StringComparison.OrdinalIgnoreCase))
+                                ?? template.Indicators.First();
+
+            if (workTimeIndicator == null)
+            {
+                throw new InvalidOperationException("Template must contain at least one indicator");
+            }
+        }
 
         // Получаем все дополнительные операции для быстрого доступа
         var additionalOperations = await unitOfWork.Dictionaries.SelectAdditionalOperationsAsync();
@@ -53,9 +80,13 @@ public class FormRowGenerator
                     {
                         Order = order++,
                         IsAdditionalOperation = false,
-                        Values = new Dictionary<string, object>
+                        Values = new List<FormRowValueData>
                         {
-                            { "workTime", $"{currentTime:HH:mm}-{nextSchedule.StartTime:HH:mm}" }
+                            new FormRowValueData
+                            {
+                                IndicatorId = workTimeIndicator.Id,
+                                Value = $"{currentTime:HH:mm}-{nextSchedule.StartTime:HH:mm}"
+                            }
                         }
                     };
                     rows.Add(workRowBeforeBreak);
@@ -66,16 +97,30 @@ public class FormRowGenerator
                 if (additionalOp != null)
                 {
                     var breakEndTime = nextSchedule.StartTime.Add(additionalOp.Duration);
+                    var breakRowValues = new List<FormRowValueData>
+                    {
+                        new FormRowValueData
+                        {
+                            IndicatorId = workTimeIndicator.Id,
+                            Value = $"{nextSchedule.StartTime:HH:mm}-{breakEndTime:HH:mm}"
+                        }
+                    };
+
+                    if (operationNameIndicator != null)
+                    {
+                        breakRowValues.Add(new FormRowValueData
+                        {
+                            IndicatorId = operationNameIndicator.Id,
+                            Value = additionalOp.Name
+                        });
+                    }
+
                     var breakRow = new FormRowData
                     {
                         Order = order++,
                         IsAdditionalOperation = true,
                         AdditionalOperationId = nextSchedule.AdditionalOperationId,
-                        Values = new Dictionary<string, object>
-                        {
-                            { "workTime", $"{nextSchedule.StartTime:HH:mm}-{breakEndTime:HH:mm}" },
-                            { "name", additionalOp.Name }
-                        }
+                        Values = breakRowValues
                     };
                     rows.Add(breakRow);
 
@@ -96,9 +141,13 @@ public class FormRowGenerator
                     {
                         Order = order++,
                         IsAdditionalOperation = false,
-                        Values = new Dictionary<string, object>
+                        Values = new List<FormRowValueData>
                         {
-                            { "workTime", $"{currentTime:HH:mm}-{hourEnd:HH:mm}" }
+                            new FormRowValueData
+                            {
+                                IndicatorId = workTimeIndicator.Id,
+                                Value = $"{currentTime:HH:mm}-{hourEnd:HH:mm}"
+                            }
                         }
                     };
                     rows.Add(workRowAfterBreak);
@@ -112,9 +161,13 @@ public class FormRowGenerator
                 {
                     Order = order++,
                     IsAdditionalOperation = false,
-                    Values = new Dictionary<string, object>
+                    Values = new List<FormRowValueData>
                     {
-                        { "workTime", $"{currentTime:HH:mm}-{hourEnd:HH:mm}" }
+                        new FormRowValueData
+                        {
+                            IndicatorId = workTimeIndicator.Id,
+                            Value = $"{currentTime:HH:mm}-{hourEnd:HH:mm}"
+                        }
                     }
                 };
                 rows.Add(workRow);

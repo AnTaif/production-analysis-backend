@@ -40,7 +40,8 @@ public static class FormsConverter
             var value = DeserializeValue(valueDbo.Value);
             if (value != null)
             {
-                values[valueDbo.FieldKey] = value;
+                // Используем ID индикатора как ключ, но можно также использовать имя индикатора
+                values[valueDbo.IndicatorId.ToString()] = value;
             }
         }
 
@@ -62,7 +63,9 @@ public static class FormsConverter
             var value = DeserializeValue(valueDbo.Value);
             if (value != null)
             {
-                values[valueDbo.FieldKey] = value;
+                // Используем имя индикатора как ключ для удобства на фронтенде
+                var indicatorName = valueDbo.Indicator?.Name ?? valueDbo.IndicatorId.ToString();
+                values[indicatorName] = value;
             }
         }
 
