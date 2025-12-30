@@ -1,12 +1,12 @@
 ﻿using Core.Database;
-using Microsoft.EntityFrameworkCore;
 using ProductionAnalysis.Application.Repositories;
+using ProductionAnalysis.Data.Context;
 
 namespace ProductionAnalysis.Data.Repositories;
 
 [RegisterScoped]
 public class PaUnitOfWork(
-    DbContext dbContext,
+    PaDbContext dbContext,
     IDictionariesRepository dictionariesRepository,
     IFormsRepository formsRepository,
     ITemplatesRepository templatesRepository,
