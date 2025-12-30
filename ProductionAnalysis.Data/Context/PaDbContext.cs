@@ -11,6 +11,7 @@ public class PaDbContext(DbContextOptions<PaDbContext> options)
     : IdentityDbContext<UserDbo, IdentityRole<Guid>, Guid>(options)
 {
     public DbSet<FormDbo> Forms { get; set; }
+    public DbSet<FormDataDbo> FormData { get; set; }
 
     #region Dictionaries
 
