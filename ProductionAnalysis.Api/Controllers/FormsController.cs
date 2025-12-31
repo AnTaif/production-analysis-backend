@@ -1,4 +1,5 @@
-﻿using Core.Auth;
+﻿using System.ComponentModel.DataAnnotations;
+using Core.Auth;
 using Core.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -40,13 +41,8 @@ public class FormsController(IFormsService formsService) : ControllerBase
     [ProducesResponseType<FormDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<string>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<FormDto>> GetFormById(int id)
+    public async Task<ActionResult<FormDto>> GetFormById([Range(1, int.MaxValue)] int id)
     {
-        if (id <= 0)
-        {
-            return BadRequest("Form ID must be greater than zero.");
-        }
-
         var result = await formsService.GetByIdAsync(id);
         return result.ToActionResult(this);
     }
@@ -55,13 +51,8 @@ public class FormsController(IFormsService formsService) : ControllerBase
     [ProducesResponseType<ICollection<FormRowDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType<string>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<ICollection<FormRowDto>>> GetFormRows(int id)
+    public async Task<ActionResult<ICollection<FormRowDto>>> GetFormRows([Range(1, int.MaxValue)] int id)
     {
-        if (id <= 0)
-        {
-            return BadRequest("Form ID must be greater than zero.");
-        }
-
         var result = await formsService.GetFormRowsAsync(id);
         return result.ToActionResult(this);
     }

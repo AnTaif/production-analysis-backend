@@ -4,5 +4,5 @@ namespace ProductionAnalysis.Application.Repositories;
 
 public interface ITemplatesRepository
 {
-    Task<Template?> GetLatestByPaTypeIdAsync(int paTypeId);
+    Task<Template?> FindLatestVerAsync(int paTypeId);
 }

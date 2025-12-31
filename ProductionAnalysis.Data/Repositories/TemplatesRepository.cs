@@ -9,7 +9,7 @@ namespace ProductionAnalysis.Data.Repositories;
 [RegisterScoped]
 public class TemplatesRepository(PaDbContext dbContext) : ITemplatesRepository
 {
-    public async Task<Template?> GetLatestByPaTypeIdAsync(int paTypeId)
+    public async Task<Template?> FindLatestVerAsync(int paTypeId)
     {
         var templateDbo = await dbContext.Templates
             .Include(t => t.Indicators)

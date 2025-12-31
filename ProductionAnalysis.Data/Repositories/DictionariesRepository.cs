@@ -75,6 +75,7 @@ public class DictionariesRepository(PaDbContext dbContext) : IDictionariesReposi
             .Where(s => s.ShiftId == shiftId)
             .OrderBy(s => s.StartTime)
             .ToListAsync();
+
         return dbos.Select(s => s.ToDto()).ToList();
     }
 }

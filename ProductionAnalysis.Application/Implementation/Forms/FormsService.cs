@@ -45,7 +45,7 @@ public class FormsService(
     {
         var createForm = request.ToDomain(creatorId);
 
-        var template = await unitOfWork.Templates.GetLatestByPaTypeIdAsync(createForm.PaTypeId);
+        var template = await unitOfWork.Templates.FindLatestVerAsync(createForm.PaTypeId);
         if (template == null)
         {
             return ServiceError.NotFound($"Template for PaType {createForm.PaTypeId} not found");
@@ -108,13 +108,13 @@ public class FormsService(
         var form = await unitOfWork.Forms.FindAsync(formId);
         if (form is null)
         {
-            return ServiceError.NotFound($"Form with id {formId} not found");
+            return ServiceError.NotFound($"Form {formId} not found");
         }
 
         var row = form.Rows.SingleOrDefault(r => r.Order == rowOrder);
         if (row is null)
         {
-            return ServiceError.NotFound($"Form with id {formId} not found");
+            return ServiceError.NotFound($"Row {rowOrder} not found in form {formId}");
         }
 
         var filteredValues = formRowValueFilter.FilterUpdatableValues(
@@ -126,7 +126,7 @@ public class FormsService(
             return row.ToRowDto();
         }
 
-        var template = await unitOfWork.Templates.GetLatestByPaTypeIdAsync(form.PaTypeId);
+        var template = await unitOfWork.Templates.FindLatestVerAsync(form.PaTypeId);
         if (template == null)
         {
             return ServiceError.NotFound($"Template for PaType {form.PaTypeId} not found");
