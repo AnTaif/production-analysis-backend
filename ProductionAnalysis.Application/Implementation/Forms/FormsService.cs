@@ -1,5 +1,6 @@
 ﻿using Core.Results;
 using ProductionAnalysis.Application.Converters;
+using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Templates;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Client.Models.Forms;
@@ -43,19 +44,25 @@ public class FormsService(
 
     public async Task<Result<FormShortDto>> CreateAsync(CreateFormRequest request, Guid creatorId)
     {
-        var createForm = request.ToDomain(creatorId);
-
-        var template = await unitOfWork.Templates.FindLatestVerAsync(createForm.PaTypeId);
+        var template = await unitOfWork.Templates.FindLatestVerAsync(request.PaTypeId);
         if (template == null)
         {
-            return ServiceError.NotFound($"Template for PaType {createForm.PaTypeId} not found");
+            return ServiceError.NotFound($"Template for PaType {request.PaTypeId} not found");
         }
 
-        createForm.TemplateSnapshot = TemplateSerializer.SerializeTemplateSnapshot(template);
+        var context = request.Context.ToDomainContext();
 
-        var form = await unitOfWork.Forms.CreateAsync(createForm);
+        var newForm = new Form
+        {
+            PaTypeId = request.PaTypeId,
+            TemplateSnapshot = TemplateSerializer.SerializeTemplateSnapshot(template),
+            Context = context,
+            CreatorId = creatorId
+        };
 
-        await CreateFormRowsIfNeededAsync(form.Id, createForm.ShiftId, template);
+        var form = await unitOfWork.Forms.CreateAsync(newForm);
+
+        await CreateFormRowsIfNeededAsync(form.Id, request.ShiftId, template);
         await unitOfWork.SaveChangesAsync();
 
         return form.ToShortDto();
@@ -142,7 +149,8 @@ public class FormsService(
         var formulaValuesToUpdate = await formRowFormulaCalculator.CalculateFormulaValuesAsync(
             row,
             template,
-            updatedIndicatorIds);
+            updatedIndicatorIds,
+            form.Context);
 
         if (formulaValuesToUpdate.Count != 0)
         {

@@ -42,22 +42,22 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
         return (forms, totalCount);
     }
 
-    public async Task<Form> CreateAsync(CreateForm createForm)
+    public async Task<Form> CreateAsync(Form newForm)
     {
         var now = DateTime.UtcNow;
 
-        var contextJson = JsonSerializer.Serialize(createForm.Context);
+        var contextJson = JsonSerializer.Serialize(newForm.Context);
 
         var formDbo = new FormDbo
         {
-            PaTypeId = createForm.PaTypeId,
+            PaTypeId = newForm.PaTypeId,
             Status = (int)FormStatus.InProgress,
             Context = contextJson,
-            TemplateSnapshot = createForm.TemplateSnapshot,
+            TemplateSnapshot = newForm.TemplateSnapshot,
             CreationDate = now,
             UpdateDate = now,
-            CreatorId = createForm.CreatorId,
-            LastEditorId = createForm.CreatorId
+            CreatorId = newForm.CreatorId,
+            LastEditorId = newForm.CreatorId
         };
 
         dbContext.Forms.Add(formDbo);

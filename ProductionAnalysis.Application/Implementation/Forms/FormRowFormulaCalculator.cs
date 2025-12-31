@@ -10,7 +10,8 @@ public interface IFormRowFormulaCalculator
     Task<ICollection<FormRowValueData>> CalculateFormulaValuesAsync(
         FormRow row,
         Template template,
-        ICollection<int> updatedIndicatorIds);
+        ICollection<int> updatedIndicatorIds,
+        Dictionary<string, object>? formContext = null);
 }
 
 [RegisterScoped]
@@ -19,13 +20,15 @@ public class FormRowFormulaCalculator(IFormulaCalculator formulaCalculator) : IF
     public Task<ICollection<FormRowValueData>> CalculateFormulaValuesAsync(
         FormRow row,
         Template template,
-        ICollection<int> updatedIndicatorIds)
+        ICollection<int> updatedIndicatorIds,
+        Dictionary<string, object>? formContext = null)
     {
         var currentValues = ParseRowValuesToDictionary(row.Values);
         var calculatedValues = formulaCalculator.CalculateFormulas(
             currentValues,
             template.Indicators,
-            updatedIndicatorIds);
+            updatedIndicatorIds,
+            formContext);
 
         var formulaValuesToUpdate = new List<FormRowValueData>();
         foreach (var (indicatorId, calculatedValue) in calculatedValues)

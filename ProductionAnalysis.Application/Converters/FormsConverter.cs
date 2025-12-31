@@ -1,5 +1,7 @@
+using System.Text.Json;
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Client.Models.Forms;
+using ProductionAnalysis.Client.Models.Forms.FormsCreation;
 
 namespace ProductionAnalysis.Application.Converters;
 
@@ -55,17 +57,6 @@ public static class FormsConverter
         };
     }
 
-    public static CreateForm ToDomain(this CreateFormRequest request, Guid creatorId)
-    {
-        return new CreateForm
-        {
-            PaTypeId = request.PaTypeId,
-            ShiftId = request.ShiftId,
-            Context = request.Context,
-            CreatorId = creatorId
-        };
-    }
-
     public static List<FormRowDto> ToRowDtos(this ICollection<FormRow> rows)
     {
         return rows
@@ -87,5 +78,26 @@ public static class FormsConverter
             IsAdditionalOperation = row.IsAdditionalOperation,
             Values = row.Values
         };
+    }
+
+    public static Dictionary<string, object> ToDomainContext(
+        this Dictionary<string, CreateFormRequestContextBase> requestContext)
+    {
+        var domainContext = new Dictionary<string, object>();
+
+        foreach (var (key, context) in requestContext)
+        {
+            // Сериализуем контекст в JSON, затем десериализуем в object
+            // Это позволяет сохранить структуру данных
+            var jsonString = JsonSerializer.Serialize(context, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+            var jsonElement = JsonSerializer.Deserialize<JsonElement>(jsonString);
+            domainContext[key] = jsonElement;
+        }
+
+        return domainContext;
     }
 }
