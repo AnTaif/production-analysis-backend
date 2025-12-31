@@ -4,9 +4,9 @@ namespace ProductionAnalysis.Data.Models.Forms;
 
 public class FormRowValueDbo
 {
-    public int Id { get; set; }
+    public int FormId { get; set; }
 
-    public int FormRowId { get; set; }
+    public short FormRowOrder { get; set; }
 
     public int IndicatorId { get; set; }
 

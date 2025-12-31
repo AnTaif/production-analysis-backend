@@ -10,17 +10,13 @@ public class FormRowValueDboConfiguration : IEntityTypeConfiguration<FormRowValu
     {
         builder.ToTable("form_row_values");
 
-        builder.HasKey(x => x.Id);
-
-        builder.Property(x => x.Id)
-            .ValueGeneratedOnAdd()
-            .UseIdentityColumn();
+        builder.HasKey(x => new { x.FormId, x.FormRowOrder, x.IndicatorId });
 
         builder.Property(x => x.Value).HasColumnType("jsonb");
 
         builder.HasOne(x => x.FormRow)
             .WithMany(x => x.Values)
-            .HasForeignKey(x => x.FormRowId)
+            .HasForeignKey(x => new { x.FormId, x.FormRowOrder })
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(x => x.Indicator)
@@ -28,8 +24,6 @@ public class FormRowValueDboConfiguration : IEntityTypeConfiguration<FormRowValu
             .HasForeignKey(x => x.IndicatorId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasIndex(x => x.FormRowId);
-        builder.HasIndex(x => new { x.FormRowId, x.IndicatorId })
-            .IsUnique();
+        builder.HasIndex(x => new { x.FormId, x.FormRowOrder });
     }
 }

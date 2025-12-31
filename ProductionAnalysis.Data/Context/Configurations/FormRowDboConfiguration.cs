@@ -10,19 +10,12 @@ public class FormRowDboConfiguration : IEntityTypeConfiguration<FormRowDbo>
     {
         builder.ToTable("form_rows");
 
-        builder.HasKey(x => x.Id);
-
-        builder.Property(x => x.Id)
-            .ValueGeneratedOnAdd()
-            .UseIdentityColumn();
+        builder.HasKey(x => new { x.FormId, x.Order });
 
         builder.HasOne(x => x.Form)
             .WithMany(x => x.FormRows)
             .HasForeignKey(x => x.FormId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasIndex(x => new { x.FormId, x.Order })
-            .IsUnique();
 
         builder.HasIndex(x => x.FormId);
     }

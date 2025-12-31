@@ -92,13 +92,14 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
                 Values = new List<FormRowValueDbo>()
             };
 
-            // Создаем отдельные записи для каждого значения
             foreach (var valueData in row.Values)
             {
                 var valueJson = JsonSerializer.Serialize(valueData.Value);
 
                 formRow.Values.Add(new FormRowValueDbo
                 {
+                    FormId = formId,
+                    FormRowOrder = row.Order,
                     IndicatorId = valueData.IndicatorId,
                     Value = valueJson
                 });
@@ -130,10 +131,11 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
 
             if (valueDbo == null)
             {
-                // Создаем новое значение
                 var valueJson = JsonSerializer.Serialize(valueData.Value);
                 formRow.Values.Add(new FormRowValueDbo
                 {
+                    FormId = formId,
+                    FormRowOrder = rowOrder,
                     IndicatorId = valueData.IndicatorId,
                     Value = valueJson
                 });
