@@ -7,12 +7,13 @@ public class ProductDtoExample : IExamplesProvider<ProductDto>
 {
     public ProductDto GetExamples()
     {
-        return new ProductDto(
-            2,
-            "Втулка",
-            TimeSpan.FromSeconds(60),
-            1
-        );
+        return new ProductDto
+        {
+            Id = 2,
+            Name = "Втулка",
+            TactTime = TimeSpan.FromSeconds(60),
+            EnterpriseId = 1
+        };
     }
 }
 
@@ -22,9 +23,9 @@ public class EnumerableProductDtoExample : IExamplesProvider<IEnumerable<Product
     {
         return new List<ProductDto>
         {
-            new(1, "Втулка", TimeSpan.FromSeconds(60), 1),
-            new(2, "Шайба", TimeSpan.FromSeconds(120), 1),
-            new(3, "Деталь с предприятия 2", TimeSpan.FromSeconds(30), 2)
+            new() { Id = 1, Name = "Втулка", TactTime = TimeSpan.FromSeconds(60), EnterpriseId = 1 },
+            new() { Id = 2, Name = "Шайба", TactTime = TimeSpan.FromSeconds(120), EnterpriseId = 1 },
+            new() { Id = 3, Name = "Деталь с предприятия 2", TactTime = TimeSpan.FromSeconds(30), EnterpriseId = 2 }
         };
     }
 }

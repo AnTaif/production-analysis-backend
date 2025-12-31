@@ -1,6 +1,7 @@
 ﻿namespace ProductionAnalysis.Client.Models.Dictionaries;
 
-public record EnterpriseDto(
-    int Id,
-    string Name
-);
+public record EnterpriseDto
+{
+    public int Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+}

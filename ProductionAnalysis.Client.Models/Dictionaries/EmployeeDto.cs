@@ -1,8 +1,9 @@
 ﻿namespace ProductionAnalysis.Client.Models.Dictionaries;
 
-public record EmployeeDto(
-    int Id,
-    string FullName,
-    string Position,
-    int DepartmentId
-);
+public record EmployeeDto
+{
+    public int Id { get; init; }
+    public string FullName { get; init; } = string.Empty;
+    public string Position { get; init; } = string.Empty;
+    public int DepartmentId { get; init; }
+}

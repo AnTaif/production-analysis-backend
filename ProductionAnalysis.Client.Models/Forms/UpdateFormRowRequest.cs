@@ -1,7 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ProductionAnalysis.Client.Models.Forms;
 
-public record UpdateFormRowRequest(
-    int FormId,
-    short RowOrder,
-    Dictionary<int, object> Values // Key - IndicatorId, Value - новое значение
-);
+public record UpdateFormRowRequest
+{
+    [Required]
+    public Dictionary<int, object> Values { get; init; } = new(); // Key - IndicatorId, Value - новое значение
+}

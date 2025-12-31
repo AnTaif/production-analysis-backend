@@ -7,12 +7,13 @@ public class EmployeeDtoExample : IExamplesProvider<EmployeeDto>
 {
     public EmployeeDto GetExamples()
     {
-        return new EmployeeDto(
-            15,
-            "Иванов Иван Иванович",
-            "Бригадир",
-            2
-        );
+        return new EmployeeDto
+        {
+            Id = 15,
+            FullName = "Иванов Иван Иванович",
+            Position = "Бригадир",
+            DepartmentId = 2
+        };
     }
 }
 
@@ -22,9 +23,9 @@ public class EnumerableEmployeeDtoExample : IExamplesProvider<IEnumerable<Employ
     {
         return new List<EmployeeDto>
         {
-            new(1, "Иван Иванов Иванович", "Оператор", 1),
-            new(2, "Пётр Петров Петрович", "Старший оператор", 1),
-            new(3, "Алексей Сидоров Алексеевич", "Мастер участка", 2)
+            new() { Id = 1, FullName = "Иван Иванов Иванович", Position = "Оператор", DepartmentId = 1 },
+            new() { Id = 2, FullName = "Пётр Петров Петрович", Position = "Старший оператор", DepartmentId = 1 },
+            new() { Id = 3, FullName = "Алексей Сидоров Алексеевич", Position = "Мастер участка", DepartmentId = 2 }
         };
     }
 }

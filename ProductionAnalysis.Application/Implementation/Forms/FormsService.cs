@@ -12,14 +12,13 @@ public interface IFormsService
     Task<Result<FormShortDto>> CreateAsync(CreateFormRequest request, Guid creatorId);
     Task<Result<FormDto>> GetByIdAsync(int formId);
     Task<Result<ICollection<FormRowDto>>> GetFormRowsAsync(int formId);
-    Task<Result<FormRowDto>> UpdateFormRowAsync(UpdateFormRowRequest request, Guid userId);
+    Task<Result<FormRowDto>> UpdateFormRowAsync(int formId, short rowOrder, UpdateFormRowRequest request, Guid userId);
 }
 
 [RegisterScoped]
 public class FormsService(
     IPaUnitOfWork unitOfWork,
     IFormRowGenerator formRowGenerator,
-    IFormRowUpdateValidator formRowUpdateValidator,
     IFormRowValueFilter formRowValueFilter,
     IFormRowFormulaCalculator formRowFormulaCalculator
 )
@@ -103,61 +102,65 @@ public class FormsService(
         await unitOfWork.Forms.CreateFormRowsAsync(formId, rows);
     }
 
-    public async Task<Result<FormRowDto>> UpdateFormRowAsync(UpdateFormRowRequest request, Guid userId)
+    public async Task<Result<FormRowDto>> UpdateFormRowAsync(int formId, short rowOrder, UpdateFormRowRequest request,
+        Guid userId)
     {
-        var form = await unitOfWork.Forms.FindAsync(request.FormId);
-        var validationResult = formRowUpdateValidator.Validate(request, form);
-        if (validationResult.IsFailure)
+        var form = await unitOfWork.Forms.FindAsync(formId);
+        if (form is null)
         {
-            return validationResult.Error;
+            return ServiceError.NotFound($"Form with id {formId} not found");
         }
 
-        var (validatedForm, validatedRow) = validationResult.Value;
+        var row = form.Rows.SingleOrDefault(r => r.Order == rowOrder);
+        if (row is null)
+        {
+            return ServiceError.NotFound($"Form with id {formId} not found");
+        }
 
         var filteredValues = formRowValueFilter.FilterUpdatableValues(
             request.Values,
-            validatedForm.TemplateSnapshot);
+            form.TemplateSnapshot);
 
         if (filteredValues.Count == 0)
         {
-            return validatedRow.ToRowDto();
+            return row.ToRowDto();
         }
 
-        var template = await unitOfWork.Templates.GetLatestByPaTypeIdAsync(validatedForm.PaTypeId);
+        var template = await unitOfWork.Templates.GetLatestByPaTypeIdAsync(form.PaTypeId);
         if (template == null)
         {
-            return ServiceError.NotFound($"Template for PaType {validatedForm.PaTypeId} not found");
+            return ServiceError.NotFound($"Template for PaType {form.PaTypeId} not found");
         }
 
         await unitOfWork.Forms.UpdateFormRowValuesAsync(
-            request.FormId,
-            request.RowOrder,
+            formId,
+            rowOrder,
             filteredValues,
             userId);
 
         var updatedIndicatorIds = filteredValues.Select(v => v.IndicatorId).ToList();
         var formulaValuesToUpdate = await formRowFormulaCalculator.CalculateFormulaValuesAsync(
-            validatedRow,
+            row,
             template,
             updatedIndicatorIds);
 
         if (formulaValuesToUpdate.Count != 0)
         {
             await unitOfWork.Forms.UpdateFormRowValuesAsync(
-                request.FormId,
-                request.RowOrder,
+                formId,
+                rowOrder,
                 formulaValuesToUpdate,
                 userId);
         }
 
         await unitOfWork.SaveChangesAsync();
 
-        var updatedForm = await unitOfWork.Forms.FindAsync(request.FormId);
-        var updatedRow = updatedForm?.Rows.SingleOrDefault(r => r.Order == request.RowOrder);
+        var updatedForm = await unitOfWork.Forms.FindAsync(formId);
+        var updatedRow = updatedForm?.Rows.SingleOrDefault(r => r.Order == rowOrder);
 
         if (updatedRow == null)
         {
-            return ServiceError.NotFound($"Form row with Order={request.RowOrder} not found after update");
+            return ServiceError.NotFound($"Form row with Order={rowOrder} not found after update");
         }
 
         return updatedRow.ToRowDto();

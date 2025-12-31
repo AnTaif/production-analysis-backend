@@ -5,5 +5,9 @@ namespace ProductionAnalysis.Api.Docs.Auth.RequestExamples;
 
 public class LoginRequestExample : IExamplesProvider<LoginRequest>
 {
-    public LoginRequest GetExamples() => new("temp@mail.ru", "password");
+    public LoginRequest GetExamples() => new()
+    {
+        Email = "operator@mail.ru",
+        Password = "password"
+    };
 }

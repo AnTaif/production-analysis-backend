@@ -1,7 +1,12 @@
-﻿namespace ProductionAnalysis.Client.Models.Forms;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record CreateFormRequest(
-    int PaTypeId,
-    int ShiftId,
-    Dictionary<string, object> Context
-);
+namespace ProductionAnalysis.Client.Models.Forms;
+
+public record CreateFormRequest
+{
+    [Range(1, int.MaxValue)] public int PaTypeId { get; init; }
+
+    [Range(1, int.MaxValue)] public int ShiftId { get; init; }
+
+    public required Dictionary<string, object> Context { get; init; }
+}

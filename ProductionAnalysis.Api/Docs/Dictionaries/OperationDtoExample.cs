@@ -7,14 +7,15 @@ public class OperationDtoExample : IExamplesProvider<OperationDto>
 {
     public OperationDto GetExamples()
     {
-        return new OperationDto(
-            10,
-            "Установка",
-            TimeSpan.FromMinutes(10),
-            OperationBasedOnType.Operation,
-            8,
-            null
-        );
+        return new OperationDto
+        {
+            Id = 10,
+            Name = "Установка",
+            Duration = TimeSpan.FromMinutes(10),
+            BasedOnType = OperationBasedOnType.Operation,
+            BasedOperationId = 8,
+            BasedProductId = null
+        };
     }
 }
 
@@ -24,9 +25,21 @@ public class EnumerableOperationDtoExample : IExamplesProvider<IEnumerable<Opera
     {
         return new List<OperationDto>
         {
-            new(1, "Установка рамы", TimeSpan.FromMinutes(10), OperationBasedOnType.Nothing, null, null),
-            new(2, "Установка", TimeSpan.FromMinutes(15), OperationBasedOnType.Operation, 2, null),
-            new(3, "Настройка", TimeSpan.FromMinutes(20), OperationBasedOnType.Product, null, 1)
+            new()
+            {
+                Id = 1, Name = "Установка рамы", Duration = TimeSpan.FromMinutes(10),
+                BasedOnType = OperationBasedOnType.Nothing, BasedOperationId = null, BasedProductId = null
+            },
+            new()
+            {
+                Id = 2, Name = "Установка", Duration = TimeSpan.FromMinutes(15),
+                BasedOnType = OperationBasedOnType.Operation, BasedOperationId = 2, BasedProductId = null
+            },
+            new()
+            {
+                Id = 3, Name = "Настройка", Duration = TimeSpan.FromMinutes(20),
+                BasedOnType = OperationBasedOnType.Product, BasedOperationId = null, BasedProductId = 1
+            }
         };
     }
 }

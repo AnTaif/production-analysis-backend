@@ -1,7 +1,8 @@
 ﻿namespace ProductionAnalysis.Client.Models.Dictionaries;
 
-public record AdditionalOperationDto(
-    int Id,
-    string Name,
-    TimeSpan Duration
-);
+public record AdditionalOperationDto
+{
+    public int Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public TimeSpan Duration { get; init; }
+}

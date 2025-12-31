@@ -69,11 +69,12 @@ public static class FormsConverter
             }
         }
 
-        return new FormRowDto(
-            dbo.Order,
-            dbo.IsAdditionalOperation,
-            values
-        );
+        return new FormRowDto
+        {
+            Order = dbo.Order,
+            IsAdditionalOperation = dbo.IsAdditionalOperation,
+            Values = values
+        };
     }
 
     private static object? DeserializeValue(string jsonValue)

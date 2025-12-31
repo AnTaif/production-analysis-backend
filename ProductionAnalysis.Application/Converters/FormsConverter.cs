@@ -7,13 +7,14 @@ public static class FormsConverter
 {
     public static FormShortDto ToShortDto(this Form form)
     {
-        return new FormShortDto(
-            form.Id,
-            form.PaTypeId,
-            FormStatusConverter.ConvertToClientFormStatus(form.Status),
-            form.CreationDate,
-            form.UpdateDate
-        );
+        return new FormShortDto
+        {
+            Id = form.Id,
+            PaTypeId = form.PaTypeId,
+            Status = FormStatusConverter.ConvertToClientFormStatus(form.Status),
+            CreationDate = form.CreationDate,
+            UpdateDate = form.UpdateDate
+        };
     }
 
     public static FormDto ToDto(this Form form)
@@ -22,23 +23,25 @@ public static class FormsConverter
 
         var rows = form.Rows
             .OrderBy(r => r.Order)
-            .Select(r => new FormRowDto(
-                r.Order,
-                r.IsAdditionalOperation,
-                r.Values
-            ))
+            .Select(r => new FormRowDto
+            {
+                Order = r.Order,
+                IsAdditionalOperation = r.IsAdditionalOperation,
+                Values = r.Values
+            })
             .ToList();
 
-        return new FormDto(
-            form.Id,
-            form.PaTypeId,
-            FormStatusConverter.ConvertToClientFormStatus(form.Status),
-            form.CreationDate,
-            form.UpdateDate,
-            form.Context,
-            rows,
-            template
-        );
+        return new FormDto
+        {
+            Id = form.Id,
+            PaTypeId = form.PaTypeId,
+            Status = FormStatusConverter.ConvertToClientFormStatus(form.Status),
+            CreationDate = form.CreationDate,
+            UpdateDate = form.UpdateDate,
+            Context = form.Context,
+            Rows = rows,
+            Template = template
+        };
     }
 
     public static SearchFormsFilter ToDomain(this SearchFormsFilterDto dto)
@@ -67,20 +70,22 @@ public static class FormsConverter
     {
         return rows
             .OrderBy(r => r.Order)
-            .Select(r => new FormRowDto(
-                r.Order,
-                r.IsAdditionalOperation,
-                r.Values
-            ))
+            .Select(r => new FormRowDto
+            {
+                Order = r.Order,
+                IsAdditionalOperation = r.IsAdditionalOperation,
+                Values = r.Values
+            })
             .ToList();
     }
 
     public static FormRowDto ToRowDto(this FormRow row)
     {
-        return new FormRowDto(
-            row.Order,
-            row.IsAdditionalOperation,
-            row.Values
-        );
+        return new FormRowDto
+        {
+            Order = row.Order,
+            IsAdditionalOperation = row.IsAdditionalOperation,
+            Values = row.Values
+        };
     }
 }

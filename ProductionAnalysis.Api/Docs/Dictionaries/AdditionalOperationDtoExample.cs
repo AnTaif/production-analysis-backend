@@ -7,7 +7,12 @@ public class AdditionalOperationDtoExample : IExamplesProvider<AdditionalOperati
 {
     public AdditionalOperationDto GetExamples()
     {
-        return new AdditionalOperationDto(1, "Обед 30 мин", TimeSpan.FromMinutes(30));
+        return new AdditionalOperationDto
+        {
+            Id = 1,
+            Name = "Обед 30 мин",
+            Duration = TimeSpan.FromMinutes(30)
+        };
     }
 }
 
@@ -17,8 +22,8 @@ public class EnumerableAdditionalOperationDtoExample : IExamplesProvider<IEnumer
     {
         return new List<AdditionalOperationDto>
         {
-            new(1, "Обед 30 мин", TimeSpan.FromMinutes(30)),
-            new(1, "Переналадка 15 мин", TimeSpan.FromMinutes(15))
+            new() { Id = 1, Name = "Обед 30 мин", Duration = TimeSpan.FromMinutes(30) },
+            new() { Id = 1, Name = "Переналадка 15 мин", Duration = TimeSpan.FromMinutes(15) }
         };
     }
 }

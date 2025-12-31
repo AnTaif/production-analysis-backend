@@ -7,11 +7,12 @@ public class ShiftDtoExample : IExamplesProvider<ShiftDto>
 {
     public ShiftDto GetExamples()
     {
-        return new ShiftDto(
-            1,
-            "1",
-            new TimeOnly(07, 00)
-        );
+        return new ShiftDto
+        {
+            Id = 1,
+            Name = "1",
+            StartTime = new TimeOnly(07, 00)
+        };
     }
 }
 
@@ -21,9 +22,9 @@ public class EnumerableShiftDtoExample : IExamplesProvider<IEnumerable<ShiftDto>
     {
         return new List<ShiftDto>
         {
-            new(1, "1", new TimeOnly(8, 0)),
-            new(2, "2", new TimeOnly(16, 0)),
-            new(3, "3 (ночная)", new TimeOnly(0, 0))
+            new() { Id = 1, Name = "1", StartTime = new TimeOnly(8, 0) },
+            new() { Id = 2, Name = "2", StartTime = new TimeOnly(16, 0) },
+            new() { Id = 3, Name = "3 (ночная)", StartTime = new TimeOnly(0, 0) }
         };
     }
 }

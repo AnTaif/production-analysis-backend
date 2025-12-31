@@ -8,97 +8,107 @@ public static class DictionariesConverter
 {
     public static DepartmentDto ToDto(this DepartmentDbo dbo)
     {
-        return new DepartmentDto(
-            dbo.Id,
-            dbo.Name,
-            dbo.EnterpriseId
-        );
+        return new DepartmentDto
+        {
+            Id = dbo.Id,
+            Name = dbo.Name,
+            EnterpriseId = dbo.EnterpriseId
+        };
     }
 
     public static DowntimeReasonGroupDto ToDto(this DowntimeReasonGroupDbo dbo)
     {
-        return new DowntimeReasonGroupDto(
-            dbo.Id,
-            dbo.Name,
-            dbo.Description
-        );
+        return new DowntimeReasonGroupDto
+        {
+            Id = dbo.Id,
+            Name = dbo.Name,
+            Description = dbo.Description
+        };
     }
 
     public static EmployeeDto ToDto(this EmployeeDbo dbo)
     {
         var fullName = new FullName(dbo.LastName, dbo.FirstName, dbo.MiddleName);
 
-        return new EmployeeDto(
-            dbo.Id,
-            fullName.ToString(),
-            dbo.Position,
-            dbo.DepartmentId
-        );
+        return new EmployeeDto
+        {
+            Id = dbo.Id,
+            FullName = fullName.ToString(),
+            Position = dbo.Position,
+            DepartmentId = dbo.DepartmentId
+        };
     }
 
     public static EnterpriseDto ToDto(this EnterpriseDbo dbo)
     {
-        return new EnterpriseDto(
-            dbo.Id,
-            dbo.Name
-        );
+        return new EnterpriseDto
+        {
+            Id = dbo.Id,
+            Name = dbo.Name
+        };
     }
 
     public static AdditionalOperationDto ToDto(this AdditionalOperationDbo dbo)
     {
-        return new AdditionalOperationDto(
-            dbo.Id,
-            dbo.Name,
-            TimeSpan.FromSeconds(dbo.DurationInSeconds)
-        );
+        return new AdditionalOperationDto
+        {
+            Id = dbo.Id,
+            Name = dbo.Name,
+            Duration = TimeSpan.FromSeconds(dbo.DurationInSeconds)
+        };
     }
 
     public static OperationDto ToDto(this OperationDbo dbo)
     {
-        return new OperationDto(
-            dbo.Id,
-            dbo.Name,
-            dbo.DurationInSeconds == null ? null : TimeSpan.FromSeconds(dbo.DurationInSeconds.Value),
-            (OperationBasedOnType)dbo.BasedOnType,
-            dbo.BasedOperationId,
-            dbo.BasedProductId
-        );
+        return new OperationDto
+        {
+            Id = dbo.Id,
+            Name = dbo.Name,
+            Duration = dbo.DurationInSeconds == null ? null : TimeSpan.FromSeconds(dbo.DurationInSeconds.Value),
+            BasedOnType = (OperationBasedOnType)dbo.BasedOnType,
+            BasedOperationId = dbo.BasedOperationId,
+            BasedProductId = dbo.BasedProductId
+        };
     }
 
     public static PaTypeDto ToDto(this PaTypeDbo dbo)
     {
-        return new PaTypeDto(
-            dbo.Id,
-            dbo.Name
-        );
+        return new PaTypeDto
+        {
+            Id = dbo.Id,
+            Name = dbo.Name
+        };
     }
 
     public static ProductDto ToDto(this ProductDbo dbo)
     {
-        return new ProductDto(
-            dbo.Id,
-            dbo.Name,
-            TimeSpan.FromSeconds(dbo.TactTimeInSeconds),
-            dbo.EnterpriseId
-        );
+        return new ProductDto
+        {
+            Id = dbo.Id,
+            Name = dbo.Name,
+            TactTime = TimeSpan.FromSeconds(dbo.TactTimeInSeconds),
+            EnterpriseId = dbo.EnterpriseId
+        };
     }
 
     public static ShiftDto ToDto(this ShiftDbo dbo)
     {
-        return new ShiftDto(
-            dbo.Id,
-            dbo.Name,
-            dbo.StartTime
-        );
+        return new ShiftDto
+        {
+            Id = dbo.Id,
+            Name = dbo.Name,
+            StartTime = dbo.StartTime
+        };
     }
 
     public static ShiftScheduleDto ToDto(this ShiftScheduleDbo dbo)
     {
-        return new ShiftScheduleDto(
-            dbo.Id,
-            dbo.ShiftId,
-            dbo.AdditionalOperationId,
-            dbo.StartTime
-        );
+        return new ShiftScheduleDto
+        {
+            Id = dbo.Id,
+            ShiftId = dbo.ShiftId,
+            AdditionalOperationId = dbo.AdditionalOperationId,
+            StartTime = dbo.StartTime
+        };
     }
 }

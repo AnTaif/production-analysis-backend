@@ -1,7 +1,8 @@
 ﻿namespace ProductionAnalysis.Client.Models.Forms;
 
-public record FormRowDto(
-    short Order,
-    bool IsAdditionalOperation,
-    Dictionary<string, object> Values
-);
+public record FormRowDto
+{
+    public short Order { get; init; }
+    public bool IsAdditionalOperation { get; init; }
+    public Dictionary<string, object> Values { get; init; } = new();
+}

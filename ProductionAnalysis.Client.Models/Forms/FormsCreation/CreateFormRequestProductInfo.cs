@@ -1,12 +1,14 @@
-﻿namespace ProductionAnalysis.Client.Models.Forms.FormsCreation;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ProductionAnalysis.Client.Models.Forms.FormsCreation;
 
 public class CreateFormRequestProductInfo : CreateFormRequestInfoBase
 {
-    public int ProductId { get; set; }
+    [Range(1, int.MaxValue)] public int ProductId { get; init; }
 
-    public int? CycleTime { get; set; }
+    [Range(1, int.MaxValue)] public int? CycleTime { get; init; }
 
-    public int? WorkstationCapacity { get; set; }
+    [Range(1, int.MaxValue)] public int? WorkstationCapacity { get; init; }
 
-    public int DailyRate { get; set; }
+    [Range(1, int.MaxValue)] public int DailyRate { get; init; }
 }

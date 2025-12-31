@@ -7,11 +7,12 @@ public class DepartmentDtoExample : IExamplesProvider<DepartmentDto>
 {
     public DepartmentDto GetExamples()
     {
-        return new DepartmentDto(
-            2,
-            "Участок 1",
-            1
-        );
+        return new DepartmentDto
+        {
+            Id = 2,
+            Name = "Участок 1",
+            EnterpriseId = 1
+        };
     }
 }
 
@@ -21,9 +22,9 @@ public class EnumerableDepartmentDtoExample : IExamplesProvider<IEnumerable<Depa
     {
         return new List<DepartmentDto>
         {
-            new(1, "Цех №1", 1),
-            new(2, "Цех №2", 1),
-            new(3, "Литейный участок", 2)
+            new() { Id = 1, Name = "Цех №1", EnterpriseId = 1 },
+            new() { Id = 2, Name = "Цех №2", EnterpriseId = 1 },
+            new() { Id = 3, Name = "Литейный участок", EnterpriseId = 2 }
         };
     }
 }

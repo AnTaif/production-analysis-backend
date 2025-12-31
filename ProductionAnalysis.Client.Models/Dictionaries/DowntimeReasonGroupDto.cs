@@ -1,7 +1,8 @@
 ﻿namespace ProductionAnalysis.Client.Models.Dictionaries;
 
-public record DowntimeReasonGroupDto(
-    int Id,
-    string Name,
-    string Description
-);
+public record DowntimeReasonGroupDto
+{
+    public int Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public string Description { get; init; } = string.Empty;
+}

@@ -1,8 +1,14 @@
-﻿namespace ProductionAnalysis.Client.Models.Forms;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record SearchFormsFilterDto(
-    int? DepartmentId,
-    FormStatus? Status,
-    int PageNumber = 1,
-    int PageSize = 10
-);
+namespace ProductionAnalysis.Client.Models.Forms;
+
+public record SearchFormsFilterDto
+{
+    [Range(1, int.MaxValue)] public int? DepartmentId { get; init; }
+
+    public FormStatus? Status { get; init; }
+
+    [Range(1, int.MaxValue)] public int PageNumber { get; init; } = 1;
+
+    [Range(1, 100)] public int PageSize { get; init; } = 10;
+}

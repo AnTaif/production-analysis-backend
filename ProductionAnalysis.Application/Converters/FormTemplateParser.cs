@@ -19,12 +19,18 @@ internal static class FormTemplateParser
                 tableColumns = ParseFormFields(tableColumnsElement);
             }
 
-            return new FormTemplateDto(tableColumns);
+            return new FormTemplateDto
+            {
+                TableColumns = tableColumns
+            };
         }
         catch
         {
             // Если не удалось распарсить, возвращаем пустой шаблон
-            return new FormTemplateDto(new List<FormFieldDto>());
+            return new FormTemplateDto
+            {
+                TableColumns = new List<FormFieldDto>()
+            };
         }
     }
 
@@ -56,7 +62,14 @@ internal static class FormTemplateParser
                     ? valueTypeElement.GetString()
                     : null;
 
-                fields.Add(new FormFieldDto(id, name, inputType, inputSelector, valueType));
+                fields.Add(new FormFieldDto
+                {
+                    Id = id,
+                    Name = name,
+                    InputType = inputType ?? string.Empty,
+                    InputSelector = inputSelector,
+                    ValueType = valueType
+                });
             }
         }
 

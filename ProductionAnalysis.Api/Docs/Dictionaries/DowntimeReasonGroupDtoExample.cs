@@ -7,11 +7,12 @@ public class DowntimeReasonGroupDtoExample : IExamplesProvider<DowntimeReasonGro
 {
     public DowntimeReasonGroupDto GetExamples()
     {
-        return new DowntimeReasonGroupDto(
-            1,
-            "Тех.",
-            "Технические причины (поломка оборудования / инструмента, нет энергоносителей и тд.)"
-        );
+        return new DowntimeReasonGroupDto
+        {
+            Id = 1,
+            Name = "Тех.",
+            Description = "Технические причины (поломка оборудования / инструмента, нет энергоносителей и тд.)"
+        };
     }
 }
 
@@ -21,9 +22,21 @@ public class EnumerableDowntimeReasonGroupDtoExample : IExamplesProvider<IEnumer
     {
         return new List<DowntimeReasonGroupDto>
         {
-            new(1, "Орг.", "Организационные причины (отсутствие или неопытность работника, опоздание и тд.)"),
-            new(2, "Тех.", "Технические причины (поломка оборудования / инструмента, нет энергоносителей и тд.)"),
-            new(3, "Лог.", "Логистика, нет поставок (заготовок, инструмента, расходных материалов)")
+            new()
+            {
+                Id = 1, Name = "Орг.",
+                Description = "Организационные причины (отсутствие или неопытность работника, опоздание и тд.)"
+            },
+            new()
+            {
+                Id = 2, Name = "Тех.",
+                Description = "Технические причины (поломка оборудования / инструмента, нет энергоносителей и тд.)"
+            },
+            new()
+            {
+                Id = 3, Name = "Лог.",
+                Description = "Логистика, нет поставок (заготовок, инструмента, расходных материалов)"
+            }
         };
     }
 }

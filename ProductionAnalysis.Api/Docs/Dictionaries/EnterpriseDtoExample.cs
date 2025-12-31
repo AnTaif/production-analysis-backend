@@ -7,10 +7,11 @@ public class EnterpriseDtoExample : IExamplesProvider<EnterpriseDto>
 {
     public EnterpriseDto GetExamples()
     {
-        return new EnterpriseDto(
-            1,
-            "Предприятие №1"
-        );
+        return new EnterpriseDto
+        {
+            Id = 1,
+            Name = "Предприятие №1"
+        };
     }
 }
 
@@ -20,8 +21,8 @@ public class EnumerableEnterpriseDtoExample : IExamplesProvider<IEnumerable<Ente
     {
         return new List<EnterpriseDto>
         {
-            new(1, "Предприятие №1"),
-            new(2, "Завод в свердловской области")
+            new() { Id = 1, Name = "Предприятие №1" },
+            new() { Id = 2, Name = "Завод в свердловской области" }
         };
     }
 }
