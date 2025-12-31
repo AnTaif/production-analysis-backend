@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProductionAnalysis.Application.Implementation.Forms;
 using ProductionAnalysis.Client.Models.Forms;
+using Shared.Constants;
 
 namespace ProductionAnalysis.Api.Controllers;
 
@@ -23,6 +24,7 @@ public class FormsController(IFormsService formsService) : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = Roles.DepartmentHead)]
     [ProducesResponseType<FormShortDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<string>(StatusCodes.Status401Unauthorized)]

@@ -1,5 +1,4 @@
-﻿using Core.Auth;
-using Core.Database;
+﻿using Core.Database;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -8,6 +7,7 @@ using ProductionAnalysis.Data.Context;
 using ProductionAnalysis.Data.Models;
 using ProductionAnalysis.Data.Models.Dictionaries;
 using ProductionAnalysis.Data.Models.Forms;
+using Shared.Constants;
 
 namespace ProductionAnalysis.Data.Seeding;
 
@@ -48,7 +48,7 @@ public class PaDataSeeder(
 
     private async Task SeedRolesAsync()
     {
-        var roles = RolesConstants.GetRoles();
+        var roles = Roles.GetRoles();
 
         foreach (var role in roles)
         {
@@ -79,6 +79,16 @@ public class PaDataSeeder(
             MiddleName = "MiddleName"
         };
 
+        var departmentHead = new UserDbo
+        {
+            Id = Guid.NewGuid(),
+            Email = "departmentHead@mail.ru",
+            UserName = "departmentHead@mail.ru",
+            FirstName = "departmentHead",
+            LastName = "LastName",
+            MiddleName = "MiddleName"
+        };
+
         var analyst = new UserDbo
         {
             Id = Guid.NewGuid(),
@@ -101,9 +111,10 @@ public class PaDataSeeder(
 
         var users = new List<(UserDbo, string[])>
         {
-            (@operator, [RolesConstants.Operator]),
-            (analyst, [RolesConstants.Analyst]),
-            (admin, [RolesConstants.Admin]),
+            (@operator, [Roles.Operator]),
+            (departmentHead, [Roles.DepartmentHead]),
+            (analyst, [Roles.Analyst]),
+            (admin, [Roles.Admin]),
         };
 
         await CreateUsersAsync(users);
