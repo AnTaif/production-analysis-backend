@@ -223,10 +223,16 @@ public class PaDataSeeder(
 
     #region Employees
 
-    private Task SeedEmployeesAsync()
+    private async Task SeedEmployeesAsync()
     {
         if (dbContext.Employees.Any())
-            return Task.CompletedTask;
+            return;
+
+        // Получаем пользователей для связи
+        var operatorUser = await userManager.FindByEmailAsync("operator@mail.ru");
+        var departmentHeadUser = await userManager.FindByEmailAsync("departmentHead@mail.ru");
+        var analystUser = await userManager.FindByEmailAsync("analyst@mail.ru");
+        var adminUser = await userManager.FindByEmailAsync("admin@mail.ru");
 
         dbContext.Employees.AddRange(
             new EmployeeDbo
@@ -236,7 +242,8 @@ public class PaDataSeeder(
                 LastName = "Иванов",
                 MiddleName = "Иванович",
                 Position = "Бригадир",
-                DepartmentId = 1
+                DepartmentId = 1,
+                UserId = operatorUser?.Id
             },
             new EmployeeDbo
             {
@@ -245,7 +252,8 @@ public class PaDataSeeder(
                 LastName = "Петров",
                 MiddleName = "Петрович",
                 Position = "Кладовщик",
-                DepartmentId = 1
+                DepartmentId = 1,
+                UserId = departmentHeadUser?.Id
             },
             new EmployeeDbo
             {
@@ -254,11 +262,20 @@ public class PaDataSeeder(
                 LastName = "Сидоров",
                 MiddleName = "Алексеевич",
                 Position = "Мастер",
-                DepartmentId = 2
+                DepartmentId = 2,
+                UserId = analystUser?.Id
+            },
+            new EmployeeDbo
+            {
+                Id = 4,
+                FirstName = "Admin",
+                LastName = "LastName",
+                MiddleName = "MiddleName",
+                Position = "Администратор",
+                DepartmentId = 1,
+                UserId = adminUser?.Id
             }
         );
-
-        return Task.CompletedTask;
     }
 
     #endregion
@@ -684,12 +701,23 @@ public class PaDataSeeder(
 
     #region Forms
 
-    private Task SeedFormsAsync()
+    private async Task SeedFormsAsync()
     {
         if (dbContext.Forms.Any())
-            return Task.CompletedTask;
+            return;
 
         var now = DateTime.UtcNow;
+        var firstUser = dbContext.Users.First();
+
+        // Получаем Employee для первого пользователя, чтобы определить DepartmentId
+        var employee = await dbContext.Employees
+            .FirstOrDefaultAsync(e => e.UserId == firstUser.Id);
+
+        // Если Employee не найден, используем первый отдел
+        var departmentId = employee?.DepartmentId ?? 1;
+
+        // Используем первую смену
+        var shiftId = 1;
 
         dbContext.Forms.AddRange(
             new FormDbo
@@ -702,8 +730,10 @@ public class PaDataSeeder(
                     "{\"tableColumns\": [{\"id\": 1, \"name\": \"value\", \"inputType\": 2, \"valueType\": 3}]}",
                 CreationDate = now,
                 UpdateDate = now,
-                CreatorId = dbContext.Users.First().Id,
-                LastEditorId = dbContext.Users.First().Id
+                CreatorId = firstUser.Id,
+                LastEditorId = firstUser.Id,
+                ShiftId = shiftId,
+                DepartmentId = departmentId
             },
             new FormDbo
             {
@@ -715,12 +745,12 @@ public class PaDataSeeder(
                     "{\"tableColumns\": [{\"id\": 1, \"name\": \"value\", \"inputType\": 2, \"valueType\": 3}]}",
                 CreationDate = now,
                 UpdateDate = now,
-                CreatorId = dbContext.Users.First().Id,
-                LastEditorId = dbContext.Users.First().Id
+                CreatorId = firstUser.Id,
+                LastEditorId = firstUser.Id,
+                ShiftId = shiftId,
+                DepartmentId = departmentId
             }
         );
-
-        return Task.CompletedTask;
     }
 
     #endregion

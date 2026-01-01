@@ -11,4 +11,6 @@ public class Form
     public string TemplateSnapshot { get; set; } = string.Empty;
     public ICollection<FormRow> Rows { get; set; } = new List<FormRow>();
     public Guid CreatorId { get; set; }
+    public int ShiftId { get; set; }
+    public int DepartmentId { get; set; }
 }

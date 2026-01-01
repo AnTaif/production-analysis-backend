@@ -57,7 +57,9 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
             CreationDate = now,
             UpdateDate = now,
             CreatorId = newForm.CreatorId,
-            LastEditorId = newForm.CreatorId
+            LastEditorId = newForm.CreatorId,
+            ShiftId = newForm.ShiftId,
+            DepartmentId = newForm.DepartmentId
         };
 
         dbContext.Forms.Add(formDbo);

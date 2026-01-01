@@ -27,7 +27,9 @@ public static class FormsConverter
             UpdateDate = dbo.UpdateDate,
             Context = context,
             TemplateSnapshot = dbo.TemplateSnapshot,
-            Rows = rows
+            Rows = rows,
+            ShiftId = dbo.ShiftId,
+            DepartmentId = dbo.DepartmentId
         };
     }
 

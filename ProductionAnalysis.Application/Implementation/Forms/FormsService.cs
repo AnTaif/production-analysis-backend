@@ -50,6 +50,12 @@ public class FormsService(
             return ServiceError.NotFound($"Template for PaType {request.PaTypeId} not found");
         }
 
+        var employee = await unitOfWork.Dictionaries.FindEmployeeByUserIdAsync(creatorId);
+        if (employee == null)
+        {
+            return ServiceError.NotFound($"Employee for user {creatorId} not found");
+        }
+
         var context = request.Context.ToDomainContext();
 
         var newForm = new Form
@@ -57,7 +63,9 @@ public class FormsService(
             PaTypeId = request.PaTypeId,
             TemplateSnapshot = TemplateSerializer.SerializeTemplateSnapshot(template),
             Context = context,
-            CreatorId = creatorId
+            CreatorId = creatorId,
+            ShiftId = request.ShiftId,
+            DepartmentId = employee.DepartmentId
         };
 
         var form = await unitOfWork.Forms.CreateAsync(newForm);

@@ -1,13 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Client.Models.Dictionaries;
 using ProductionAnalysis.Data.Context;
 using ProductionAnalysis.Data.Converters;
+using ProductionAnalysis.Data.Models;
 
 namespace ProductionAnalysis.Data.Repositories;
 
 [RegisterScoped]
-public class DictionariesRepository(PaDbContext dbContext) : IDictionariesRepository
+public class DictionariesRepository(
+    PaDbContext dbContext,
+    UserManager<UserDbo> userManager) : IDictionariesRepository
 {
     public async Task<ICollection<DepartmentDto>> SelectDepartmentsAsync()
     {
@@ -25,6 +29,14 @@ public class DictionariesRepository(PaDbContext dbContext) : IDictionariesReposi
     {
         var dbos = await dbContext.Employees.ToListAsync();
         return dbos.Select(e => e.ToDto()).ToList();
+    }
+
+    public async Task<EmployeeDto?> FindEmployeeByUserIdAsync(Guid userId)
+    {
+        var employee = await dbContext.Employees
+            .FirstOrDefaultAsync(e => e.UserId == userId);
+
+        return employee?.ToDto();
     }
 
     public async Task<ICollection<EnterpriseDto>> SelectEnterprisesAsync()
