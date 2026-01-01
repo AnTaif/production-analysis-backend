@@ -3,10 +3,8 @@
 public static class FieldInputTypes
 {
     public const string Manual = "manual";
-
     public const string Dictionary = "dictionary";
-
     public const string Formula = "formula";
-
     public const string Context = "context";
+    public const string Initialization = "initialization";
 }

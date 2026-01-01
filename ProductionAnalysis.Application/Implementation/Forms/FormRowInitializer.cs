@@ -5,18 +5,18 @@ using ProductionAnalysis.Client.Models.Dictionaries;
 
 namespace ProductionAnalysis.Application.Implementation.Forms;
 
-public interface IFormRowGenerator
+public interface IFormRowInitializer
 {
-    Task<ICollection<FormRowData>> GenerateRowsForShiftAsync(
+    Task<ICollection<FormRowData>> InitializeRowsForShiftAsync(
         TimeOnly shiftStartTime,
         ICollection<ShiftScheduleDto> schedules,
         Template template);
 }
 
 [RegisterScoped]
-public class FormRowGenerator(
+public class FormRowInitializer(
     IPaUnitOfWork unitOfWork
-) : IFormRowGenerator
+) : IFormRowInitializer
 {
     private const int ShiftDurationHours = 8;
     private const int ShiftDurationMinutes = 40; // 8 часов 40 минут для смены 
@@ -24,7 +24,7 @@ public class FormRowGenerator(
     private const int WorktimeIndicatorId = 16;
     private const int OperationNameIndicatorId = 9;
 
-    public async Task<ICollection<FormRowData>> GenerateRowsForShiftAsync(
+    public async Task<ICollection<FormRowData>> InitializeRowsForShiftAsync(
         TimeOnly shiftStartTime,
         ICollection<ShiftScheduleDto> schedules,
         Template template)

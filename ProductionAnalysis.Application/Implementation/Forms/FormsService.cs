@@ -19,7 +19,7 @@ public interface IFormsService
 [RegisterScoped]
 public class FormsService(
     IPaUnitOfWork unitOfWork,
-    IFormRowGenerator formRowGenerator,
+    IFormRowInitializer formRowInitializer,
     IFormRowValueFilter formRowValueFilter,
     IFormRowFormulaCalculator formRowFormulaCalculator
 )
@@ -109,7 +109,7 @@ public class FormsService(
         }
 
         var schedules = await unitOfWork.Dictionaries.SelectShiftSchedulesByShiftIdAsync(shiftId);
-        var rows = await formRowGenerator.GenerateRowsForShiftAsync(
+        var rows = await formRowInitializer.InitializeRowsForShiftAsync(
             shift.StartTime,
             schedules,
             template);

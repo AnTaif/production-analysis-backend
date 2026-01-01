@@ -6,7 +6,6 @@ using ProductionAnalysis.Application.Domain;
 using ProductionAnalysis.Data.Context;
 using ProductionAnalysis.Data.Models;
 using ProductionAnalysis.Data.Models.Dictionaries;
-using ProductionAnalysis.Data.Models.Forms;
 using Shared.Constants;
 
 namespace ProductionAnalysis.Data.Seeding;
@@ -38,8 +37,6 @@ public class PaDataSeeder(
         await SeedShiftSchedulesAsync();
         await SeedIndicatorsAsync();
         await SeedTemplatesAsync();
-
-        await SeedFormsAsync();
 
         await dbContext.SaveChangesAsync();
     }
@@ -482,9 +479,9 @@ public class PaDataSeeder(
                 Id = 1,
                 Name = "План, шт.",
                 ValueType = FieldValueTypes.Number,
-                InputType = FieldInputTypes.Formula,
+                InputType = FieldInputTypes.Initialization,
                 ValueSelector = "",
-                Formula = "",
+                Formula = null,
                 IsCumulative = true,
                 HasSummation = true,
             },
@@ -506,7 +503,7 @@ public class PaDataSeeder(
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Formula,
                 ValueSelector = "",
-                Formula = "",
+                Formula = "indicator_2 - indicator_1",
                 IsCumulative = true,
                 HasSummation = true
             },
@@ -592,7 +589,7 @@ public class PaDataSeeder(
                 Id = 11,
                 Name = "Время начала план, мин.",
                 ValueType = FieldValueTypes.Number,
-                InputType = FieldInputTypes.Formula,
+                InputType = FieldInputTypes.Initialization,
                 ValueSelector = null,
                 Formula = null,
                 IsCumulative = true,
@@ -614,7 +611,7 @@ public class PaDataSeeder(
                 Id = 13,
                 Name = "Время окончания план, мин.",
                 ValueType = FieldValueTypes.Number,
-                InputType = FieldInputTypes.Formula,
+                InputType = FieldInputTypes.Initialization,
                 ValueSelector = null,
                 Formula = null,
                 IsCumulative = true,
@@ -647,7 +644,7 @@ public class PaDataSeeder(
                 Id = 16,
                 Name = "Время работы, час.",
                 ValueType = FieldValueTypes.Text,
-                InputType = FieldInputTypes.Formula,
+                InputType = FieldInputTypes.Initialization,
                 ValueSelector = null,
                 Formula = null,
                 IsCumulative = true,
@@ -695,62 +692,6 @@ public class PaDataSeeder(
         template1.Indicators.Add(actionsTaken);
 
         dbContext.Templates.Add(template1);
-    }
-
-    #endregion
-
-    #region Forms
-
-    private async Task SeedFormsAsync()
-    {
-        if (dbContext.Forms.Any())
-            return;
-
-        var now = DateTime.UtcNow;
-        var firstUser = dbContext.Users.First();
-
-        // Получаем Employee для первого пользователя, чтобы определить DepartmentId
-        var employee = await dbContext.Employees
-            .FirstOrDefaultAsync(e => e.UserId == firstUser.Id);
-
-        // Если Employee не найден, используем первый отдел
-        var departmentId = employee?.DepartmentId ?? 1;
-
-        // Используем первую смену
-        var shiftId = 1;
-
-        dbContext.Forms.AddRange(
-            new FormDbo
-            {
-                Id = 0, // Будет сгенерировано автоматически
-                PaTypeId = 1,
-                Status = 0,
-                Context = "{\"shift\": 1, \"department\": 1}",
-                TemplateSnapshot =
-                    "{\"tableColumns\": [{\"id\": 1, \"name\": \"value\", \"inputType\": 2, \"valueType\": 3}]}",
-                CreationDate = now,
-                UpdateDate = now,
-                CreatorId = firstUser.Id,
-                LastEditorId = firstUser.Id,
-                ShiftId = shiftId,
-                DepartmentId = departmentId
-            },
-            new FormDbo
-            {
-                Id = 0, // Будет сгенерировано автоматически
-                PaTypeId = 2,
-                Status = 1,
-                Context = "{\"shift\": 1, \"department\": 1}",
-                TemplateSnapshot =
-                    "{\"tableColumns\": [{\"id\": 1, \"name\": \"value\", \"inputType\": 2, \"valueType\": 3}]}",
-                CreationDate = now,
-                UpdateDate = now,
-                CreatorId = firstUser.Id,
-                LastEditorId = firstUser.Id,
-                ShiftId = shiftId,
-                DepartmentId = departmentId
-            }
-        );
     }
 
     #endregion
