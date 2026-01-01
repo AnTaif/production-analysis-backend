@@ -16,7 +16,6 @@ public interface IFormRowDataFactory
     FormRowData CreateBreakRow(
         short order,
         Indicator workTimeIndicator,
-        Indicator operationNameIndicator,
         TimeOnly startTime,
         TimeOnly endTime,
         string operationName,
@@ -61,7 +60,6 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
     public FormRowData CreateBreakRow(
         short order,
         Indicator workTimeIndicator,
-        Indicator operationNameIndicator,
         TimeOnly startTime,
         TimeOnly endTime,
         string operationName,
@@ -69,8 +67,7 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
     {
         var values = new List<FormRowValueData>
         {
-            CreateFormRowValueData(workTimeIndicator, FormatTimeRange(startTime, endTime)),
-            CreateFormRowValueData(operationNameIndicator, operationName)
+            CreateFormRowValueData(workTimeIndicator, FormatTimeRange(startTime, endTime) + " " + operationName)
         };
 
         return new FormRowData

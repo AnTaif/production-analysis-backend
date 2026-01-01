@@ -85,7 +85,6 @@ public class FormRowInitializer(
         return new InitializedIndicators
         {
             WorkTime = template.Indicators.Single(i => i.Id == ShiftConstants.WorktimeIndicatorId),
-            OperationName = template.Indicators.Single(i => i.Id == ShiftConstants.OperationNameIndicatorId),
             Plan = template.Indicators.FirstOrDefault(i => i.Id == ShiftConstants.PlanIndicatorId)
         };
     }
@@ -132,7 +131,6 @@ public class FormRowInitializer(
         var breakRow = formRowDataFactory.CreateBreakRow(
             order++,
             indicators.WorkTime,
-            indicators.OperationName,
             nextBreak.StartTime,
             breakEndTime,
             breakMetaInfo.Name,
@@ -177,7 +175,6 @@ public class FormRowInitializer(
     private record InitializedIndicators
     {
         public required Indicator WorkTime { get; init; }
-        public required Indicator OperationName { get; init; }
         public Indicator? Plan { get; init; }
     }
 }

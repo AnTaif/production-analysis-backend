@@ -1,7 +1,6 @@
 using System.Text.Json;
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Client.Models.Forms;
-using ProductionAnalysis.Client.Models.Forms.FormsCreation;
 
 namespace ProductionAnalysis.Application.Converters;
 
@@ -81,7 +80,7 @@ public static class FormsConverter
     }
 
     public static Dictionary<string, object> ToDomainContext(
-        this Dictionary<string, CreateFormRequestContextBase> requestContext)
+        this Dictionary<string, object> requestContext)
     {
         var domainContext = new Dictionary<string, object>();
 
