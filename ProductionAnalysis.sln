@@ -20,6 +20,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{5ECA1EB5-4CE0-4140-9F08-3FB2ADFB051F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{308AAC83-D7C4-4357-940E-2FF7E16AF80B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductionAnalysis.Application.Tests", "ProductionAnalysis.Application.Tests\ProductionAnalysis.Application.Tests.csproj", "{15A82A03-7792-462B-8F89-7C7514065A7E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,9 +54,14 @@ Global
 		{F3D83D0D-1FF4-40DB-BAB1-3BEE9B8FBE88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3D83D0D-1FF4-40DB-BAB1-3BEE9B8FBE88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3D83D0D-1FF4-40DB-BAB1-3BEE9B8FBE88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15A82A03-7792-462B-8F89-7C7514065A7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15A82A03-7792-462B-8F89-7C7514065A7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15A82A03-7792-462B-8F89-7C7514065A7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15A82A03-7792-462B-8F89-7C7514065A7E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9BFBD12B-19B6-447D-AF0B-984C7DDB1BF8} = {5ECA1EB5-4CE0-4140-9F08-3FB2ADFB051F}
 		{F3D83D0D-1FF4-40DB-BAB1-3BEE9B8FBE88} = {5ECA1EB5-4CE0-4140-9F08-3FB2ADFB051F}
+		{15A82A03-7792-462B-8F89-7C7514065A7E} = {308AAC83-D7C4-4357-940E-2FF7E16AF80B}
 	EndGlobalSection
 EndGlobal
