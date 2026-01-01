@@ -61,7 +61,7 @@ public class FormsService(
         var newForm = new Form
         {
             PaTypeId = request.PaTypeId,
-            TemplateSnapshot = TemplateSerializer.SerializeTemplateSnapshot(template),
+            TemplateSnapshot = template,
             Context = context,
             CreatorId = creatorId,
             ShiftId = request.ShiftId,
@@ -143,11 +143,7 @@ public class FormsService(
             return row.ToRowDto();
         }
 
-        var template = await unitOfWork.Templates.FindLatestVerAsync(form.PaTypeId);
-        if (template == null)
-        {
-            return ServiceError.NotFound($"Template for PaType {form.PaTypeId} not found");
-        }
+        var template = form.TemplateSnapshot;
 
         await unitOfWork.Forms.UpdateFormRowValuesAsync(
             formId,

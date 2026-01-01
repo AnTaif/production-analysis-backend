@@ -1,13 +1,13 @@
 using System.Text.Json;
 using ProductionAnalysis.Application.Domain.Templates;
 
-namespace ProductionAnalysis.Application.Converters;
+namespace ProductionAnalysis.Application.Domain;
 
 public static class TemplateSerializer
 {
-    public static string SerializeTemplateSnapshot(Template? template)
+    public static string SerializeTemplateSnapshot(this Template? template)
     {
-        if (template == null || !template.Indicators.Any())
+        if (template == null || template.Indicators.Count == 0)
         {
             return JsonSerializer.Serialize(new
             {
@@ -23,12 +23,13 @@ public static class TemplateSerializer
                 name = indicator.Name,
                 inputType = indicator.InputType,
                 inputSelector = indicator.ValueSelector,
-                valueType = indicator.ValueType
+                valueType = indicator.ValueType,
+                formula = indicator.Formula
             }).ToList();
 
         return JsonSerializer.Serialize(new
         {
-            tableColumns = tableColumns
+            tableColumns
         });
     }
 }

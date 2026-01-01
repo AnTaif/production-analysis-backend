@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using ProductionAnalysis.Application.Domain;
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Data.Context;
@@ -51,12 +52,14 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
 
+        var templateSnapshotJson = newForm.TemplateSnapshot.SerializeTemplateSnapshot();
+
         var formDbo = new FormDbo
         {
             PaTypeId = newForm.PaTypeId,
             Status = (int)FormStatus.InProgress,
             Context = contextJson,
-            TemplateSnapshot = newForm.TemplateSnapshot,
+            TemplateSnapshot = templateSnapshotJson,
             CreationDate = now,
             UpdateDate = now,
             CreatorId = newForm.CreatorId,

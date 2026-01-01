@@ -1,42 +1,44 @@
 using System.Text.Json;
-using ProductionAnalysis.Client.Models.Forms;
+using ProductionAnalysis.Application.Domain.Templates;
 
-namespace ProductionAnalysis.Application.Converters;
+namespace ProductionAnalysis.Application.Domain;
 
-internal static class FormTemplateParser
+public static class TemplateParser
 {
-    public static FormTemplateDto ParseTemplateSnapshot(string templateSnapshot)
+    public static Template ParseTemplateSnapshot(string templateSnapshot, int paTypeId)
     {
         try
         {
             var jsonDoc = JsonDocument.Parse(templateSnapshot);
             var root = jsonDoc.RootElement;
 
-            var tableColumns = new List<FormFieldDto>();
+            var indicators = new List<Indicator>();
 
             if (root.TryGetProperty("tableColumns", out var tableColumnsElement))
             {
-                tableColumns = ParseFormFields(tableColumnsElement);
+                indicators = ParseIndicators(tableColumnsElement);
             }
 
-            return new FormTemplateDto
+            return new Template
             {
-                TableColumns = tableColumns
+                PaTypeId = paTypeId,
+                Indicators = indicators
             };
         }
         catch
         {
             // Если не удалось распарсить, возвращаем пустой шаблон
-            return new FormTemplateDto
+            return new Template
             {
-                TableColumns = new List<FormFieldDto>()
+                PaTypeId = paTypeId,
+                Indicators = new List<Indicator>()
             };
         }
     }
 
-    private static List<FormFieldDto> ParseFormFields(JsonElement fieldsElement)
+    private static List<Indicator> ParseIndicators(JsonElement fieldsElement)
     {
-        var fields = new List<FormFieldDto>();
+        var indicators = new List<Indicator>();
 
         if (fieldsElement.ValueKind == JsonValueKind.Array)
         {
@@ -51,28 +53,35 @@ internal static class FormTemplateParser
                     : string.Empty;
 
                 var inputType = fieldElement.TryGetProperty("inputType", out var inputTypeElement)
-                    ? inputTypeElement.GetString()
-                    : null;
+                    ? inputTypeElement.GetString() ?? string.Empty
+                    : string.Empty;
 
                 var inputSelector = fieldElement.TryGetProperty("inputSelector", out var inputSelectorElement)
                     ? inputSelectorElement.GetString()
                     : null;
 
                 var valueType = fieldElement.TryGetProperty("valueType", out var valueTypeElement)
-                    ? valueTypeElement.GetString()
+                    ? valueTypeElement.GetString() ?? string.Empty
+                    : string.Empty;
+
+                var formula = fieldElement.TryGetProperty("formula", out var formulaElement)
+                    ? formulaElement.GetString()
                     : null;
 
-                fields.Add(new FormFieldDto
+                indicators.Add(new Indicator
                 {
                     Id = id,
                     Name = name,
-                    InputType = inputType ?? string.Empty,
-                    InputSelector = inputSelector,
-                    ValueType = valueType
+                    InputType = inputType,
+                    ValueSelector = inputSelector,
+                    ValueType = valueType,
+                    Formula = formula,
+                    IsCumulative = false,
+                    HasSummation = false
                 });
             }
         }
 
-        return fields;
+        return indicators;
     }
 }

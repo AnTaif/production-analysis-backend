@@ -1,3 +1,5 @@
+using ProductionAnalysis.Application.Domain.Templates;
+
 namespace ProductionAnalysis.Application.Domain.Forms;
 
 public class Form
@@ -8,7 +10,7 @@ public class Form
     public DateTime CreationDate { get; set; }
     public DateTime UpdateDate { get; set; }
     public Dictionary<string, FormContextBase> Context { get; set; } = new();
-    public string TemplateSnapshot { get; set; } = string.Empty;
+    public Template TemplateSnapshot { get; set; } = null!;
     public ICollection<FormRow> Rows { get; set; } = new List<FormRow>();
     public Guid CreatorId { get; set; }
     public int ShiftId { get; set; }

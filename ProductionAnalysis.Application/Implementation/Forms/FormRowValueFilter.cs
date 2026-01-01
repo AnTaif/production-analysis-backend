@@ -1,6 +1,6 @@
-using ProductionAnalysis.Application.Converters;
 using ProductionAnalysis.Application.Domain;
 using ProductionAnalysis.Application.Domain.Forms;
+using ProductionAnalysis.Application.Domain.Templates;
 
 namespace ProductionAnalysis.Application.Implementation.Forms;
 
@@ -8,7 +8,7 @@ public interface IFormRowValueFilter
 {
     ICollection<FormRowValueData> FilterUpdatableValues(
         Dictionary<int, object> requestValues,
-        string templateSnapshot);
+        Template template);
 }
 
 [RegisterScoped]
@@ -16,12 +16,11 @@ public class FormRowValueFilter : IFormRowValueFilter
 {
     public ICollection<FormRowValueData> FilterUpdatableValues(
         Dictionary<int, object> requestValues,
-        string templateSnapshot)
+        Template template)
     {
-        var templateSnapshotDto = FormTemplateParser.ParseTemplateSnapshot(templateSnapshot);
-        var indicatorsDict = templateSnapshotDto.TableColumns
-            .Where(c => c.Id > 0 && !string.IsNullOrEmpty(c.InputType))
-            .ToDictionary(c => c.Id, c => c.InputType);
+        var indicatorsDict = template.Indicators
+            .Where(i => i.Id > 0 && !string.IsNullOrEmpty(i.InputType))
+            .ToDictionary(i => i.Id, i => i.InputType);
 
         var filteredValues = new List<FormRowValueData>();
         foreach (var (indicatorId, value) in requestValues)

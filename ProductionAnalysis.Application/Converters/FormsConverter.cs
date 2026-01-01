@@ -1,4 +1,5 @@
 using ProductionAnalysis.Application.Domain.Forms;
+using ProductionAnalysis.Application.Domain.Templates;
 using ProductionAnalysis.Client.Models.Forms;
 
 namespace ProductionAnalysis.Application.Converters;
@@ -19,7 +20,7 @@ public static class FormsConverter
 
     public static FormDto ToDto(this Form form)
     {
-        var template = FormTemplateParser.ParseTemplateSnapshot(form.TemplateSnapshot);
+        var template = ConvertTemplateToDto(form.TemplateSnapshot);
 
         var rows = form.Rows
             .OrderBy(r => r.Order)
@@ -124,5 +125,23 @@ public static class FormsConverter
         }
 
         return domainContext;
+    }
+
+    private static FormTemplateDto ConvertTemplateToDto(Template template)
+    {
+        return new FormTemplateDto
+        {
+            TableColumns = template.Indicators
+                .OrderBy(i => i.Id)
+                .Select(indicator => new FormFieldDto
+                {
+                    Id = indicator.Id,
+                    Name = indicator.Name,
+                    InputType = indicator.InputType,
+                    InputSelector = indicator.ValueSelector,
+                    ValueType = indicator.ValueType
+                })
+                .ToList()
+        };
     }
 }

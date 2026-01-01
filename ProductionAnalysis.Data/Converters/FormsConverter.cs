@@ -1,4 +1,5 @@
 using System.Text.Json;
+using ProductionAnalysis.Application.Domain;
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Client.Models.Forms;
 using ProductionAnalysis.Data.Models.Forms;
@@ -21,6 +22,8 @@ public static class FormsConverter
             .Select(r => r.ToDomain())
             .ToList();
 
+        var template = TemplateParser.ParseTemplateSnapshot(dbo.TemplateSnapshot, dbo.PaTypeId);
+
         return new Form
         {
             Id = dbo.Id,
@@ -29,7 +32,7 @@ public static class FormsConverter
             CreationDate = dbo.CreationDate,
             UpdateDate = dbo.UpdateDate,
             Context = context,
-            TemplateSnapshot = dbo.TemplateSnapshot,
+            TemplateSnapshot = template,
             Rows = rows,
             ShiftId = dbo.ShiftId,
             DepartmentId = dbo.DepartmentId
