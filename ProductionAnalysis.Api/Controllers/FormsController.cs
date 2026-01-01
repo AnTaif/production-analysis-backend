@@ -43,6 +43,7 @@ public class FormsController(IFormsService formsService) : ControllerBase
     }
 
     [HttpGet("{id:int}")]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(FormDtoExample))]
     [ProducesResponseType<FormDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<string>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]

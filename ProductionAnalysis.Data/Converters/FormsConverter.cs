@@ -10,8 +10,11 @@ public static class FormsConverter
 {
     public static Form ToDomain(this FormDbo dbo)
     {
-        var context = JsonSerializer.Deserialize<Dictionary<string, object>>(dbo.Context)
-                      ?? new Dictionary<string, object>();
+        var context = JsonSerializer.Deserialize<Dictionary<string, FormContextBase>>(dbo.Context,
+            new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }) ?? new Dictionary<string, FormContextBase>();
 
         var rows = dbo.FormRows
             .OrderBy(r => r.Order)

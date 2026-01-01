@@ -1,4 +1,3 @@
-using System.Text.Json;
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Client.Models.Forms;
 
@@ -32,6 +31,26 @@ public static class FormsConverter
             })
             .ToList();
 
+        // Конвертируем типизированный контекст в отдельные поля DTO
+        ProductContextDto? productDto = null;
+        OperationContextDto? operationDto = null;
+
+        foreach (var (key, context) in form.Context)
+        {
+            if (key.Equals("product", StringComparison.OrdinalIgnoreCase) &&
+                context is ProductFormContext productContext)
+            {
+                productDto = new ProductContextDto
+                {
+                    ProductId = productContext.ProductId,
+                    CycleTime = productContext.CycleTime,
+                    WorkstationCapacity = productContext.WorkstationCapacity,
+                    DailyRate = productContext.DailyRate
+                };
+            }
+            // Можно добавить обработку для OperationContext в будущем
+        }
+
         return new FormDto
         {
             Id = form.Id,
@@ -39,7 +58,11 @@ public static class FormsConverter
             Status = FormStatusConverter.ConvertToClientFormStatus(form.Status),
             CreationDate = form.CreationDate,
             UpdateDate = form.UpdateDate,
-            Context = form.Context,
+            Context = new FormContextDto
+            {
+                Product = productDto,
+                Operation = operationDto
+            },
             Rows = rows,
             Template = template
         };
@@ -79,22 +102,25 @@ public static class FormsConverter
         };
     }
 
-    public static Dictionary<string, object> ToDomainContext(
-        this Dictionary<string, object> requestContext)
+    public static Dictionary<string, FormContextBase> ExtractDomainContext(this CreateFormRequest request)
     {
-        var domainContext = new Dictionary<string, object>();
+        var domainContext = new Dictionary<string, FormContextBase>();
 
-        foreach (var (key, context) in requestContext)
+        if (request.Product != null)
         {
-            // Сериализуем контекст в JSON, затем десериализуем в object
-            // Это позволяет сохранить структуру данных
-            var jsonString = JsonSerializer.Serialize(context, new JsonSerializerOptions
+            domainContext["product"] = new ProductFormContext
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
+                ProductId = request.Product.ProductId,
+                CycleTime = request.Product.CycleTime,
+                WorkstationCapacity = request.Product.WorkstationCapacity,
+                DailyRate = request.Product.DailyRate
+            };
+        }
 
-            var jsonElement = JsonSerializer.Deserialize<JsonElement>(jsonString);
-            domainContext[key] = jsonElement;
+        // Можно добавить обработку для OperationContext в будущем
+        if (request.Operation != null)
+        {
+            // TODO: создать OperationFormContext когда будет определен
         }
 
         return domainContext;

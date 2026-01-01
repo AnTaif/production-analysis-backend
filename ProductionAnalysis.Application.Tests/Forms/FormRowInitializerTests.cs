@@ -1,4 +1,3 @@
-using System.Text.Json;
 using FluentAssertions;
 using Moq;
 using ProductionAnalysis.Application.Domain.Forms;
@@ -46,7 +45,7 @@ public class FormRowInitializerTests
             .ReturnsAsync(new List<AdditionalOperationDto>());
 
         productContextExtractorMock
-            .Setup(e => e.Extract(It.IsAny<Dictionary<string, object>?>()))
+            .Setup(e => e.Extract(It.IsAny<Dictionary<string, FormContextBase>?>()))
             .Returns(productContext);
 
         formRowDataFactoryMock
@@ -112,7 +111,7 @@ public class FormRowInitializerTests
             .ReturnsAsync(additionalOperations);
 
         productContextExtractorMock
-            .Setup(e => e.Extract(It.IsAny<Dictionary<string, object>?>()))
+            .Setup(e => e.Extract(It.IsAny<Dictionary<string, FormContextBase>?>()))
             .Returns(productContext);
 
         var workRowCallCount = 0;
@@ -178,7 +177,7 @@ public class FormRowInitializerTests
             .ReturnsAsync(new List<AdditionalOperationDto>());
 
         productContextExtractorMock
-            .Setup(e => e.Extract(It.IsAny<Dictionary<string, object>?>()))
+            .Setup(e => e.Extract(It.IsAny<Dictionary<string, FormContextBase>?>()))
             .Returns(productContext);
 
         formRowDataFactoryMock
@@ -237,7 +236,7 @@ public class FormRowInitializerTests
             .ReturnsAsync(new List<AdditionalOperationDto>());
 
         productContextExtractorMock
-            .Setup(e => e.Extract(It.IsAny<Dictionary<string, object>?>()))
+            .Setup(e => e.Extract(It.IsAny<Dictionary<string, FormContextBase>?>()))
             .Returns((ProductContext?)null);
 
         formRowDataFactoryMock
@@ -297,7 +296,7 @@ public class FormRowInitializerTests
             .ReturnsAsync(additionalOperations);
 
         productContextExtractorMock
-            .Setup(e => e.Extract(It.IsAny<Dictionary<string, object>?>()))
+            .Setup(e => e.Extract(It.IsAny<Dictionary<string, FormContextBase>?>()))
             .Returns(productContext);
 
         var breakRowCallCount = 0;
@@ -353,7 +352,7 @@ public class FormRowInitializerTests
             .ReturnsAsync(new List<AdditionalOperationDto>());
 
         productContextExtractorMock
-            .Setup(e => e.Extract(It.IsAny<Dictionary<string, object>?>()))
+            .Setup(e => e.Extract(It.IsAny<Dictionary<string, FormContextBase>?>()))
             .Returns(productContext);
 
         var orderSequence = new List<short>();
@@ -429,19 +428,18 @@ public class FormRowInitializerTests
         };
     }
 
-    private static Dictionary<string, object> CreateFormContext(ProductContext productContext)
+    private static Dictionary<string, FormContextBase> CreateFormContext(ProductContext productContext)
     {
-        var json = JsonSerializer.Serialize(new
+        return new Dictionary<string, FormContextBase>
         {
-            dailyRate = productContext.DailyRate,
-            cycleTime = productContext.CycleTime
-        });
-
-        var jsonElement = JsonSerializer.Deserialize<JsonElement>(json);
-
-        return new Dictionary<string, object>
-        {
-            { "product", jsonElement }
+            {
+                "product",
+                new ProductFormContext
+                {
+                    DailyRate = productContext.DailyRate,
+                    CycleTime = productContext.CycleTime
+                }
+            }
         };
     }
 }

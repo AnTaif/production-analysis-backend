@@ -10,5 +10,6 @@ public record CreateFormRequest
     [Range(1, int.MaxValue)]
     public int ShiftId { get; init; }
 
-    public required Dictionary<string, object> Context { get; init; }
+    public ProductContextDto? Product { get; init; }
+    public OperationContextDto? Operation { get; init; }
 }

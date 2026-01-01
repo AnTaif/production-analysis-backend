@@ -11,7 +11,7 @@ public interface IFormRowInitializer
         TimeOnly shiftStartTime,
         ICollection<ShiftScheduleDto> schedules,
         Template template,
-        Dictionary<string, object>? formContext = null);
+        Dictionary<string, FormContextBase>? formContext = null);
 }
 
 [RegisterScoped]
@@ -25,7 +25,7 @@ public class FormRowInitializer(
         TimeOnly shiftStartTime,
         ICollection<ShiftScheduleDto> schedules,
         Template template,
-        Dictionary<string, object>? formContext = null)
+        Dictionary<string, FormContextBase>? formContext = null)
     {
         var indicators = ExtractIndicators(template);
         var additionalOperationsByIds = await LoadAdditionalOperationsAsync();

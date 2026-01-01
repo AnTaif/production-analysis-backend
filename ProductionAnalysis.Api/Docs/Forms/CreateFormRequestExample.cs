@@ -10,23 +10,45 @@ public class CreateFormRequestExample : IExamplesProvider<CreateFormRequest>
         {
             PaTypeId = 1,
             ShiftId = 1,
-            Context = new Dictionary<string, object>()
+            Product = new ProductContextDto
             {
-                ["product"] = new ProductContext
+                ProductId = 1,
+                CycleTime = 60,
+                WorkstationCapacity = null,
+                DailyRate = 400
+            },
+            Operation = null
+        };
+}
+
+public class FormDtoExample : IExamplesProvider<FormDto>
+{
+    public FormDto GetExamples()
+    {
+        return new FormDto
+        {
+            Id = 10,
+            PaTypeId = 1,
+            Status = FormStatus.InProgress,
+            CreationDate = DateTime.UtcNow,
+            UpdateDate = DateTime.UtcNow,
+            Context = new FormContextDto
+            {
+                Product = new ProductContextDto
                 {
                     ProductId = 1,
                     CycleTime = 60,
                     WorkstationCapacity = null,
                     DailyRate = 400
-                }
+                },
+                Operation = null
+            },
+            Rows = new List<FormRowDto>
+            {
+            },
+            Template = new FormTemplateDto
+            {
             }
         };
-
-    private record ProductContext
-    {
-        public int ProductId { get; init; }
-        public int? CycleTime { get; init; }
-        public int? WorkstationCapacity { get; init; }
-        public int DailyRate { get; init; }
     }
 }

@@ -1,42 +1,32 @@
-using System.Text.Json;
+using ProductionAnalysis.Application.Domain.Forms;
 
 namespace ProductionAnalysis.Application.Implementation.Forms;
 
 public interface IProductContextExtractor
 {
-    ProductContext? Extract(Dictionary<string, object>? formContext);
+    ProductContext? Extract(Dictionary<string, FormContextBase>? formContext);
 }
 
 [RegisterScoped]
 public class ProductContextExtractor : IProductContextExtractor
 {
-    public ProductContext? Extract(Dictionary<string, object>? formContext)
+    public ProductContext? Extract(Dictionary<string, FormContextBase>? formContext)
     {
         if (formContext == null)
         {
             return null;
         }
 
-        foreach (var (_, value) in formContext)
+        foreach (var (_, context) in formContext)
         {
-            if (value is not JsonElement jsonElement)
+            if (context is ProductFormContext productContext)
             {
-                continue;
+                return new ProductContext
+                {
+                    DailyRate = productContext.DailyRate,
+                    CycleTime = productContext.CycleTime ?? 0
+                };
             }
-
-            if (!jsonElement.TryGetProperty("dailyRate", out var dailyRateElement))
-            {
-                continue;
-            }
-
-            var dailyRate = dailyRateElement.GetInt32();
-            jsonElement.TryGetProperty("cycleTime", out var cycleTimeElement);
-
-            return new ProductContext
-            {
-                DailyRate = dailyRate,
-                CycleTime = cycleTimeElement.GetInt32()
-            };
         }
 
         return null;

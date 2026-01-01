@@ -7,7 +7,7 @@ public class Form
     public FormStatus Status { get; set; }
     public DateTime CreationDate { get; set; }
     public DateTime UpdateDate { get; set; }
-    public Dictionary<string, object> Context { get; set; } = new();
+    public Dictionary<string, FormContextBase> Context { get; set; } = new();
     public string TemplateSnapshot { get; set; } = string.Empty;
     public ICollection<FormRow> Rows { get; set; } = new List<FormRow>();
     public Guid CreatorId { get; set; }

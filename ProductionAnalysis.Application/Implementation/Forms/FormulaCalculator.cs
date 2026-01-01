@@ -1,8 +1,8 @@
 using System.Data;
 using System.Globalization;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using ProductionAnalysis.Application.Domain;
+using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Templates;
 
 namespace ProductionAnalysis.Application.Implementation.Forms;
@@ -13,7 +13,7 @@ public interface IFormulaCalculator
         Dictionary<int, object> currentValues,
         ICollection<Indicator> indicators,
         ICollection<int> updatedIndicatorIds,
-        Dictionary<string, object>? formContext = null);
+        Dictionary<string, FormContextBase>? formContext = null);
 }
 
 [RegisterScoped]
@@ -29,7 +29,7 @@ public class FormulaCalculator : IFormulaCalculator
         Dictionary<int, object> currentValues,
         ICollection<Indicator> indicators,
         ICollection<int> updatedIndicatorIds,
-        Dictionary<string, object>? formContext = null)
+        Dictionary<string, FormContextBase>? formContext = null)
     {
         var formulaIndicators = indicators
             .Where(i => i.InputType == FieldInputTypes.Formula && !string.IsNullOrEmpty(i.Formula))
@@ -125,7 +125,7 @@ public class FormulaCalculator : IFormulaCalculator
     }
 
     private object? EvaluateFormula(string formula, Dictionary<int, object> currentValues,
-        Dictionary<string, object>? formContext)
+        Dictionary<string, FormContextBase>? formContext)
     {
         try
         {
@@ -211,7 +211,7 @@ public class FormulaCalculator : IFormulaCalculator
         }
     }
 
-    private object? GetContextValue(string contextKey, Dictionary<string, object>? formContext)
+    private object? GetContextValue(string contextKey, Dictionary<string, FormContextBase>? formContext)
     {
         if (formContext == null)
         {
@@ -220,82 +220,40 @@ public class FormulaCalculator : IFormulaCalculator
 
         // Поддержка вложенных ключей через точку (например, product.cycleTime)
         var keys = contextKey.Split('.');
-        object? currentValue = formContext;
-
-        foreach (var key in keys)
+        if (keys.Length == 0)
         {
-            if (currentValue is Dictionary<string, object> dict)
-            {
-                if (!dict.TryGetValue(key, out currentValue))
-                {
-                    return 0;
-                }
-            }
-            else if (currentValue is JsonElement jsonElement)
-            {
-                // Поддержка camelCase имен свойств
-                var propertyName = key;
-                if (jsonElement.ValueKind == JsonValueKind.Object)
-                {
-                    // Пробуем найти свойство (сначала точное совпадение, потом camelCase)
-                    if (jsonElement.TryGetProperty(propertyName, out var property))
-                    {
-                        currentValue = property;
-                    }
-                    else
-                    {
-                        // Пробуем найти свойство с учетом camelCase
-                        var camelCaseName = char.ToLowerInvariant(propertyName[0]) + propertyName.Substring(1);
-                        if (jsonElement.TryGetProperty(camelCaseName, out property))
-                        {
-                            currentValue = property;
-                        }
-                        else
-                        {
-                            // Пробуем найти свойство с учетом PascalCase
-                            var pascalCaseName = char.ToUpperInvariant(propertyName[0]) + propertyName.Substring(1);
-                            if (jsonElement.TryGetProperty(pascalCaseName, out property))
-                            {
-                                currentValue = property;
-                            }
-                            else
-                            {
-                                return 0;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-            else
-            {
-                return 0;
-            }
+            return 0;
         }
 
-        // Извлекаем числовое значение из JsonElement, если необходимо
-        if (currentValue is JsonElement element)
+        // Первый ключ - это ключ контекста в словаре
+        if (!formContext.TryGetValue(keys[0], out var context))
         {
-            return element.ValueKind switch
+            return 0;
+        }
+
+        // Если это ProductFormContext и запрашивается свойство
+        if (context is ProductFormContext productContext)
+        {
+            if (keys.Length == 1)
             {
-                JsonValueKind.Number => element.GetDouble(),
-                JsonValueKind.String => element.GetString(),
-                JsonValueKind.True => 1,
-                JsonValueKind.False => 0,
+                // Запрошен сам контекст, возвращаем 0 или можно вернуть объект
+                return 0;
+            }
+
+            // Второй ключ - это свойство контекста
+            var propertyName = keys[1];
+            return propertyName.ToLowerInvariant() switch
+            {
+                "productid" => productContext.ProductId ?? 0,
+                "cycletime" => productContext.CycleTime ?? 0,
+                "workstationcapacity" => productContext.WorkstationCapacity ?? 0,
+                "dailyrate" => productContext.DailyRate,
                 _ => 0
             };
         }
 
-        // Если значение уже числовое, возвращаем его
-        if (currentValue is int or long or double or decimal or float)
-        {
-            return currentValue;
-        }
-
-        return currentValue;
+        // Для других типов контекста можно добавить аналогичную логику
+        return 0;
     }
 
     private int ParseTimeRangeToMinutes(string timeRange)

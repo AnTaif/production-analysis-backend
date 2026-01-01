@@ -56,7 +56,7 @@ public class FormsService(
             return ServiceError.NotFound($"Employee for user {creatorId} not found");
         }
 
-        var context = request.Context.ToDomainContext();
+        var context = request.ExtractDomainContext();
 
         var newForm = new Form
         {
