@@ -3,11 +3,9 @@ using Core.Auth;
 using Core.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ProductionAnalysis.Api.Docs.Forms;
 using ProductionAnalysis.Application.Implementation.Forms;
 using ProductionAnalysis.Client.Models.Forms;
 using Shared.Constants;
-using Swashbuckle.AspNetCore.Filters;
 
 namespace ProductionAnalysis.Api.Controllers;
 
@@ -27,7 +25,6 @@ public class FormsController(IFormsService formsService) : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = Roles.DepartmentHead)]
-    [SwaggerRequestExample(typeof(CreateFormRequest), typeof(CreateFormRequestWithProductContextExample))]
     [ProducesResponseType<FormShortDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<string>(StatusCodes.Status401Unauthorized)]

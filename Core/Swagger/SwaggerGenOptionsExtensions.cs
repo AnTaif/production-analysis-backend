@@ -11,43 +11,11 @@ public static class SwaggerGenOptionsExtensions
     public static void AddDocs(this SwaggerGenOptions options)
     {
         options.ExampleFilters();
-
-        // Включаем XML-комментарии из API проекта
-        var apiXmlFile = $"{Assembly.GetCallingAssembly().GetName().Name}.xml";
-        var apiXmlPath = Path.Combine(AppContext.BaseDirectory, apiXmlFile);
-        if (File.Exists(apiXmlPath))
-        {
-            options.IncludeXmlComments(apiXmlPath);
-        }
-
-        // Включаем XML-комментарии из Client.Models проекта
-        try
-        {
-            var clientModelsAssembly = Assembly.Load("ProductionAnalysis.Client.Models");
-            var clientModelsXmlFile = $"{clientModelsAssembly.GetName().Name}.xml";
-
-            // Пробуем найти XML-файл в разных местах
-            var possiblePaths = new[]
-            {
-                Path.Combine(AppContext.BaseDirectory, clientModelsXmlFile),
-                Path.Combine(Path.GetDirectoryName(clientModelsAssembly.Location) ?? "", clientModelsXmlFile)
-            };
-
-            foreach (var xmlPath in possiblePaths)
-            {
-                if (File.Exists(xmlPath))
-                {
-                    options.IncludeXmlComments(xmlPath);
-                    break;
-                }
-            }
-        }
-        catch
-        {
-            // Игнорируем ошибки, если сборка не найдена
-        }
+        var xmlFile = $"{Assembly.GetCallingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        options.IncludeXmlComments(xmlPath);
     }
-
+    
     public static void AddJwtSecurity(this SwaggerGenOptions options)
     {
         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

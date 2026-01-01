@@ -28,14 +28,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <!-- Копируем XML-файл документации из Client.Models в выходную директорию -->
-        <Content Include="..\ProductionAnalysis.Client.Models\bin\$(Configuration)\net8.0\ProductionAnalysis.Client.Models.xml"
-                 Link="ProductionAnalysis.Client.Models.xml"
-                 CopyToOutputDirectory="PreserveNewest"
-                 Condition="Exists('..\ProductionAnalysis.Client.Models\bin\$(Configuration)\net8.0\ProductionAnalysis.Client.Models.xml')"/>
-    </ItemGroup>
-
-    <ItemGroup>
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
