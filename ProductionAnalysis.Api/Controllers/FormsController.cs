@@ -25,6 +25,11 @@ public class FormsController(IFormsService formsService) : ControllerBase
         return result.ToActionResult(this);
     }
 
+    /// <remarks>
+    /// Для вызова метода у пользователя должна быть роль DepartmentHead
+    /// </remarks>
+    /// <param name="createFormRequest"></param>
+    /// <returns></returns>
     [HttpPost]
     [Authorize(Roles = Roles.DepartmentHead)]
     [SwaggerRequestExample(typeof(CreateFormRequest), typeof(CreateFormRequestExample))]

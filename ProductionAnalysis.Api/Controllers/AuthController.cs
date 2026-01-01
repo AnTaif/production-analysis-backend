@@ -12,6 +12,15 @@ namespace ProductionAnalysis.Api.Controllers;
 [Route("auth")]
 public class AuthController(IAuthService authService) : ControllerBase
 {
+    /// <remarks>
+    /// DEV: Пре-созданные почты с одним и тем же паролем:
+    /// operator@mail.ru
+    /// departmenthead@mail.ru
+    /// analyst@mail.ru
+    /// admin@mail.ru
+    /// </remarks>
+    /// <param name="loginRequest"></param>
+    /// <returns></returns>
     [HttpPost("login")]
     [SwaggerRequestExample(typeof(LoginRequest), typeof(LoginRequestExample))]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(LoginResponseExample))]
