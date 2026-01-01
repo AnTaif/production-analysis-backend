@@ -109,10 +109,12 @@ public class FormsService(
         }
 
         var schedules = await unitOfWork.Dictionaries.SelectShiftSchedulesByShiftIdAsync(shiftId);
+        var form = await unitOfWork.Forms.FindAsync(formId);
         var rows = await formRowInitializer.InitializeRowsForShiftAsync(
             shift.StartTime,
             schedules,
-            template);
+            template,
+            form?.Context);
 
         await unitOfWork.Forms.CreateFormRowsAsync(formId, rows);
     }

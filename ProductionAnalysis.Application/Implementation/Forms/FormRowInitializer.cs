@@ -10,118 +10,61 @@ public interface IFormRowInitializer
     Task<ICollection<FormRowData>> InitializeRowsForShiftAsync(
         TimeOnly shiftStartTime,
         ICollection<ShiftScheduleDto> schedules,
-        Template template);
+        Template template,
+        Dictionary<string, object>? formContext = null);
 }
 
 [RegisterScoped]
 public class FormRowInitializer(
-    IPaUnitOfWork unitOfWork
+    IPaUnitOfWork unitOfWork,
+    IProductContextExtractor productContextExtractor,
+    IFormRowDataFactory formRowDataFactory
 ) : IFormRowInitializer
 {
-    private const int ShiftDurationHours = 8;
-    private const int ShiftDurationMinutes = 40; // 8 часов 40 минут для смены 
-
-    private const int WorktimeIndicatorId = 16;
-    private const int OperationNameIndicatorId = 9;
-
     public async Task<ICollection<FormRowData>> InitializeRowsForShiftAsync(
         TimeOnly shiftStartTime,
         ICollection<ShiftScheduleDto> schedules,
-        Template template)
+        Template template,
+        Dictionary<string, object>? formContext = null)
     {
-        var rows = new List<FormRowData>();
-        short order = 1;
-
-        var workTimeIndicator = template.Indicators.Single(i => i.Id == WorktimeIndicatorId);
-        var operationNameIndicator = template.Indicators.Single(i => i.Id == OperationNameIndicatorId);
-
-        var additionalOperationsByIds =
-            (await unitOfWork.Dictionaries.SelectAdditionalOperationsAsync()).ToDictionary(ao => ao.Id);
-
+        var indicators = ExtractIndicators(template);
+        var additionalOperationsByIds = await LoadAdditionalOperationsAsync();
+        var productContext = productContextExtractor.Extract(formContext);
         var sortedBreaks = schedules.OrderBy(s => s.StartTime).ToList();
+        var shiftEndTime = CalculateShiftEndTime(shiftStartTime);
 
-        var shiftEndTime = shiftStartTime.AddHours(ShiftDurationHours).AddMinutes(ShiftDurationMinutes);
-
+        var rows = new List<FormRowData>();
         var currentTime = shiftStartTime;
         var breakIndex = 0;
+        short order = 1;
 
         while (currentTime < shiftEndTime)
         {
-            // Определяем конец текущего часа
-            var hourEnd = currentTime.AddHours(1);
-            if (hourEnd > shiftEndTime)
+            var hourEnd = CalculateHourEnd(currentTime, shiftEndTime);
+            var nextBreak = GetNextBreak(sortedBreaks, breakIndex);
+
+            if (nextBreak != null && IsBreakInTimeRange(nextBreak, currentTime, hourEnd))
             {
-                hourEnd = shiftEndTime;
-            }
-
-            // Проверяем, есть ли обед/перерыв в текущем интервале
-            var nextBreak = breakIndex < sortedBreaks.Count
-                ? sortedBreaks[breakIndex]
-                : null;
-
-            if (nextBreak != null && IsBreakInCurrentTimeRange(nextBreak, currentTime, hourEnd))
-            {
-                // Создаем строку работы до перерыва
-                if (currentTime < nextBreak.StartTime)
-                {
-                    var workRowBeforeBreak = CreateFormRowData(
-                        order++,
-                        false,
-                        workTimeIndicator,
-                        FormatTimeRangeValue(currentTime, nextBreak.StartTime)
-                    );
-
-                    rows.Add(workRowBeforeBreak);
-                }
-
-                // Создаем строку для обед/перерыв
-                var breakMetaInfo = additionalOperationsByIds[nextBreak.AdditionalOperationId];
-
-                var breakEndTime = nextBreak.StartTime.Add(breakMetaInfo.Duration);
-                var breakRowValues = new List<FormRowValueData>
-                {
-                    CreateFormRowValueData(workTimeIndicator,
-                        FormatTimeRangeValue(nextBreak.StartTime, breakEndTime)),
-
-                    CreateFormRowValueData(operationNameIndicator, breakMetaInfo.Name)
-                };
-
-                var breakRow = CreateFormRowData(
-                    order++,
-                    true,
-                    nextBreak.AdditionalOperationId,
-                    breakRowValues
-                );
-
-                rows.Add(breakRow);
-
-                // Продолжаем с времени окончания перерыва
-                currentTime = breakEndTime;
-
-                breakIndex++;
-
-                // Если после перерыва осталось время в этом часе, создаем строку работы
-                if (currentTime < hourEnd)
-                {
-                    var workRowAfterBreak = CreateFormRowData(
-                        order++,
-                        false,
-                        workTimeIndicator,
-                        FormatTimeRangeValue(currentTime, hourEnd)
-                    );
-                    rows.Add(workRowAfterBreak);
-                    currentTime = hourEnd;
-                }
+                order = ProcessBreakInterval(
+                    rows,
+                    order,
+                    hourEnd,
+                    nextBreak,
+                    additionalOperationsByIds,
+                    indicators,
+                    productContext,
+                    ref breakIndex,
+                    ref currentTime);
             }
             else
             {
-                // Обычный час работы без перерывов
-                var workRow = CreateFormRowData(
+                var workRow = formRowDataFactory.CreateWorkRow(
                     order++,
-                    false,
-                    workTimeIndicator,
-                    FormatTimeRangeValue(currentTime, hourEnd)
-                );
+                    indicators.WorkTime,
+                    indicators.Plan,
+                    currentTime,
+                    hourEnd,
+                    productContext);
 
                 rows.Add(workRow);
                 currentTime = hourEnd;
@@ -131,49 +74,110 @@ public class FormRowInitializer(
         return rows;
     }
 
-    private static bool IsBreakInCurrentTimeRange(ShiftScheduleDto nextBreak, TimeOnly rangeStart, TimeOnly rangeEnd)
+    private async Task<Dictionary<int, AdditionalOperationDto>> LoadAdditionalOperationsAsync()
     {
-        return rangeStart <= nextBreak.StartTime && nextBreak.StartTime < rangeEnd;
+        var operations = await unitOfWork.Dictionaries.SelectAdditionalOperationsAsync();
+        return operations.ToDictionary(ao => ao.Id);
     }
 
-    private static FormRowData CreateFormRowData(
+    private static InitializedIndicators ExtractIndicators(Template template)
+    {
+        return new InitializedIndicators
+        {
+            WorkTime = template.Indicators.Single(i => i.Id == ShiftConstants.WorktimeIndicatorId),
+            OperationName = template.Indicators.Single(i => i.Id == ShiftConstants.OperationNameIndicatorId),
+            Plan = template.Indicators.FirstOrDefault(i => i.Id == ShiftConstants.PlanIndicatorId)
+        };
+    }
+
+    private static ShiftScheduleDto? GetNextBreak(List<ShiftScheduleDto> sortedBreaks, int breakIndex)
+    {
+        return breakIndex < sortedBreaks.Count ? sortedBreaks[breakIndex] : null;
+    }
+
+    private static bool IsBreakInTimeRange(ShiftScheduleDto breakSchedule, TimeOnly rangeStart, TimeOnly rangeEnd)
+    {
+        return rangeStart <= breakSchedule.StartTime && breakSchedule.StartTime < rangeEnd;
+    }
+
+    private short ProcessBreakInterval(
+        List<FormRowData> rows,
         short order,
-        bool isAdditionalOperation,
-        int additionalOperationId,
-        ICollection<FormRowValueData> values)
+        TimeOnly hourEnd,
+        ShiftScheduleDto nextBreak,
+        Dictionary<int, AdditionalOperationDto> additionalOperationsByIds,
+        InitializedIndicators indicators,
+        ProductContext? productContext,
+        ref int breakIndex,
+        ref TimeOnly currentTime)
     {
-        return new FormRowData
+        // Создаем строку работы до перерыва
+        if (currentTime < nextBreak.StartTime)
         {
-            Order = order,
-            IsAdditionalOperation = isAdditionalOperation,
-            AdditionalOperationId = additionalOperationId,
-            Values = values
-        };
+            var workRowBeforeBreak = formRowDataFactory.CreateWorkRow(
+                order++,
+                indicators.WorkTime,
+                indicators.Plan,
+                currentTime,
+                nextBreak.StartTime,
+                productContext);
+
+            rows.Add(workRowBeforeBreak);
+        }
+
+        // Создаем строку для обед/перерыв
+        var breakMetaInfo = additionalOperationsByIds[nextBreak.AdditionalOperationId];
+        var breakEndTime = nextBreak.StartTime.Add(breakMetaInfo.Duration);
+
+        var breakRow = formRowDataFactory.CreateBreakRow(
+            order++,
+            indicators.WorkTime,
+            indicators.OperationName,
+            nextBreak.StartTime,
+            breakEndTime,
+            breakMetaInfo.Name,
+            nextBreak.AdditionalOperationId);
+
+        rows.Add(breakRow);
+
+        currentTime = breakEndTime;
+        breakIndex++;
+
+        // Если после перерыва осталось время в этом часе, создаем строку работы
+        if (currentTime < hourEnd)
+        {
+            var workRowAfterBreak = formRowDataFactory.CreateWorkRow(
+                order++,
+                indicators.WorkTime,
+                indicators.Plan,
+                currentTime,
+                hourEnd,
+                productContext);
+
+            rows.Add(workRowAfterBreak);
+            currentTime = hourEnd;
+        }
+
+        return order;
     }
 
-    private static FormRowData CreateFormRowData(
-        short order,
-        bool isAdditionalOperation,
-        Indicator indicator,
-        string value)
+    private static TimeOnly CalculateShiftEndTime(TimeOnly shiftStartTime)
     {
-        return new FormRowData
-        {
-            Order = order,
-            IsAdditionalOperation = isAdditionalOperation,
-            Values = [CreateFormRowValueData(indicator, value)]
-        };
+        return shiftStartTime
+            .AddHours(ShiftConstants.ShiftDurationHours)
+            .AddMinutes(ShiftConstants.ShiftDurationMinutes);
     }
 
-    private static FormRowValueData CreateFormRowValueData(Indicator indicator, string value) =>
-        new()
-        {
-            IndicatorId = indicator.Id,
-            Value = value
-        };
-
-    private static string FormatTimeRangeValue(TimeOnly startTime, TimeOnly endTime)
+    private static TimeOnly CalculateHourEnd(TimeOnly currentTime, TimeOnly shiftEndTime)
     {
-        return $"{startTime:HH:mm}-{endTime:HH:mm}";
+        var hourEnd = currentTime.AddHours(1);
+        return hourEnd > shiftEndTime ? shiftEndTime : hourEnd;
+    }
+
+    private record InitializedIndicators
+    {
+        public required Indicator WorkTime { get; init; }
+        public required Indicator OperationName { get; init; }
+        public Indicator? Plan { get; init; }
     }
 }
