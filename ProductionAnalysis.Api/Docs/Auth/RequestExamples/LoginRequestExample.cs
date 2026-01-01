@@ -7,7 +7,7 @@ public class LoginRequestExample : IExamplesProvider<LoginRequest>
 {
     public LoginRequest GetExamples() => new()
     {
-        Email = "operator@mail.ru",
+        Email = "departmenthead@mail.ru",
         Password = "password"
     };
 }
