@@ -52,13 +52,11 @@ public class JwtTokenProvider(IOptions<JwtOptions> options) : ITokenProvider
     {
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(JwtRegisteredClaimNames.GivenName, user.FirstName),
             new(JwtRegisteredClaimNames.FamilyName, user.LastName),
             new(JwtRegisteredClaimNames.MiddleName, user.MiddleName ?? ""),
             new(JwtRegisteredClaimNames.Email, user.Email),
             new(JwtRegisteredClaimNames.Sid, user.Id.ToString()),
-            new(JwtRegisteredClaimNames.Sub, user.Email),
         };
         claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
