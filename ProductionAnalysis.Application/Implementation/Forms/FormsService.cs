@@ -116,7 +116,7 @@ public class FormsService(
             template,
             form?.Context);
 
-        await unitOfWork.Forms.CreateFormRowsAsync(formId, rows);
+        unitOfWork.FormRows.AddRows(formId, rows);
     }
 
     public async Task<Result<FormRowDto>> UpdateFormRowAsync(int formId, short rowOrder, UpdateFormRowRequest request,
@@ -145,7 +145,7 @@ public class FormsService(
 
         var template = form.TemplateSnapshot;
 
-        await unitOfWork.Forms.UpdateFormRowValuesAsync(
+        await unitOfWork.FormRows.UpdateRowValuesAsync(
             formId,
             rowOrder,
             filteredValues,
@@ -160,7 +160,7 @@ public class FormsService(
 
         if (formulaValuesToUpdate.Count != 0)
         {
-            await unitOfWork.Forms.UpdateFormRowValuesAsync(
+            await unitOfWork.FormRows.UpdateRowValuesAsync(
                 formId,
                 rowOrder,
                 formulaValuesToUpdate,

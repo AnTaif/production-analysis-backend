@@ -9,6 +9,7 @@ public class PaUnitOfWork(
     PaDbContext dbContext,
     IDictionariesRepository dictionariesRepository,
     IFormsRepository formsRepository,
+    IFormRowsRepository formRowsRepository,
     ITemplatesRepository templatesRepository,
     UserRepository userRepository
 )
@@ -16,6 +17,7 @@ public class PaUnitOfWork(
 {
     public IDictionariesRepository Dictionaries { get; } = dictionariesRepository;
     public IFormsRepository Forms { get; } = formsRepository;
+    public IFormRowsRepository FormRows { get; } = formRowsRepository;
     public ITemplatesRepository Templates { get; } = templatesRepository;
     public IUserRepository Users { get; } = userRepository;
 }

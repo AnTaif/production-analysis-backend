@@ -10,7 +10,7 @@ namespace ProductionAnalysis.Application.Implementation.Auth;
 
 public interface ITokenProvider
 {
-    string GenerateToken(User user);
+    string ProvideToken(User user);
 }
 
 [RegisterScoped]
@@ -18,7 +18,7 @@ public class JwtTokenProvider(IOptions<JwtOptions> options) : ITokenProvider
 {
     private readonly JwtOptions options = options.Value;
 
-    public string GenerateToken(User user)
+    public string ProvideToken(User user)
     {
         var claims = CreateClaims(user);
         var signingCredentials = CreateSigningCredentials();

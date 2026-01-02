@@ -31,7 +31,7 @@ public class AuthService(
         }
 
         user.Roles = await unitOfWork.Users.GetRolesAsync(user.Id);
-        var token = tokenProvider.GenerateToken(user);
+        var token = tokenProvider.ProvideToken(user);
 
         return new LoginResponse
         {

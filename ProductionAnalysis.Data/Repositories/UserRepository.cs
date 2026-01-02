@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using ProductionAnalysis.Application.Domain;
 using ProductionAnalysis.Application.Repositories;
+using ProductionAnalysis.Data.Converters;
 using ProductionAnalysis.Data.Models;
 
 namespace ProductionAnalysis.Data.Repositories;
@@ -19,15 +20,8 @@ public class UserRepository(
         }
 
         var roles = await userManager.GetRolesAsync(userDbo);
-        return new User
-        {
-            Id = userDbo.Id,
-            FirstName = userDbo.FirstName,
-            LastName = userDbo.LastName,
-            MiddleName = userDbo.MiddleName,
-            Email = userDbo.Email!,
-            Roles = roles.ToList()
-        };
+
+        return userDbo.ToDomain(roles);
     }
 
     public async Task<bool> CheckPasswordAsync(Guid userId, string password)
@@ -50,6 +44,6 @@ public class UserRepository(
         }
 
         var roles = await userManager.GetRolesAsync(userDbo);
-        return roles.ToList();
+        return roles;
     }
 }
