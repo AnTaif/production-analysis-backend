@@ -5,21 +5,14 @@ namespace ProductionAnalysis.Application.Implementation.Forms;
 
 public interface ICumulativeValueCalculator
 {
-    Dictionary<short, ICollection<FormRowValueData>> CalculateCumulativeValues(
-        Form form,
-        short fromRowOrder);
-
-    void CalculateCumulativeValuesForFormRowData(
-        ICollection<FormRowData> rows,
-        ICollection<Indicator> indicators);
+    Dictionary<short, ICollection<FormRowValueData>> CalculateCumulativeValues(Form form, short fromRowOrder);
+    void FillCumulativeValues(ICollection<FormRowData> rows, ICollection<Indicator> indicators);
 }
 
 [RegisterScoped]
 public class CumulativeValueCalculator : ICumulativeValueCalculator
 {
-    public Dictionary<short, ICollection<FormRowValueData>> CalculateCumulativeValues(
-        Form form,
-        short fromRowOrder)
+    public Dictionary<short, ICollection<FormRowValueData>> CalculateCumulativeValues(Form form, short fromRowOrder)
     {
         var cumulativeIndicators = form.TemplateSnapshot.Indicators
             .Where(i => i.IsCumulative)
@@ -74,9 +67,7 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
         return valuesToUpdateByRow;
     }
 
-    public void CalculateCumulativeValuesForFormRowData(
-        ICollection<FormRowData> rows,
-        ICollection<Indicator> indicators)
+    public void FillCumulativeValues(ICollection<FormRowData> rows, ICollection<Indicator> indicators)
     {
         var cumulativeIndicators = indicators
             .Where(i => i.IsCumulative)

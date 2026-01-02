@@ -72,7 +72,7 @@ public class FormRowInitializer(
             }
         }
 
-        cumulativeValueCalculator.CalculateCumulativeValuesForFormRowData(rows, template.Indicators);
+        cumulativeValueCalculator.FillCumulativeValues(rows, template.Indicators);
 
         return rows;
     }
