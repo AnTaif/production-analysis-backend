@@ -21,7 +21,8 @@ public class FormsService(
     IPaUnitOfWork unitOfWork,
     IFormRowInitializer formRowInitializer,
     IFormRowValueFilter formRowValueFilter,
-    IFormRowFormulaCalculator formRowFormulaCalculator
+    IFormRowFormulaCalculator formRowFormulaCalculator,
+    ICumulativeValueCalculator cumulativeValueCalculator
 )
     : IFormsService
 {
@@ -165,6 +166,24 @@ public class FormsService(
                 rowOrder,
                 formulaValuesToUpdate,
                 userId);
+        }
+
+        // Пересчитываем накопительные значения для всех строк, начиная с обновленной
+        await unitOfWork.SaveChangesAsync();
+        var formForCumulative = await unitOfWork.Forms.FindAsync(formId);
+        if (formForCumulative != null)
+        {
+            var cumulativeValuesToUpdate = cumulativeValueCalculator.CalculateCumulativeValues(
+                formForCumulative,
+                rowOrder);
+
+            if (cumulativeValuesToUpdate.Count > 0)
+            {
+                await unitOfWork.FormRows.UpdateMultipleRowsValuesAsync(
+                    formId,
+                    cumulativeValuesToUpdate,
+                    userId);
+            }
         }
 
         await unitOfWork.SaveChangesAsync();

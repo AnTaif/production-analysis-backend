@@ -31,39 +31,84 @@ public class FormDtoExample : IExamplesProvider<FormDto>
                 {
                     Order = 1,
                     IsAdditionalOperation = false,
-                    Values = new Dictionary<string, object>
+                    Values = new Dictionary<string, FormRowValueDto>
                     {
-                        { "1", "60" },
-                        { "16", "07:00-08:00" }
+                        {
+                            "1", new FormRowValueDto
+                            {
+                                Value = "60",
+                                CumulativeValue = "60"
+                            }
+                        },
+                        {
+                            "16", new FormRowValueDto
+                            {
+                                Value = "07:00-08:00"
+                            }
+                        }
                     }
                 },
                 new()
                 {
                     Order = 2,
                     IsAdditionalOperation = false,
-                    Values = new Dictionary<string, object>
+                    Values = new Dictionary<string, FormRowValueDto>
                     {
-                        { "1", "60" },
-                        { "16", "08:00-09:00" }
+                        {
+                            "1", new FormRowValueDto
+                            {
+                                Value = "60",
+                                CumulativeValue = "120"
+                            }
+                        },
+                        {
+                            "16", new FormRowValueDto
+                            {
+                                Value = "08:00-09:00"
+                            }
+                        }
                     }
                 },
                 new()
                 {
                     Order = 3,
                     IsAdditionalOperation = true,
-                    Values = new Dictionary<string, object>
+                    Values = new Dictionary<string, FormRowValueDto>
                     {
-                        { "16", "09:00-09:15 Перерыв 15 мин" }
+                        {
+                            "1", new FormRowValueDto
+                            {
+                                Value = "60",
+                                CumulativeValue = "180"
+                            }
+                        },
+                        {
+                            "16", new FormRowValueDto
+                            {
+                                Value = "09:00-09:15 Перерыв 15 мин"
+                            }
+                        }
                     }
                 },
                 new()
                 {
                     Order = 4,
                     IsAdditionalOperation = false,
-                    Values = new Dictionary<string, object>
+                    Values = new Dictionary<string, FormRowValueDto>
                     {
-                        { "1", "45" },
-                        { "16", "09:15-10:00" }
+                        {
+                            "1", new FormRowValueDto
+                            {
+                                Value = "45",
+                                CumulativeValue = "225"
+                            }
+                        },
+                        {
+                            "16", new FormRowValueDto
+                            {
+                                Value = "09:15-10:00"
+                            }
+                        }
                     }
                 }
             },

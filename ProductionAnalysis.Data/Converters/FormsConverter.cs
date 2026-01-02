@@ -1,7 +1,6 @@
 using System.Text.Json;
 using ProductionAnalysis.Application.Domain;
 using ProductionAnalysis.Application.Domain.Forms;
-using ProductionAnalysis.Client.Models.Forms;
 using ProductionAnalysis.Data.Models.Forms;
 using FormStatus = ProductionAnalysis.Application.Domain.Forms.FormStatus;
 
@@ -41,15 +40,22 @@ public static class FormsConverter
 
     public static FormRow ToDomain(this FormRowDbo dbo)
     {
-        var values = new Dictionary<string, object>();
+        var values = new Dictionary<string, FormRowValue>();
 
         foreach (var valueDbo in dbo.Values)
         {
             var value = DeserializeValue(valueDbo.Value);
             if (value != null)
             {
-                // Используем ID индикатора как ключ, но можно также использовать имя индикатора
-                values[valueDbo.IndicatorId.ToString()] = value;
+                var cumulativeValue = valueDbo.CumulativeValue != null
+                    ? DeserializeValue(valueDbo.CumulativeValue)
+                    : null;
+
+                values[valueDbo.IndicatorId.ToString()] = new FormRowValue
+                {
+                    Value = value,
+                    CumulativeValue = cumulativeValue
+                };
             }
         }
 
@@ -58,29 +64,6 @@ public static class FormsConverter
             Order = dbo.Order,
             IsAdditionalOperation = dbo.IsAdditionalOperation,
             AdditionalOperationId = dbo.AdditionalOperationId,
-            Values = values
-        };
-    }
-
-    public static FormRowDto ToDto(this FormRowDbo dbo)
-    {
-        var values = new Dictionary<string, object>();
-
-        foreach (var valueDbo in dbo.Values)
-        {
-            var value = DeserializeValue(valueDbo.Value);
-            if (value != null)
-            {
-                // Используем имя индикатора как ключ для удобства на фронтенде
-                var indicatorName = valueDbo.Indicator?.Name ?? valueDbo.IndicatorId.ToString();
-                values[indicatorName] = value;
-            }
-        }
-
-        return new FormRowDto
-        {
-            Order = dbo.Order,
-            IsAdditionalOperation = dbo.IsAdditionalOperation,
             Values = values
         };
     }

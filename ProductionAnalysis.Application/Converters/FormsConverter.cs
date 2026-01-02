@@ -24,12 +24,7 @@ public static class FormsConverter
 
         var rows = form.Rows
             .OrderBy(r => r.Order)
-            .Select(r => new FormRowDto
-            {
-                Order = r.Order,
-                IsAdditionalOperation = r.IsAdditionalOperation,
-                Values = r.Values
-            })
+            .Select(r => r.ToRowDto())
             .ToList();
 
         // Конвертируем типизированный контекст в отдельные поля DTO
@@ -84,22 +79,28 @@ public static class FormsConverter
     {
         return rows
             .OrderBy(r => r.Order)
-            .Select(r => new FormRowDto
-            {
-                Order = r.Order,
-                IsAdditionalOperation = r.IsAdditionalOperation,
-                Values = r.Values
-            })
+            .Select(r => r.ToRowDto())
             .ToList();
     }
 
     public static FormRowDto ToRowDto(this FormRow row)
     {
+        var values = new Dictionary<string, FormRowValueDto>();
+
+        foreach (var (key, rowValue) in row.Values)
+        {
+            values[key] = new FormRowValueDto
+            {
+                Value = rowValue.Value,
+                CumulativeValue = rowValue.CumulativeValue
+            };
+        }
+
         return new FormRowDto
         {
             Order = row.Order,
             IsAdditionalOperation = row.IsAdditionalOperation,
-            Values = row.Values
+            Values = values
         };
     }
 
@@ -139,7 +140,8 @@ public static class FormsConverter
                     Name = indicator.Name,
                     InputType = indicator.InputType,
                     InputSelector = indicator.ValueSelector,
-                    ValueType = indicator.ValueType
+                    ValueType = indicator.ValueType,
+                    IsCumulative = indicator.IsCumulative
                 })
                 .ToList()
         };

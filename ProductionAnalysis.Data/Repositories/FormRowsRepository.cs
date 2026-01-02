@@ -7,6 +7,7 @@ using ProductionAnalysis.Data.Models.Forms;
 
 namespace ProductionAnalysis.Data.Repositories;
 
+[RegisterScoped]
 public class FormRowsRepository(PaDbContext dbContext) : IFormRowsRepository
 {
     public void AddRows(int formId, ICollection<FormRowData> rows)
@@ -27,13 +28,17 @@ public class FormRowsRepository(PaDbContext dbContext) : IFormRowsRepository
             foreach (var valueData in row.Values)
             {
                 var valueJson = JsonSerializer.Serialize(valueData.Value);
+                var cumulativeValueJson = valueData.CumulativeValue != null
+                    ? JsonSerializer.Serialize(valueData.CumulativeValue)
+                    : null;
 
                 formRow.Values.Add(new FormRowValueDbo
                 {
                     FormId = formId,
                     FormRowOrder = row.Order,
                     IndicatorId = valueData.IndicatorId,
-                    Value = valueJson
+                    Value = valueJson,
+                    CumulativeValue = cumulativeValueJson
                 });
             }
 
@@ -64,18 +69,89 @@ public class FormRowsRepository(PaDbContext dbContext) : IFormRowsRepository
             if (valueDbo == null)
             {
                 var valueJson = JsonSerializer.Serialize(valueData.Value);
+                var cumulativeValueJson = valueData.CumulativeValue != null
+                    ? JsonSerializer.Serialize(valueData.CumulativeValue)
+                    : null;
+
                 formRow.Values.Add(new FormRowValueDbo
                 {
                     FormId = formId,
                     FormRowOrder = rowOrder,
                     IndicatorId = valueData.IndicatorId,
-                    Value = valueJson
+                    Value = valueJson,
+                    CumulativeValue = cumulativeValueJson
                 });
             }
             else
             {
                 var valueJson = JsonSerializer.Serialize(valueData.Value);
                 valueDbo.Value = valueJson;
+
+                if (valueData.CumulativeValue != null)
+                {
+                    var cumulativeValueJson = JsonSerializer.Serialize(valueData.CumulativeValue);
+                    valueDbo.CumulativeValue = cumulativeValueJson;
+                }
+            }
+        }
+
+        var formDbo = await dbContext.Forms.FirstOrDefaultAsync(f => f.Id == formId);
+        if (formDbo != null)
+        {
+            formDbo.UpdateDate = now;
+            formDbo.LastEditorId = userId;
+        }
+    }
+
+    public async Task UpdateMultipleRowsValuesAsync(int formId,
+        Dictionary<short, ICollection<FormRowValueData>> rowsValues, Guid userId)
+    {
+        var now = DateTime.UtcNow;
+        var rowOrders = rowsValues.Keys.ToList();
+
+        var formRows = await dbContext.FormRows
+            .Include(r => r.Values)
+            .Where(r => r.FormId == formId && rowOrders.Contains(r.Order))
+            .ToListAsync();
+
+        foreach (var formRow in formRows)
+        {
+            if (!rowsValues.TryGetValue(formRow.Order, out var values))
+            {
+                continue;
+            }
+
+            foreach (var valueData in values)
+            {
+                var valueDbo = formRow.Values.FirstOrDefault(v => v.IndicatorId == valueData.IndicatorId);
+
+                if (valueDbo == null)
+                {
+                    var valueJson = JsonSerializer.Serialize(valueData.Value);
+                    var cumulativeValueJson = valueData.CumulativeValue != null
+                        ? JsonSerializer.Serialize(valueData.CumulativeValue)
+                        : null;
+
+                    formRow.Values.Add(new FormRowValueDbo
+                    {
+                        FormId = formId,
+                        FormRowOrder = formRow.Order,
+                        IndicatorId = valueData.IndicatorId,
+                        Value = valueJson,
+                        CumulativeValue = cumulativeValueJson
+                    });
+                }
+                else
+                {
+                    var valueJson = JsonSerializer.Serialize(valueData.Value);
+                    valueDbo.Value = valueJson;
+
+                    if (valueData.CumulativeValue != null)
+                    {
+                        var cumulativeValueJson = JsonSerializer.Serialize(valueData.CumulativeValue);
+                        valueDbo.CumulativeValue = cumulativeValueJson;
+                    }
+                }
             }
         }
 

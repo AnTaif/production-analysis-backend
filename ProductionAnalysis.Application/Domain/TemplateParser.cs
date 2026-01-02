@@ -68,6 +68,12 @@ public static class TemplateParser
                     ? formulaElement.GetString()
                     : null;
 
+                var isCumulative = fieldElement.TryGetProperty("isCumulative", out var isCumulativeElement)
+                                   && isCumulativeElement.GetBoolean();
+
+                var hasSummation = fieldElement.TryGetProperty("hasSummation", out var hasSummationElement)
+                                   && hasSummationElement.GetBoolean();
+
                 indicators.Add(new Indicator
                 {
                     Id = id,
@@ -76,8 +82,8 @@ public static class TemplateParser
                     ValueSelector = inputSelector,
                     ValueType = valueType,
                     Formula = formula,
-                    IsCumulative = false,
-                    HasSummation = false
+                    IsCumulative = isCumulative,
+                    HasSummation = hasSummation
                 });
             }
         }

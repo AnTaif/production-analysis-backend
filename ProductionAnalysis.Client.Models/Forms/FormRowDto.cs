@@ -4,5 +4,5 @@ public record FormRowDto
 {
     public short Order { get; init; }
     public bool IsAdditionalOperation { get; init; }
-    public Dictionary<string, object> Values { get; init; } = new();
+    public Dictionary<string, FormRowValueDto> Values { get; init; } = new();
 }

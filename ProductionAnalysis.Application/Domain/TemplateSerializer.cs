@@ -24,7 +24,9 @@ public static class TemplateSerializer
                 inputType = indicator.InputType,
                 inputSelector = indicator.ValueSelector,
                 valueType = indicator.ValueType,
-                formula = indicator.Formula
+                formula = indicator.Formula,
+                isCumulative = indicator.IsCumulative,
+                hasSummation = indicator.HasSummation
             }).ToList();
 
         return JsonSerializer.Serialize(new

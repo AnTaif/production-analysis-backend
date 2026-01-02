@@ -647,7 +647,7 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Initialization,
                 ValueSelector = null,
                 Formula = null,
-                IsCumulative = true,
+                IsCumulative = false,
                 HasSummation = true
             }
         );

@@ -52,14 +52,14 @@ public class FormRowFormulaCalculator(IFormulaCalculator formulaCalculator) : IF
         return Task.FromResult<ICollection<FormRowValueData>>(formulaValuesToUpdate);
     }
 
-    private static Dictionary<int, object> ParseRowValuesToDictionary(Dictionary<string, object> rowValues)
+    private static Dictionary<int, object> ParseRowValuesToDictionary(Dictionary<string, FormRowValue> rowValues)
     {
         var result = new Dictionary<int, object>();
-        foreach (var (key, value) in rowValues)
+        foreach (var (key, rowValue) in rowValues)
         {
             if (int.TryParse(key, out var indicatorId))
             {
-                result[indicatorId] = value;
+                result[indicatorId] = rowValue.Value;
             }
         }
 
