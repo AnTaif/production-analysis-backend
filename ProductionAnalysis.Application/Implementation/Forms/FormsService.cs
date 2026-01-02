@@ -168,7 +168,6 @@ public class FormsService(
                 userId);
         }
 
-        // Пересчитываем накопительные значения для всех строк, начиная с обновленной
         await unitOfWork.SaveChangesAsync();
         var formForCumulative = await unitOfWork.Forms.FindAsync(formId);
         if (formForCumulative != null)

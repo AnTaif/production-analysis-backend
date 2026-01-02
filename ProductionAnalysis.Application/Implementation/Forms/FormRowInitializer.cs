@@ -18,7 +18,8 @@ public interface IFormRowInitializer
 public class FormRowInitializer(
     IPaUnitOfWork unitOfWork,
     IProductContextExtractor productContextExtractor,
-    IFormRowDataFactory formRowDataFactory
+    IFormRowDataFactory formRowDataFactory,
+    ICumulativeValueCalculator cumulativeValueCalculator
 ) : IFormRowInitializer
 {
     public async Task<ICollection<FormRowData>> InitializeRowsForShiftAsync(
@@ -70,6 +71,8 @@ public class FormRowInitializer(
                 currentTime = hourEnd;
             }
         }
+
+        cumulativeValueCalculator.CalculateCumulativeValuesForFormRowData(rows, template.Indicators);
 
         return rows;
     }
