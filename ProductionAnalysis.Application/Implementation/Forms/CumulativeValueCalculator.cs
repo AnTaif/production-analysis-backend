@@ -1,4 +1,3 @@
-using System.Globalization;
 using ProductionAnalysis.Application.Domain.Forms;
 
 namespace ProductionAnalysis.Application.Implementation.Forms;
@@ -27,14 +26,16 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
         }
 
         var sortedRows = form.Rows
+            .Where(r => !r.IsAdditionalOperation)
             .OrderBy(r => r.Order)
             .Take(toRowOrder)
             .ToList();
 
         var valuesToUpdateByRow = new Dictionary<short, ICollection<FormRowValueData>>();
 
-        foreach (var row in sortedRows)
+        for (var i = 0; i < sortedRows.Count; i++)
         {
+            var row = sortedRows[i];
             var rowValues = new List<FormRowValueData>();
 
             foreach (var indicator in cumulativeIndicators)
@@ -44,10 +45,7 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
                     continue;
                 }
 
-                var cumulativeValue = CalculateCumulativeValueForRow(
-                    indicator.Id,
-                    row.Order,
-                    sortedRows);
+                var cumulativeValue = CalculateCumulativeValueForRow(indicator.Id, i, sortedRows);
 
                 rowValues.Add(new FormRowValueData
                 {
@@ -66,71 +64,32 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
         return valuesToUpdateByRow;
     }
 
-    private static object CalculateCumulativeValueForRow(
+    private static int? CalculateCumulativeValueForRow(
         int indicatorId,
-        short currentRowOrder,
-        ICollection<FormRow> allRows)
+        int currentRowIndex,
+        IList<FormRow> sortedRows)
     {
-        var rowsUpToCurrent = allRows
-            .Where(r => r.Order <= currentRowOrder)
-            .OrderBy(r => r.Order)
-            .ToList();
+        var currentRow = sortedRows[currentRowIndex];
+        var currentRowValue = currentRow.Values[indicatorId.ToString()];
 
-        double cumulativeSum = 0;
-
-        foreach (var row in rowsUpToCurrent)
+        if (!int.TryParse(currentRowValue.Value.ToString(), out var rowValue))
         {
-            var value = GetIndicatorValue(row, indicatorId);
-            if (TryConvertToDouble(value, out var numValue))
-            {
-                cumulativeSum += numValue;
-            }
+            return null;
         }
 
-        if (Math.Abs(cumulativeSum - Math.Round(cumulativeSum)) < 0.0001)
+        if (currentRowIndex == 0)
         {
-            return (int)Math.Round(cumulativeSum);
+            return rowValue;
         }
 
-        return cumulativeSum;
-    }
+        var previousRow = sortedRows[currentRowIndex - 1];
+        var previousRowValue = previousRow.Values[indicatorId.ToString()];
 
-    private static object? GetIndicatorValue(FormRow row, int indicatorId)
-    {
-        return row.Values.TryGetValue(indicatorId.ToString(), out var rowValue)
-            ? rowValue.Value
-            : null;
-    }
-
-    private static bool TryConvertToDouble(object? value, out double result)
-    {
-        result = 0;
-        if (value == null)
+        if (!int.TryParse(previousRowValue.CumulativeValue?.ToString(), out var cumulativeValue))
         {
-            return false;
+            return null;
         }
 
-        switch (value)
-        {
-            case int i:
-                result = i;
-                return true;
-            case long l:
-                result = l;
-                return true;
-            case double d:
-                result = d;
-                return true;
-            case decimal dec:
-                result = (double)dec;
-                return true;
-            case float f:
-                result = f;
-                return true;
-            case string s:
-                return double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out result);
-            default:
-                return false;
-        }
+        return cumulativeValue + rowValue;
     }
 }
