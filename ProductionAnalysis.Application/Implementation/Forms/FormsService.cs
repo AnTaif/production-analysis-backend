@@ -1,7 +1,6 @@
 ﻿using Core.Results;
 using ProductionAnalysis.Application.Converters;
 using ProductionAnalysis.Application.Domain.Forms;
-using ProductionAnalysis.Application.Domain.Templates;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Client.Models.Forms;
 
@@ -71,7 +70,20 @@ public class FormsService(
 
         var form = await unitOfWork.Forms.CreateAsync(newForm);
 
-        await CreateFormRowsIfNeededAsync(form.Id, request.ShiftId, template);
+        var shift = await unitOfWork.Dictionaries.SelectShiftByIdAsync(request.ShiftId);
+        if (shift == null)
+        {
+            return ServiceError.NotFound($"Shift not found by id {request.ShiftId}");
+        }
+
+        var schedules = await unitOfWork.Dictionaries.SelectShiftSchedulesByShiftIdAsync(shift.Id);
+        var rows = await formRowInitializer.InitializeRowsForShiftAsync(
+            shift.StartTime,
+            schedules,
+            template,
+            form.Context);
+
+        unitOfWork.FormRows.AddRows(form.Id, rows);
         await unitOfWork.SaveChangesAsync();
 
         return form.ToShortDto();
@@ -99,25 +111,6 @@ public class FormsService(
         }
 
         return form.Rows.ToRowDtos();
-    }
-
-    private async Task CreateFormRowsIfNeededAsync(int formId, int shiftId, Template template)
-    {
-        var shift = await unitOfWork.Dictionaries.SelectShiftByIdAsync(shiftId);
-        if (shift == null)
-        {
-            return;
-        }
-
-        var schedules = await unitOfWork.Dictionaries.SelectShiftSchedulesByShiftIdAsync(shiftId);
-        var form = await unitOfWork.Forms.FindAsync(formId);
-        var rows = await formRowInitializer.InitializeRowsForShiftAsync(
-            shift.StartTime,
-            schedules,
-            template,
-            form?.Context);
-
-        unitOfWork.FormRows.AddRows(formId, rows);
     }
 
     public async Task<Result<FormRowDto>> UpdateFormRowAsync(int formId, short rowOrder, UpdateFormRowRequest request,
