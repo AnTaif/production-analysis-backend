@@ -52,9 +52,9 @@ public class JwtTokenProvider(IOptions<JwtOptions> options) : ITokenProvider
     {
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.GivenName, user.FirstName),
-            new(JwtRegisteredClaimNames.FamilyName, user.LastName),
-            new(JwtRegisteredClaimNames.MiddleName, user.MiddleName ?? ""),
+            new(JwtRegisteredClaimNames.GivenName, user.FullName.FirstName),
+            new(JwtRegisteredClaimNames.FamilyName, user.FullName.LastName),
+            new(JwtRegisteredClaimNames.MiddleName, user.FullName.MiddleName ?? ""),
             new(JwtRegisteredClaimNames.Email, user.Email),
             new(JwtRegisteredClaimNames.Sid, user.Id.ToString()),
         };

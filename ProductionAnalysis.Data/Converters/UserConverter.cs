@@ -7,14 +7,13 @@ public static class UserConverter
 {
     public static User ToDomain(this UserDbo userDbo, ICollection<string> roles)
     {
-        return new User
-        {
-            Id = userDbo.Id,
-            FirstName = userDbo.FirstName,
-            LastName = userDbo.LastName,
-            MiddleName = userDbo.MiddleName,
-            Email = userDbo.Email!,
-            Roles = roles
-        };
+        return new User(
+            userDbo.Id,
+            userDbo.FirstName,
+            userDbo.LastName,
+            userDbo.MiddleName,
+            userDbo.Email!,
+            roles
+        );
     }
 }

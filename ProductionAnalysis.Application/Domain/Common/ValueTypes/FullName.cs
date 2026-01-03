@@ -1,10 +1,17 @@
 ﻿namespace ProductionAnalysis.Application.Domain.Common.ValueTypes;
 
-public readonly record struct FullName(string LastName, string FirstName, string? MiddleName)
+public readonly record struct FullName
 {
-    public string LastName { get; } = Normalize(LastName);
-    public string FirstName { get; } = Normalize(FirstName);
-    public string? MiddleName { get; } = NormalizeOrNull(MiddleName);
+    public FullName(string lastName, string firstName, string? middleName)
+    {
+        LastName = Normalize(lastName);
+        FirstName = Normalize(firstName);
+        MiddleName = NormalizeOrNull(middleName);
+    }
+
+    public string LastName { get; }
+    public string FirstName { get; }
+    public string? MiddleName { get; }
 
     public override string ToString() =>
         MiddleName is null
@@ -30,5 +37,12 @@ public readonly record struct FullName(string LastName, string FirstName, string
             3 => new FullName(parts[0], parts[1], parts[2]),
             _ => throw new FormatException("Некорректный формат ФИО. Ожидается 'Фамилия Имя [Отчество]'"),
         };
+    }
+
+    public void Deconstruct(out string lastName, out string firstName, out string? middleName)
+    {
+        lastName = LastName;
+        firstName = FirstName;
+        middleName = MiddleName;
     }
 }

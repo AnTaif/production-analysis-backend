@@ -30,7 +30,6 @@ public class AuthService(
             return ServiceError.BadRequest("Bad credentials.");
         }
 
-        user.Roles = await unitOfWork.Users.GetRolesAsync(user.Id);
         var token = tokenProvider.ProvideToken(user);
 
         return new LoginResponse
