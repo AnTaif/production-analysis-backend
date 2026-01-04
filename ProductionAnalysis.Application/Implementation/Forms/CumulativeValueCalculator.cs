@@ -14,49 +14,32 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
 {
     public Dictionary<short, ICollection<FormRowValueData>> CalculateCumulativeValues(Form form, short fromRowOrder)
     {
-        var cumulativeIndicators = form.TemplateSnapshot.Indicators
-            .Where(i => i.IsCumulative)
-            .ToList();
-
+        var cumulativeIndicators = GetCumulativeIndicators(form.TemplateSnapshot.Indicators);
         if (cumulativeIndicators.Count == 0)
         {
             return new Dictionary<short, ICollection<FormRowValueData>>();
         }
 
-        var sortedRows = form.Rows
-            .Where(r => !r.IsAdditionalOperation)
+        var workRows = GetWorkRows(form.Rows)
             .Where(r => r.Order >= fromRowOrder)
             .OrderBy(r => r.Order)
             .ToList();
 
+        if (workRows.Count == 0)
+        {
+            return new Dictionary<short, ICollection<FormRowValueData>>();
+        }
+
+        var previousWorkRow = FindPreviousWorkRow(form.Rows, fromRowOrder);
+        var cumulativeValuesByIndicator = BuildInitialCumulativeValues(previousWorkRow, cumulativeIndicators);
         var valuesToUpdateByRow = new Dictionary<short, ICollection<FormRowValueData>>();
 
-        for (var i = 0; i < sortedRows.Count; i++)
+        foreach (var row in workRows)
         {
-            var row = sortedRows[i];
-            var rowValues = new List<FormRowValueData>();
-
-            foreach (var indicator in cumulativeIndicators)
-            {
-                if (!row.Values.TryGetValue(indicator.Id.ToString(), out var rowValue))
-                {
-                    continue;
-                }
-
-                var cumulativeValue = CalculateCumulativeValueForFormRow(indicator.Id, i, sortedRows);
-
-                if (cumulativeValue == null)
-                {
-                    continue;
-                }
-
-                rowValues.Add(new FormRowValueData
-                {
-                    IndicatorId = indicator.Id,
-                    Value = rowValue.Value,
-                    CumulativeValue = cumulativeValue
-                });
-            }
+            var rowValues = CalculateRowCumulativeValues(
+                row,
+                cumulativeIndicators,
+                cumulativeValuesByIndicator);
 
             if (rowValues.Count > 0)
             {
@@ -69,11 +52,8 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
 
     public void FillCumulativeValues(ICollection<FormRowData> rows, ICollection<Indicator> indicators)
     {
-        var cumulativeIndicators = indicators
-            .Where(i => i.IsCumulative)
-            .ToList();
-
-        if (indicators.Count == 0)
+        var cumulativeIndicators = GetCumulativeIndicators(indicators);
+        if (cumulativeIndicators.Count == 0)
         {
             return;
         }
@@ -83,12 +63,10 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
             .OrderBy(r => r.Order)
             .ToList();
 
-        var previousCumulativeValues = new Dictionary<int, int>();
+        var cumulativeValuesByIndicator = new Dictionary<int, int>();
 
-        for (var i = 0; i < workRows.Count; i++)
+        foreach (var row in workRows)
         {
-            var row = workRows[i];
-
             foreach (var indicator in cumulativeIndicators)
             {
                 var valueData = row.Values.FirstOrDefault(v => v.IndicatorId == indicator.Id);
@@ -97,55 +75,118 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
                     continue;
                 }
 
-                if (!int.TryParse(valueData.Value.ToString(), out var baseValue))
+                if (!TryParseIntValue(valueData.Value, out var baseValue))
                 {
                     continue;
                 }
 
-                var cumulativeValue = i == 0
-                    ? baseValue
-                    : previousCumulativeValues.GetValueOrDefault(indicator.Id, 0) + baseValue;
+                var previousCumulative = cumulativeValuesByIndicator.GetValueOrDefault(indicator.Id, 0);
+                var cumulativeValue = previousCumulative + baseValue;
 
                 valueData.CumulativeValue = cumulativeValue;
-                previousCumulativeValues[indicator.Id] = cumulativeValue;
+                cumulativeValuesByIndicator[indicator.Id] = cumulativeValue;
             }
         }
     }
 
-    private static int? CalculateCumulativeValueForFormRow(
-        int indicatorId,
-        int currentRowIndex,
-        IList<FormRow> sortedRows)
+    private static IList<Indicator> GetCumulativeIndicators(ICollection<Indicator> indicators)
     {
-        var currentRow = sortedRows[currentRowIndex];
+        return indicators
+            .Where(i => i.IsCumulative)
+            .ToList();
+    }
 
-        if (!currentRow.Values.TryGetValue(indicatorId.ToString(), out var currentRowValue))
+    private static IEnumerable<FormRow> GetWorkRows(ICollection<FormRow> rows)
+    {
+        return rows.Where(r => !r.IsAdditionalOperation);
+    }
+
+    private static FormRow? FindPreviousWorkRow(ICollection<FormRow> rows, short fromRowOrder)
+    {
+        if (fromRowOrder <= 1)
         {
             return null;
         }
 
-        if (!int.TryParse(currentRowValue.Value.ToString(), out var rowValue))
+        return GetWorkRows(rows)
+            .Where(r => r.Order < fromRowOrder)
+            .OrderByDescending(r => r.Order)
+            .FirstOrDefault();
+    }
+
+    private static Dictionary<int, int> BuildInitialCumulativeValues(
+        FormRow? previousWorkRow,
+        IList<Indicator> cumulativeIndicators)
+    {
+        var initialValues = new Dictionary<int, int>();
+
+        if (previousWorkRow == null)
         {
-            return null;
+            return initialValues;
         }
 
-        if (currentRowIndex == 0)
+        foreach (var indicator in cumulativeIndicators)
         {
-            return rowValue;
+            var indicatorKey = indicator.Id.ToString();
+            if (!previousWorkRow.Values.TryGetValue(indicatorKey, out var previousValue))
+            {
+                continue;
+            }
+
+            if (TryParseIntValue(previousValue.CumulativeValue, out var cumulativeValue))
+            {
+                initialValues[indicator.Id] = cumulativeValue;
+            }
         }
 
-        var previousRow = sortedRows[currentRowIndex - 1];
+        return initialValues;
+    }
 
-        if (!previousRow.Values.TryGetValue(indicatorId.ToString(), out var previousRowValue))
+    private static List<FormRowValueData> CalculateRowCumulativeValues(
+        FormRow row,
+        IList<Indicator> cumulativeIndicators,
+        Dictionary<int, int> cumulativeValuesByIndicator)
+    {
+        var rowValues = new List<FormRowValueData>();
+
+        foreach (var indicator in cumulativeIndicators)
         {
-            return null;
+            var indicatorKey = indicator.Id.ToString();
+            if (!row.Values.TryGetValue(indicatorKey, out var rowValue))
+            {
+                continue;
+            }
+
+            if (!TryParseIntValue(rowValue.Value, out var baseValue))
+            {
+                continue;
+            }
+
+            var previousCumulative = cumulativeValuesByIndicator.GetValueOrDefault(indicator.Id, 0);
+            var cumulativeValue = previousCumulative + baseValue;
+
+            rowValues.Add(new FormRowValueData
+            {
+                IndicatorId = indicator.Id,
+                Value = rowValue.Value,
+                CumulativeValue = cumulativeValue
+            });
+
+            cumulativeValuesByIndicator[indicator.Id] = cumulativeValue;
         }
 
-        if (!int.TryParse(previousRowValue.CumulativeValue?.ToString(), out var previousCumulativeValue))
+        return rowValues;
+    }
+
+    private static bool TryParseIntValue(object? value, out int result)
+    {
+        result = 0;
+
+        if (value == null)
         {
-            return null;
+            return false;
         }
 
-        return previousCumulativeValue + rowValue;
+        return int.TryParse(value.ToString(), out result);
     }
 }
