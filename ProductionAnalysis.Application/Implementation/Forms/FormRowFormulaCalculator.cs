@@ -1,4 +1,3 @@
-using System.Globalization;
 using ProductionAnalysis.Application.Domain;
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Templates;
@@ -68,48 +67,6 @@ public class FormRowFormulaCalculator(IFormulaCalculator formulaCalculator) : IF
 
     private static bool AreValuesEqual(object? value1, object? value2)
     {
-        if (value1 == null && value2 == null)
-        {
-            return true;
-        }
-
-        if (value1 == null || value2 == null)
-        {
-            return false;
-        }
-
-        if (TryConvertToDouble(value1, out var num1) && TryConvertToDouble(value2, out var num2))
-        {
-            return Math.Abs(num1 - num2) < 0.0001;
-        }
-
-        return value1.Equals(value2);
-    }
-
-    private static bool TryConvertToDouble(object value, out double result)
-    {
-        result = 0;
-        switch (value)
-        {
-            case int i:
-                result = i;
-                return true;
-            case long l:
-                result = l;
-                return true;
-            case double d:
-                result = d;
-                return true;
-            case decimal dec:
-                result = (double)dec;
-                return true;
-            case float f:
-                result = f;
-                return true;
-            case string s:
-                return double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out result);
-            default:
-                return false;
-        }
+        return ValueComparer.AreEqual(value1, value2);
     }
 }

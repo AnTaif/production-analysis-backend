@@ -110,6 +110,9 @@ public abstract class BaseIntegrationTest
         services.AddScoped<IDictionariesService, DictionariesService>();
         services.AddScoped<IFormsService, FormsService>();
         services.AddScoped<ITotalValueCalculator, TotalValueCalculator>();
+        services.AddScoped<IFormValidator, FormValidator>();
+        services.AddScoped<IFormRowUpdateOrchestrator, FormRowUpdateOrchestrator>();
+        services.AddScoped<IFormTotalsUpdater, FormTotalsUpdater>();
 
         serviceProvider = services.BuildServiceProvider();
         scope = serviceProvider.CreateScope();
