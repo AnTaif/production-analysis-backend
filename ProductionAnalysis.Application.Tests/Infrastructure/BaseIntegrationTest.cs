@@ -1,10 +1,13 @@
 using System.Diagnostics;
+using Core.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
+using ProductionAnalysis.Application.Implementation.Auth;
+using ProductionAnalysis.Application.Implementation.Dictionaries;
 using ProductionAnalysis.Application.Implementation.Forms;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Data.Context;
@@ -22,6 +25,8 @@ public abstract class BaseIntegrationTest
 
     protected IPaUnitOfWork UnitOfWork { get; private set; } = null!;
     protected IFormsService FormsService { get; private set; } = null!;
+    protected IAuthService AuthService { get; private set; } = null!;
+    protected IDictionariesService DictionariesService { get; private set; } = null!;
     protected PaDbContext DbContext { get; private set; } = null!;
     protected TestDataBuilder DataBuilder { get; private set; } = null!;
 
@@ -84,7 +89,14 @@ public abstract class BaseIntegrationTest
         services.AddScoped<UserRepository>();
         services.AddScoped<IPaUnitOfWork, PaUnitOfWork>();
 
-        // Регистрация сервисов приложения
+        services.Configure<JwtOptions>(options =>
+        {
+            options.Issuer = "TestIssuer";
+            options.Audience = "TestAudience";
+            options.Secret = "TestSecretKeyThatIsAtLeast32CharactersLong!";
+            options.ExpiryMinutes = 60;
+        });
+
         services.AddScoped<IPlanCalculator, PlanCalculator>();
         services.AddScoped<IFormRowInitializer, FormRowInitializer>();
         services.AddScoped<IFormRowValueFilter, FormRowValueFilter>();
@@ -93,6 +105,9 @@ public abstract class BaseIntegrationTest
         services.AddScoped<IFormulaCalculator, FormulaCalculator>();
         services.AddScoped<IProductContextExtractor, ProductContextExtractor>();
         services.AddScoped<IFormRowDataFactory, FormRowDataFactory>();
+        services.AddScoped<ITokenProvider, JwtTokenProvider>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IDictionariesService, DictionariesService>();
         services.AddScoped<IFormsService, FormsService>();
 
         serviceProvider = services.BuildServiceProvider();
@@ -100,6 +115,8 @@ public abstract class BaseIntegrationTest
 
         UnitOfWork = scope.ServiceProvider.GetRequiredService<IPaUnitOfWork>();
         FormsService = scope.ServiceProvider.GetRequiredService<IFormsService>();
+        AuthService = scope.ServiceProvider.GetRequiredService<IAuthService>();
+        DictionariesService = scope.ServiceProvider.GetRequiredService<IDictionariesService>();
         DbContext = scope.ServiceProvider.GetRequiredService<PaDbContext>();
 
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserDbo>>();

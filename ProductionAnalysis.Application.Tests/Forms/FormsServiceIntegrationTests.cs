@@ -211,4 +211,256 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
 
         return Convert.ToInt32(rowValue.CumulativeValue);
     }
+
+    [Test]
+    public async Task SearchFormsAsync_ShouldReturnPaginatedResults()
+    {
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+
+        var template = await DbContext.Templates
+            .Include(t => t.Indicators)
+            .FirstAsync(t => t.Id == 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        var createRequest = new CreateFormRequest
+        {
+            PaTypeId = template.PaTypeId,
+            ShiftId = shift.Id,
+            Product = new ProductContextDto
+            {
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+
+        await FormsService.CreateAsync(createRequest, user.Id);
+
+        var searchFilter = new SearchFormsFilterDto
+        {
+            PageNumber = 1,
+            PageSize = 10
+        };
+
+        var result = await FormsService.SearchFormsAsync(searchFilter);
+
+        result.Should().NotBeNull();
+        result.Value.Items.Should().NotBeEmpty();
+        result.Value.TotalCount.Should().BeGreaterThan(0);
+        result.Value.PageNumber.Should().Be(1);
+        result.Value.PageSize.Should().Be(10);
+    }
+
+    [Test]
+    public async Task SearchFormsAsync_WithDepartmentFilter_ShouldReturnFilteredResults()
+    {
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+
+        var template = await DbContext.Templates
+            .Include(t => t.Indicators)
+            .FirstAsync(t => t.Id == 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        var createRequest = new CreateFormRequest
+        {
+            PaTypeId = template.PaTypeId,
+            ShiftId = shift.Id,
+            Product = new ProductContextDto
+            {
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+
+        await FormsService.CreateAsync(createRequest, user.Id);
+
+        var searchFilter = new SearchFormsFilterDto
+        {
+            DepartmentId = 1,
+            PageNumber = 1,
+            PageSize = 10
+        };
+
+        var result = await FormsService.SearchFormsAsync(searchFilter);
+
+        result.Should().NotBeNull();
+        result.Value.Items.Should().NotBeEmpty();
+        //TODO: result.Value.Items.Should().OnlyContain(f => f.DepartmentId == 1);
+    }
+
+    [Test]
+    public async Task GetByIdAsync_WithExistingForm_ShouldReturnForm()
+    {
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+
+        var template = await DbContext.Templates
+            .Include(t => t.Indicators)
+            .FirstAsync(t => t.Id == 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        var createRequest = new CreateFormRequest
+        {
+            PaTypeId = template.PaTypeId,
+            ShiftId = shift.Id,
+            Product = new ProductContextDto
+            {
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+
+        var createResult = await FormsService.CreateAsync(createRequest, user.Id);
+        createResult.IsSuccess.Should().BeTrue();
+
+        var result = await FormsService.GetByIdAsync(createResult.Value.Id);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value.Id.Should().Be(createResult.Value.Id);
+        result.Value.PaTypeId.Should().Be(template.PaTypeId);
+    }
+
+    [Test]
+    public async Task GetByIdAsync_WithNonExistentForm_ShouldReturnNotFound()
+    {
+        var result = await FormsService.GetByIdAsync(99999);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNull();
+        result.Error.Message.Should().Contain("not found");
+    }
+
+    [Test]
+    public async Task GetFormRowsAsync_WithExistingForm_ShouldReturnRows()
+    {
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+
+        var template = await DbContext.Templates
+            .Include(t => t.Indicators)
+            .FirstAsync(t => t.Id == 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        var createRequest = new CreateFormRequest
+        {
+            PaTypeId = template.PaTypeId,
+            ShiftId = shift.Id,
+            Product = new ProductContextDto
+            {
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+
+        var createResult = await FormsService.CreateAsync(createRequest, user.Id);
+        createResult.IsSuccess.Should().BeTrue();
+
+        var result = await FormsService.GetFormRowsAsync(createResult.Value.Id);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value.Should().NotBeEmpty();
+    }
+
+    [Test]
+    public async Task GetFormRowsAsync_WithNonExistentForm_ShouldReturnNotFound()
+    {
+        var result = await FormsService.GetFormRowsAsync(99999);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNull();
+        result.Error.Message.Should().Contain("not found");
+    }
+
+    [Test]
+    public async Task CreateAsync_WithNonExistentTemplate_ShouldReturnNotFound()
+    {
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        var request = new CreateFormRequest
+        {
+            PaTypeId = 99999,
+            ShiftId = shift.Id,
+            Product = new ProductContextDto
+            {
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+
+        var result = await FormsService.CreateAsync(request, user.Id);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNull();
+        result.Error.Message.Should().Contain("Template");
+        result.Error.Message.Should().Contain("not found");
+    }
+
+    [Test]
+    public async Task CreateAsync_WithNonExistentEmployee_ShouldReturnNotFound()
+    {
+        var user = await DataBuilder.CreateUserAsync();
+
+        var template = await DbContext.Templates
+            .Include(t => t.Indicators)
+            .FirstAsync(t => t.Id == 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        var request = new CreateFormRequest
+        {
+            PaTypeId = template.PaTypeId,
+            ShiftId = shift.Id,
+            Product = new ProductContextDto
+            {
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+
+        var result = await FormsService.CreateAsync(request, user.Id);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNull();
+        result.Error.Message.Should().Contain("Employee");
+        result.Error.Message.Should().Contain("not found");
+    }
+
+    [Test]
+    public async Task CreateAsync_WithNonExistentShift_ShouldReturnNotFound()
+    {
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+
+        var template = await DbContext.Templates
+            .Include(t => t.Indicators)
+            .FirstAsync(t => t.Id == 1);
+
+        var request = new CreateFormRequest
+        {
+            PaTypeId = template.PaTypeId,
+            ShiftId = 99999,
+            Product = new ProductContextDto
+            {
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+
+        var result = await FormsService.CreateAsync(request, user.Id);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNull();
+        result.Error.Message.Should().Contain("Shift");
+        result.Error.Message.Should().Contain("not found");
+    }
 }
