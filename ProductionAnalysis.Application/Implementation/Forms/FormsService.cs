@@ -22,7 +22,8 @@ public class FormsService(
     IFormRowInitializer formRowInitializer,
     IFormValidator formValidator,
     IFormRowUpdateOrchestrator formRowUpdateOrchestrator,
-    IFormTotalsUpdater formTotalsUpdater
+    IFormTotalsUpdater formTotalsUpdater,
+    IFormContextFactory formContextFactory
 )
     : IFormsService
 {
@@ -52,7 +53,7 @@ public class FormsService(
         }
 
         var (template, employee, shift) = validationResult.Value;
-        var context = request.ExtractDomainContext();
+        var context = formContextFactory.CreateContext(request);
 
         var newForm = new Form(
             0,

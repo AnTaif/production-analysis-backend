@@ -1,3 +1,5 @@
+using ProductionAnalysis.Application.Domain.Forms;
+
 namespace ProductionAnalysis.Application.Implementation.Forms;
 
 public interface IPlanCalculator

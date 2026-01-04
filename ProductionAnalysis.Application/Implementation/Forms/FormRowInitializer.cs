@@ -11,7 +11,7 @@ public interface IFormRowInitializer
         TimeOnly shiftStartTime,
         ICollection<ShiftScheduleDto> schedules,
         Template template,
-        Dictionary<string, FormContextBase>? formContext = null);
+        Dictionary<string, FormContext>? formContext = null);
 }
 
 [RegisterScoped]
@@ -27,7 +27,7 @@ public class FormRowInitializer(
         TimeOnly shiftStartTime,
         ICollection<ShiftScheduleDto> schedules,
         Template template,
-        Dictionary<string, FormContextBase>? formContext = null)
+        Dictionary<string, FormContext>? formContext = null)
     {
         var indicators = ExtractIndicators(template);
         var additionalOperationsByIds = await LoadAdditionalOperationsAsync();
@@ -49,7 +49,7 @@ public class FormRowInitializer(
         // Обратная совместимость: один продукт
         short order = 1;
 
-        var productContext = productContextExtractor.Extract(formContext);
+        var productContext = formContext?.GetProductContext();
         if (productContext == null)
         {
             throw new InvalidOperationException("ProductContext is required for single product form initialization");
@@ -75,35 +75,34 @@ public class FormRowInitializer(
         Template template,
         InitializedIndicators indicators,
         Dictionary<int, AdditionalOperationDto> additionalOperationsByIds,
-        Dictionary<string, FormContextBase>? formContext)
+        Dictionary<string, FormContext>? formContext)
     {
         var multiProducts = multiProductContextExtractor.Extract(formContext);
         var allRows = new List<FormRowData>();
         short globalOrder = 1;
 
         // Получаем информацию о продуктах из контекста
-        var productInfos = new List<(int? ProductId, ProductContext Context)>();
-        foreach (var (_, context) in formContext ?? new Dictionary<string, FormContextBase>())
+        var productInfos = new List<(int? ProductId, ProductInfo ProductInfo)>();
+        foreach (var (_, context) in formContext ?? new Dictionary<string, FormContext>())
         {
-            if (context is MultiProductFormContext multiProductContext)
+            if (context is MultiProductContext multiProductContext)
             {
                 foreach (var productInfo in multiProductContext.Products)
                 {
-                    productInfos.Add((
-                        productInfo.ProductId,
-                        new ProductContext
-                        {
-                            ProductId = productInfo.ProductId,
-                            DailyRate = productInfo.DailyRate,
-                            CycleTime = productInfo.CycleTime,
-                            WorkstationCapacity = productInfo.WorkstationCapacity
-                        }));
+                    productInfos.Add((productInfo.ProductId, productInfo));
                 }
             }
         }
 
-        foreach (var (productId, productContext) in productInfos)
+        foreach (var (productId, productInfo) in productInfos)
         {
+            // Преобразуем ProductInfo в ProductContext для расчетов
+            var productContext = new ProductContext(
+                productInfo.ProductId,
+                productInfo.CycleTime,
+                productInfo.WorkstationCapacity,
+                productInfo.DailyRate);
+
             var productRows = InitializeRowsForSingleProduct(
                 shiftStartTime,
                 sortedBreaks,

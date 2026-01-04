@@ -30,36 +30,9 @@ public static class FormsConverter
             .ToList();
 
         // Конвертируем типизированный контекст в отдельные поля DTO
-        ProductContextDto? productDto = null;
-        ICollection<ProductContextDto>? productsDto = null;
-        OperationContextDto? operationDto = null;
-
-        foreach (var (key, context) in form.Context)
-        {
-            if (key.Equals("multiProduct", StringComparison.OrdinalIgnoreCase) &&
-                context is MultiProductFormContext multiProductContext)
-            {
-                productsDto = multiProductContext.Products.Select(p => new ProductContextDto
-                {
-                    ProductId = p.ProductId,
-                    CycleTime = p.CycleTime,
-                    WorkstationCapacity = p.WorkstationCapacity,
-                    DailyRate = p.DailyRate
-                }).ToList();
-            }
-            else if (key.Equals("product", StringComparison.OrdinalIgnoreCase) &&
-                     context is ProductFormContext productContext)
-            {
-                productDto = new ProductContextDto
-                {
-                    ProductId = productContext.ProductId,
-                    CycleTime = productContext.CycleTime,
-                    WorkstationCapacity = productContext.WorkstationCapacity,
-                    DailyRate = productContext.DailyRate
-                };
-            }
-            // Можно добавить обработку для OperationContext в будущем
-        }
+        var productDto = form.GetProductContext()?.ToDto();
+        var productsDto = form.GetMultiProductContext()?.Products.Select(p => p.ToDto()).ToList();
+        OperationContextDto? operationDto = null; // Можно добавить обработку для OperationContext в будущем
 
         return new FormDto
         {
@@ -121,65 +94,12 @@ public static class FormsConverter
         };
     }
 
-    public static Dictionary<string, FormContextBase> ExtractDomainContext(this CreateFormRequest request)
+    [Obsolete("Use IFormContextFactory instead")]
+    public static Dictionary<string, FormContext> ExtractDomainContext(this CreateFormRequest request)
     {
-        var domainContext = new Dictionary<string, FormContextBase>();
-
-        var paType = PaTypeHelper.TryParse(request.PaTypeId);
-        if (paType == null)
-        {
-            throw new NotSupportedException($"Unknown form type: {request.PaTypeId}");
-        }
-
-        switch (paType.Value)
-        {
-            case PaType.SingleProductWithCycleTime:
-                domainContext["product"] = CreateSingleProductContextWithCycleTime(request.Product!);
-                break;
-
-            case PaType.SingleProductWithWorkstationCapacity:
-                domainContext["product"] = CreateSingleProductContextWithWorkstationCapacity(request.Product!);
-                break;
-
-            case PaType.MultipleProductsWithCycleTime:
-                domainContext["multiProduct"] = CreateMultipleProductsContextWithCycleTime(request.Products!);
-                break;
-
-            default:
-                throw new NotSupportedException($"Unsupported form type: {paType.Value}");
-        }
-
-        return domainContext;
-    }
-
-    private static ProductFormContext CreateSingleProductContextWithCycleTime(ProductContextDto product)
-    {
-        return new ProductFormContext(
-            product.ProductId,
-            product.CycleTime,
-            null,
-            product.DailyRate);
-    }
-
-    private static ProductFormContext CreateSingleProductContextWithWorkstationCapacity(ProductContextDto product)
-    {
-        return new ProductFormContext(
-            product.ProductId,
-            null,
-            product.WorkstationCapacity,
-            product.DailyRate);
-    }
-
-    private static MultiProductFormContext CreateMultipleProductsContextWithCycleTime(
-        ICollection<ProductContextDto> products)
-    {
-        var productInfos = products.Select(p => new ProductInfo(
-            p.ProductId,
-            p.CycleTime,
-            null,
-            p.DailyRate)).ToList();
-
-        return new MultiProductFormContext(productInfos);
+        // Для обратной совместимости используем фабрику напрямую
+        var factory = new FormContextFactory();
+        return factory.CreateContext(request);
     }
 
     private static FormTemplateDto ConvertTemplateToDto(Template template)

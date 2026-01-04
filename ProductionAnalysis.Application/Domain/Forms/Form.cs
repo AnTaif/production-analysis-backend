@@ -10,7 +10,7 @@ public class Form
         FormStatus status,
         DateTime creationDate,
         DateTime updateDate,
-        Dictionary<string, FormContextBase> context,
+        Dictionary<string, FormContext> context,
         Template templateSnapshot,
         ICollection<FormRow> rows,
         Guid creatorId,
@@ -37,7 +37,7 @@ public class Form
     public FormStatus Status { get; }
     public DateTime CreationDate { get; }
     public DateTime UpdateDate { get; }
-    public Dictionary<string, FormContextBase> Context { get; }
+    public Dictionary<string, FormContext> Context { get; }
     public Template TemplateSnapshot { get; }
     public ICollection<FormRow> Rows { get; }
     public Guid CreatorId { get; }

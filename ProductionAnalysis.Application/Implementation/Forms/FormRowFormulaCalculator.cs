@@ -10,7 +10,7 @@ public interface IFormRowFormulaCalculator
         FormRow row,
         Template template,
         ICollection<int> updatedIndicatorIds,
-        Dictionary<string, FormContextBase>? formContext = null);
+        Dictionary<string, FormContext>? formContext = null);
 }
 
 [RegisterScoped]
@@ -20,7 +20,7 @@ public class FormRowFormulaCalculator(IFormulaCalculator formulaCalculator) : IF
         FormRow row,
         Template template,
         ICollection<int> updatedIndicatorIds,
-        Dictionary<string, FormContextBase>? formContext = null)
+        Dictionary<string, FormContext>? formContext = null)
     {
         var currentValues = ParseRowValuesToDictionary(row.Values);
         var calculatedValues = formulaCalculator.CalculateFormulas(

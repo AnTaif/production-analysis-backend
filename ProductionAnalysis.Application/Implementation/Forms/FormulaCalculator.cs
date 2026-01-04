@@ -13,7 +13,7 @@ public interface IFormulaCalculator
         Dictionary<int, object> currentValues,
         ICollection<Indicator> indicators,
         ICollection<int> updatedIndicatorIds,
-        Dictionary<string, FormContextBase>? formContext = null);
+        Dictionary<string, FormContext>? formContext = null);
 }
 
 [RegisterScoped]
@@ -29,7 +29,7 @@ public class FormulaCalculator : IFormulaCalculator
         Dictionary<int, object> currentValues,
         ICollection<Indicator> indicators,
         ICollection<int> updatedIndicatorIds,
-        Dictionary<string, FormContextBase>? formContext = null)
+        Dictionary<string, FormContext>? formContext = null)
     {
         var formulaIndicators = indicators
             .Where(i => i.InputType == FieldInputTypes.Formula && !string.IsNullOrEmpty(i.Formula))
@@ -125,7 +125,7 @@ public class FormulaCalculator : IFormulaCalculator
     }
 
     private object? EvaluateFormula(string formula, Dictionary<int, object> currentValues,
-        Dictionary<string, FormContextBase>? formContext)
+        Dictionary<string, FormContext>? formContext)
     {
         try
         {
@@ -211,7 +211,7 @@ public class FormulaCalculator : IFormulaCalculator
         }
     }
 
-    private object? GetContextValue(string contextKey, Dictionary<string, FormContextBase>? formContext)
+    private object? GetContextValue(string contextKey, Dictionary<string, FormContext>? formContext)
     {
         if (formContext == null)
         {
@@ -231,8 +231,8 @@ public class FormulaCalculator : IFormulaCalculator
             return 0;
         }
 
-        // Если это ProductFormContext и запрашивается свойство
-        if (context is ProductFormContext productContext)
+        // Если это ProductContext и запрашивается свойство
+        if (context is ProductContext productContext)
         {
             if (keys.Length == 1)
             {
@@ -241,7 +241,7 @@ public class FormulaCalculator : IFormulaCalculator
             }
 
             // Второй ключ - это свойство контекста
-            // Примечание: логика работы с paTypeId реализована в ExtractDomainContext,
+            // Примечание: логика работы с paTypeId реализована в FormContextFactory,
             // где ненужные поля (CycleTime или WorkstationCapacity) обнуляются в зависимости от paTypeId.
             // Этот метод просто возвращает значения из контекста (0 если поле обнулено).
             var propertyName = keys[1];

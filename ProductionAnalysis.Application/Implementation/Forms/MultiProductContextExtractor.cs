@@ -4,49 +4,20 @@ namespace ProductionAnalysis.Application.Implementation.Forms;
 
 public interface IMultiProductContextExtractor
 {
-    ICollection<ProductContext> Extract(Dictionary<string, FormContextBase>? formContext);
+    ICollection<ProductInfo> Extract(Dictionary<string, FormContext>? formContext);
 }
 
 [RegisterScoped]
 public class MultiProductContextExtractor : IMultiProductContextExtractor
 {
-    public ICollection<ProductContext> Extract(Dictionary<string, FormContextBase>? formContext)
+    public ICollection<ProductInfo> Extract(Dictionary<string, FormContext>? formContext)
     {
         if (formContext == null)
         {
-            return new List<ProductContext>();
+            return new List<ProductInfo>();
         }
 
-        var products = new List<ProductContext>();
-
-        foreach (var (_, context) in formContext)
-        {
-            if (context is MultiProductFormContext multiProductContext)
-            {
-                foreach (var productInfo in multiProductContext.Products)
-                {
-                    products.Add(new ProductContext
-                    {
-                        ProductId = productInfo.ProductId,
-                        DailyRate = productInfo.DailyRate,
-                        CycleTime = productInfo.CycleTime,
-                        WorkstationCapacity = productInfo.WorkstationCapacity
-                    });
-                }
-            }
-            else if (context is ProductFormContext productContext)
-            {
-                // Обратная совместимость: один продукт
-                products.Add(new ProductContext
-                {
-                    ProductId = productContext.ProductId,
-                    DailyRate = productContext.DailyRate,
-                    CycleTime = productContext.CycleTime,
-                    WorkstationCapacity = productContext.WorkstationCapacity
-                });
-            }
-        }
-
-        return products;
+        var allProducts = formContext.GetAllProducts();
+        return allProducts.ToList();
     }
 }

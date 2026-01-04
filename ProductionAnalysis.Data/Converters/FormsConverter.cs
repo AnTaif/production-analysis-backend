@@ -10,11 +10,15 @@ public static class FormsConverter
 {
     public static Form ToDomain(this FormDbo dbo)
     {
-        var context = JsonSerializer.Deserialize<Dictionary<string, FormContextBase>>(dbo.Context,
+        // Десериализуем из DBO моделей (с атрибутами сериализации)
+        var contextDbo = JsonSerializer.Deserialize<Dictionary<string, FormContextBaseDbo>>(dbo.Context,
             new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            }) ?? new Dictionary<string, FormContextBase>();
+            }) ?? new Dictionary<string, FormContextBaseDbo>();
+
+        // Преобразуем DBO модели в доменные модели
+        var context = ConvertContextToDomain(contextDbo);
 
         var rows = dbo.FormRows
             .OrderBy(r => r.Order)
@@ -98,5 +102,72 @@ public static class FormsConverter
         {
             return jsonValue;
         }
+    }
+
+    private static Dictionary<string, FormContext> ConvertContextToDomain(
+        Dictionary<string, FormContextBaseDbo> contextDbo)
+    {
+        var context = new Dictionary<string, FormContext>();
+
+        foreach (var (key, contextValue) in contextDbo)
+        {
+            FormContext? domainContext = contextValue switch
+            {
+                ProductFormContextDbo productDbo => new ProductContext(
+                    productDbo.ProductId,
+                    productDbo.CycleTime,
+                    productDbo.WorkstationCapacity,
+                    productDbo.DailyRate),
+                MultiProductFormContextDbo multiProductDbo => new MultiProductContext(
+                    multiProductDbo.Products.Select(p => new ProductInfo(
+                        p.ProductId,
+                        p.CycleTime,
+                        p.WorkstationCapacity,
+                        p.DailyRate)).ToList()),
+                _ => null
+            };
+
+            if (domainContext != null)
+            {
+                context[key] = domainContext;
+            }
+        }
+
+        return context;
+    }
+
+    public static string SerializeContextToJson(Dictionary<string, FormContext> domainContext)
+    {
+        // Преобразуем доменные модели в DBO модели для сериализации
+        var contextDbo = new Dictionary<string, FormContextBaseDbo>();
+
+        foreach (var (key, contextValue) in domainContext)
+        {
+            FormContextBaseDbo? dboContext = contextValue switch
+            {
+                ProductContext productContext => new ProductFormContextDbo(
+                    productContext.ProductId,
+                    productContext.CycleTime,
+                    productContext.WorkstationCapacity,
+                    productContext.DailyRate),
+                MultiProductContext multiProductContext => new MultiProductFormContextDbo(
+                    multiProductContext.Products.Select(p => new ProductInfoDbo(
+                        p.ProductId,
+                        p.CycleTime,
+                        p.WorkstationCapacity,
+                        p.DailyRate)).ToList()),
+                _ => null
+            };
+
+            if (dboContext != null)
+            {
+                contextDbo[key] = dboContext;
+            }
+        }
+
+        return JsonSerializer.Serialize(contextDbo, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
     }
 }

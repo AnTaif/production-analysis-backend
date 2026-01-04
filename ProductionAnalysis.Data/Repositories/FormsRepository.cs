@@ -48,10 +48,7 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
     {
         var now = DateTime.UtcNow;
 
-        var contextJson = JsonSerializer.Serialize(newForm.Context, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+        var contextJson = FormsConverter.SerializeContextToJson(newForm.Context);
 
         var templateSnapshotJson = newForm.TemplateSnapshot.SerializeTemplateSnapshot();
 
