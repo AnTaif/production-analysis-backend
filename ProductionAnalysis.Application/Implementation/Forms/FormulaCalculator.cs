@@ -244,7 +244,7 @@ public class FormulaCalculator : IFormulaCalculator
             var propertyName = keys[1];
             return propertyName.ToLowerInvariant() switch
             {
-                "productid" => productContext.ProductId ?? 0,
+                "productid" => productContext.ProductId,
                 "cycletime" => productContext.CycleTime ?? 0,
                 "workstationcapacity" => productContext.WorkstationCapacity ?? 0,
                 "dailyrate" => productContext.DailyRate,

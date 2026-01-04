@@ -18,6 +18,7 @@ public interface IFormRowInitializer
 public class FormRowInitializer(
     IPaUnitOfWork unitOfWork,
     IProductContextExtractor productContextExtractor,
+    IMultiProductContextExtractor multiProductContextExtractor,
     IFormRowDataFactory formRowDataFactory,
     ICumulativeValueCalculator cumulativeValueCalculator
 ) : IFormRowInitializer
@@ -30,16 +31,112 @@ public class FormRowInitializer(
     {
         var indicators = ExtractIndicators(template);
         var additionalOperationsByIds = await LoadAdditionalOperationsAsync();
-        var productContext = productContextExtractor.Extract(formContext);
         var sortedBreaks = schedules.OrderBy(s => s.StartTime).ToList();
 
+        // Проверяем, есть ли несколько продуктов
+        var multiProducts = multiProductContextExtractor.Extract(formContext);
+        if (multiProducts.Count > 1)
+        {
+            return await InitializeRowsForMultipleProductsAsync(
+                shiftStartTime,
+                sortedBreaks,
+                template,
+                indicators,
+                additionalOperationsByIds,
+                formContext);
+        }
+
+        // Обратная совместимость: один продукт
+        short order = 1;
+
+        var productContext = productContextExtractor.Extract(formContext);
+        if (productContext == null)
+        {
+            throw new InvalidOperationException("ProductContext is required for single product form initialization");
+        }
+
+        var rows = InitializeRowsForSingleProduct(
+            shiftStartTime,
+            sortedBreaks,
+            indicators,
+            additionalOperationsByIds,
+            productContext,
+            productContext.ProductId,
+            ref order);
+
+        cumulativeValueCalculator.FillCumulativeValues(rows, template.Indicators);
+
+        return rows;
+    }
+
+    private async Task<ICollection<FormRowData>> InitializeRowsForMultipleProductsAsync(
+        TimeOnly shiftStartTime,
+        List<ShiftScheduleDto> sortedBreaks,
+        Template template,
+        InitializedIndicators indicators,
+        Dictionary<int, AdditionalOperationDto> additionalOperationsByIds,
+        Dictionary<string, FormContextBase>? formContext)
+    {
+        var multiProducts = multiProductContextExtractor.Extract(formContext);
+        var allRows = new List<FormRowData>();
+        short globalOrder = 1;
+
+        // Получаем информацию о продуктах из контекста
+        var productInfos = new List<(int? ProductId, ProductContext Context)>();
+        foreach (var (_, context) in formContext ?? new Dictionary<string, FormContextBase>())
+        {
+            if (context is MultiProductFormContext multiProductContext)
+            {
+                foreach (var productInfo in multiProductContext.Products)
+                {
+                    productInfos.Add((
+                        productInfo.ProductId,
+                        new ProductContext
+                        {
+                            ProductId = productInfo.ProductId,
+                            DailyRate = productInfo.DailyRate,
+                            CycleTime = productInfo.CycleTime,
+                            WorkstationCapacity = productInfo.WorkstationCapacity
+                        }));
+                }
+            }
+        }
+
+        foreach (var (productId, productContext) in productInfos)
+        {
+            var productRows = InitializeRowsForSingleProduct(
+                shiftStartTime,
+                sortedBreaks,
+                indicators,
+                additionalOperationsByIds,
+                productContext,
+                productId,
+                ref globalOrder);
+
+            allRows.AddRange(productRows);
+        }
+
+        cumulativeValueCalculator.FillCumulativeValues(allRows, template.Indicators);
+
+        return allRows;
+    }
+
+    private ICollection<FormRowData> InitializeRowsForSingleProduct(
+        TimeOnly shiftStartTime,
+        List<ShiftScheduleDto> sortedBreaks,
+        InitializedIndicators indicators,
+        Dictionary<int, AdditionalOperationDto> additionalOperationsByIds,
+        ProductContext? productContext,
+        int? productId,
+        ref short order)
+    {
         var totalWorkTime = TimeSpan.FromHours(ShiftConstants.ShiftDurationHours);
 
         var rows = new List<FormRowData>();
         var currentTime = shiftStartTime;
         var elapsedWorkTime = TimeSpan.Zero;
         var breakIndex = 0;
-        short order = 1;
+        var localOrder = order;
 
         while (elapsedWorkTime < totalWorkTime)
         {
@@ -54,13 +151,14 @@ public class FormRowInitializer(
 
             if (nextBreak != null && IsBreakInWorkInterval(nextBreak, currentTime, workIntervalEndTime))
             {
-                order = ProcessBreakInterval(
+                localOrder = ProcessBreakInterval(
                     rows,
-                    order,
+                    localOrder,
                     nextBreak,
                     additionalOperationsByIds,
                     indicators,
                     productContext,
+                    productId,
                     ref breakIndex,
                     ref currentTime,
                     ref elapsedWorkTime);
@@ -68,12 +166,13 @@ public class FormRowInitializer(
             else
             {
                 var workRow = formRowDataFactory.CreateWorkRow(
-                    order++,
+                    localOrder++,
                     indicators.WorkTime,
                     indicators.Plan,
                     currentTime,
                     workIntervalEndTime,
-                    productContext);
+                    productContext,
+                    productId);
 
                 rows.Add(workRow);
                 currentTime = workIntervalEndTime;
@@ -89,7 +188,7 @@ public class FormRowInitializer(
             var breakEndTime = nextBreak.StartTime.Add(breakMetaInfo.Duration);
 
             var breakRow = formRowDataFactory.CreateBreakRow(
-                order++,
+                localOrder++,
                 indicators.WorkTime,
                 nextBreak.StartTime,
                 breakEndTime,
@@ -100,8 +199,7 @@ public class FormRowInitializer(
             breakIndex++;
         }
 
-        cumulativeValueCalculator.FillCumulativeValues(rows, template.Indicators);
-
+        order = localOrder;
         return rows;
     }
 
@@ -138,6 +236,7 @@ public class FormRowInitializer(
         Dictionary<int, AdditionalOperationDto> additionalOperationsByIds,
         InitializedIndicators indicators,
         ProductContext? productContext,
+        int? productId,
         ref int breakIndex,
         ref TimeOnly currentTime,
         ref TimeSpan elapsedWorkTime)
@@ -151,7 +250,8 @@ public class FormRowInitializer(
                 indicators.Plan,
                 currentTime,
                 nextBreak.StartTime,
-                productContext);
+                productContext,
+                productId);
 
             rows.Add(workRowBeforeBreak);
 

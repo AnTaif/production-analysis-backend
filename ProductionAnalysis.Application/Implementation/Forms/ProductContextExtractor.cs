@@ -23,6 +23,7 @@ public class ProductContextExtractor : IProductContextExtractor
             {
                 return new ProductContext
                 {
+                    ProductId = productContext.ProductId,
                     DailyRate = productContext.DailyRate,
                     CycleTime = productContext.CycleTime,
                     WorkstationCapacity = productContext.WorkstationCapacity

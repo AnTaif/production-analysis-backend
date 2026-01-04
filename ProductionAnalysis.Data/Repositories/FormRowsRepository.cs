@@ -22,6 +22,7 @@ public class FormRowsRepository(PaDbContext dbContext) : IFormRowsRepository
                 Order = row.Order,
                 IsAdditionalOperation = row.IsAdditionalOperation,
                 AdditionalOperationId = row.AdditionalOperationId,
+                ProductId = row.ProductId,
                 Values = new List<FormRowValueDbo>()
             };
 

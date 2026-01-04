@@ -11,7 +11,8 @@ public interface IFormRowDataFactory
         Indicator? planIndicator,
         TimeOnly startTime,
         TimeOnly endTime,
-        ProductContext? productContext);
+        ProductContext? productContext,
+        int? productId = null);
 
     FormRowData CreateBreakRow(
         short order,
@@ -31,7 +32,8 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         Indicator? planIndicator,
         TimeOnly startTime,
         TimeOnly endTime,
-        ProductContext? productContext)
+        ProductContext? productContext,
+        int? productId = null)
     {
         var values = new List<FormRowValueData>
         {
@@ -53,6 +55,7 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         {
             Order = order,
             IsAdditionalOperation = false,
+            ProductId = productId,
             Values = values
         };
     }

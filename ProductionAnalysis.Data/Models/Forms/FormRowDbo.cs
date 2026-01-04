@@ -10,6 +10,8 @@ public class FormRowDbo
 
     public int? AdditionalOperationId { get; set; }
 
+    public int? ProductId { get; set; }
+
     public FormDbo Form { get; set; } = null!;
 
     public ICollection<FormRowValueDbo> Values { get; set; } = new List<FormRowValueDbo>();

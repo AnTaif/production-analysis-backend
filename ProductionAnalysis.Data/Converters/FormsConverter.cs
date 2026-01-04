@@ -71,7 +71,8 @@ public static class FormsConverter
             dbo.Order,
             dbo.IsAdditionalOperation,
             dbo.AdditionalOperationId,
-            values);
+            values,
+            dbo.ProductId);
     }
 
     private static object? DeserializeValue(string jsonValue)

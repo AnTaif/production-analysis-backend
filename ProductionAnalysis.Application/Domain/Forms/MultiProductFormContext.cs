@@ -2,9 +2,20 @@ using System.Text.Json.Serialization;
 
 namespace ProductionAnalysis.Application.Domain.Forms;
 
-public class ProductFormContext : FormContextBase
+public class MultiProductFormContext : FormContextBase
 {
-    public ProductFormContext(
+    public MultiProductFormContext(ICollection<ProductInfo> products)
+    {
+        Products = products;
+    }
+
+    [JsonPropertyName("products")]
+    public ICollection<ProductInfo> Products { get; }
+}
+
+public class ProductInfo
+{
+    public ProductInfo(
         int productId,
         int? cycleTime,
         int? workstationCapacity,

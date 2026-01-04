@@ -11,5 +11,8 @@ public record CreateFormRequest
     public int ShiftId { get; init; }
 
     public ProductContextDto? Product { get; init; }
+
+    public ICollection<ProductContextDto>? Products { get; init; }
+
     public OperationContextDto? Operation { get; init; }
 }

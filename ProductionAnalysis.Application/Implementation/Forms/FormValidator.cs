@@ -39,25 +39,49 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
         }
 
         // Валидация ProductContext: должно быть указано либо CycleTime, либо WorkstationCapacity
-        if (request.Product != null)
+        // Поддержка нескольких продуктов (приоритет)
+        if (request.Products != null && request.Products.Count > 0)
         {
-            var hasCycleTime = request.Product.CycleTime.HasValue && request.Product.CycleTime.Value > 0;
-            var hasWorkstationCapacity = request.Product.WorkstationCapacity.HasValue &&
-                                         request.Product.WorkstationCapacity.Value > 0;
-
-            if (hasCycleTime && hasWorkstationCapacity)
+            foreach (var product in request.Products)
             {
-                return ServiceError.BadRequest(
-                    "Cannot specify both CycleTime and WorkstationCapacity. Please specify only one of them.");
+                var validationResult = ValidateProductContext(product);
+                if (validationResult.IsFailure)
+                {
+                    return validationResult.Error;
+                }
             }
-
-            if (!hasCycleTime && !hasWorkstationCapacity)
+        }
+        // Обратная совместимость: один продукт
+        else if (request.Product != null)
+        {
+            var validationResult = ValidateProductContext(request.Product);
+            if (validationResult.IsFailure)
             {
-                return ServiceError.BadRequest(
-                    "Either CycleTime or WorkstationCapacity must be specified.");
+                return validationResult.Error;
             }
         }
 
         return (template, employee, shift);
+    }
+
+    private static Result ValidateProductContext(ProductContextDto product)
+    {
+        var hasCycleTime = product.CycleTime.HasValue && product.CycleTime.Value > 0;
+        var hasWorkstationCapacity = product.WorkstationCapacity.HasValue &&
+                                     product.WorkstationCapacity.Value > 0;
+
+        if (hasCycleTime && hasWorkstationCapacity)
+        {
+            return ServiceError.BadRequest(
+                "Cannot specify both CycleTime and WorkstationCapacity. Please specify only one of them.");
+        }
+
+        if (!hasCycleTime && !hasWorkstationCapacity)
+        {
+            return ServiceError.BadRequest(
+                "Either CycleTime or WorkstationCapacity must be specified.");
+        }
+
+        return Result.Success;
     }
 }

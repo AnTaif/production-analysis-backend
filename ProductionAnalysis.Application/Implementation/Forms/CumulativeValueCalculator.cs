@@ -20,8 +20,16 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
             return new Dictionary<short, ICollection<FormRowValueData>>();
         }
 
+        var updatedRow = GetWorkRows(form.Rows).FirstOrDefault(r => r.Order == fromRowOrder);
+        if (updatedRow == null)
+        {
+            return new Dictionary<short, ICollection<FormRowValueData>>();
+        }
+
+        // Получаем все строки того же продукта, начиная с обновленной строки
+        var productId = updatedRow.ProductId;
         var workRows = GetWorkRows(form.Rows)
-            .Where(r => r.Order >= fromRowOrder)
+            .Where(r => r.ProductId == productId && r.Order >= fromRowOrder)
             .OrderBy(r => r.Order)
             .ToList();
 
@@ -30,7 +38,8 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
             return new Dictionary<short, ICollection<FormRowValueData>>();
         }
 
-        var previousWorkRow = FindPreviousWorkRow(form.Rows, fromRowOrder);
+        // Находим предыдущую строку того же продукта
+        var previousWorkRow = FindPreviousWorkRow(form.Rows, fromRowOrder, productId);
         var cumulativeValuesByIndicator = BuildInitialCumulativeValues(previousWorkRow, cumulativeIndicators);
         var valuesToUpdateByRow = new Dictionary<short, ICollection<FormRowValueData>>();
 
@@ -58,33 +67,38 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
             return;
         }
 
-        var workRows = rows
+        // Группируем строки по продуктам для отдельного расчета накопительных значений
+        var rowsByProduct = rows
             .Where(r => !r.IsAdditionalOperation)
-            .OrderBy(r => r.Order)
+            .GroupBy(r => r.ProductId)
             .ToList();
 
-        var cumulativeValuesByIndicator = new Dictionary<int, int>();
-
-        foreach (var row in workRows)
+        foreach (var productGroup in rowsByProduct)
         {
-            foreach (var indicator in cumulativeIndicators)
+            var workRows = productGroup.OrderBy(r => r.Order).ToList();
+            var cumulativeValuesByIndicator = new Dictionary<int, int>();
+
+            foreach (var row in workRows)
             {
-                var valueData = row.Values.FirstOrDefault(v => v.IndicatorId == indicator.Id);
-                if (valueData == null)
+                foreach (var indicator in cumulativeIndicators)
                 {
-                    continue;
+                    var valueData = row.Values.FirstOrDefault(v => v.IndicatorId == indicator.Id);
+                    if (valueData == null)
+                    {
+                        continue;
+                    }
+
+                    if (!TryParseIntValue(valueData.Value, out var baseValue))
+                    {
+                        continue;
+                    }
+
+                    var previousCumulative = cumulativeValuesByIndicator.GetValueOrDefault(indicator.Id, 0);
+                    var cumulativeValue = previousCumulative + baseValue;
+
+                    valueData.CumulativeValue = cumulativeValue;
+                    cumulativeValuesByIndicator[indicator.Id] = cumulativeValue;
                 }
-
-                if (!TryParseIntValue(valueData.Value, out var baseValue))
-                {
-                    continue;
-                }
-
-                var previousCumulative = cumulativeValuesByIndicator.GetValueOrDefault(indicator.Id, 0);
-                var cumulativeValue = previousCumulative + baseValue;
-
-                valueData.CumulativeValue = cumulativeValue;
-                cumulativeValuesByIndicator[indicator.Id] = cumulativeValue;
             }
         }
     }
@@ -101,7 +115,7 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
         return rows.Where(r => !r.IsAdditionalOperation);
     }
 
-    private static FormRow? FindPreviousWorkRow(ICollection<FormRow> rows, short fromRowOrder)
+    private static FormRow? FindPreviousWorkRow(ICollection<FormRow> rows, short fromRowOrder, int? productId)
     {
         if (fromRowOrder <= 1)
         {
@@ -109,7 +123,7 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
         }
 
         return GetWorkRows(rows)
-            .Where(r => r.Order < fromRowOrder)
+            .Where(r => r.ProductId == productId && r.Order < fromRowOrder)
             .OrderByDescending(r => r.Order)
             .FirstOrDefault();
     }

@@ -30,12 +30,24 @@ public static class FormsConverter
 
         // Конвертируем типизированный контекст в отдельные поля DTO
         ProductContextDto? productDto = null;
+        ICollection<ProductContextDto>? productsDto = null;
         OperationContextDto? operationDto = null;
 
         foreach (var (key, context) in form.Context)
         {
-            if (key.Equals("product", StringComparison.OrdinalIgnoreCase) &&
-                context is ProductFormContext productContext)
+            if (key.Equals("multiProduct", StringComparison.OrdinalIgnoreCase) &&
+                context is MultiProductFormContext multiProductContext)
+            {
+                productsDto = multiProductContext.Products.Select(p => new ProductContextDto
+                {
+                    ProductId = p.ProductId,
+                    CycleTime = p.CycleTime,
+                    WorkstationCapacity = p.WorkstationCapacity,
+                    DailyRate = p.DailyRate
+                }).ToList();
+            }
+            else if (key.Equals("product", StringComparison.OrdinalIgnoreCase) &&
+                     context is ProductFormContext productContext)
             {
                 productDto = new ProductContextDto
                 {
@@ -58,6 +70,7 @@ public static class FormsConverter
             Context = new FormContextDto
             {
                 Product = productDto,
+                Products = productsDto,
                 Operation = operationDto
             },
             Rows = rows,
@@ -102,6 +115,7 @@ public static class FormsConverter
         {
             Order = row.Order,
             IsAdditionalOperation = row.IsAdditionalOperation,
+            ProductId = row.ProductId,
             Values = values
         };
     }
@@ -110,7 +124,19 @@ public static class FormsConverter
     {
         var domainContext = new Dictionary<string, FormContextBase>();
 
-        if (request.Product != null)
+        // Поддержка нескольких продуктов (приоритет)
+        if (request.Products != null && request.Products.Count > 0)
+        {
+            var products = request.Products.Select(p => new ProductInfo(
+                p.ProductId,
+                p.CycleTime,
+                p.WorkstationCapacity,
+                p.DailyRate)).ToList();
+
+            domainContext["multiProduct"] = new MultiProductFormContext(products);
+        }
+        // Обратная совместимость: один продукт
+        else if (request.Product != null)
         {
             domainContext["product"] = new ProductFormContext(
                 request.Product.ProductId,
