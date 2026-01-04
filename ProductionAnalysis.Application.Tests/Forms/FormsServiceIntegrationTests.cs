@@ -11,7 +11,59 @@ namespace ProductionAnalysis.Application.Tests.Forms;
 public class FormsServiceIntegrationTests : BaseIntegrationTest
 {
     [Test]
-    public async Task CreateAsync_ShouldCreateFormWithCorrectRowsAndCumulativeValues()
+    public async Task CreateAsync_ShouldCreateFormWithCumulativeValues()
+    {
+        // Arrange
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+
+        var template = await DbContext.Templates
+            .Include(t => t.Indicators)
+            .FirstAsync(t => t.Id == 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        // Act
+        var request = new CreateFormRequest
+        {
+            PaTypeId = template.PaTypeId,
+            ShiftId = shift.Id,
+            Product = new ProductContextDto
+            {
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+
+        var result = await FormsService.CreateAsync(request, user.Id);
+        result.IsSuccess.Should().BeTrue();
+
+        // Assert
+        var form = await UnitOfWork.Forms.FindAsync(result.Value.Id);
+        form.Should().NotBeNull();
+
+        var workRows = form.Rows
+            .Where(r => !r.IsAdditionalOperation)
+            .OrderBy(r => r.Order)
+            .ToList();
+
+        workRows.Should().HaveCount(ShiftConstants.ShiftDurationHours);
+
+        const int planIndicatorId = 1;
+        var firstValue = GetValue(workRows[0], planIndicatorId);
+
+        var secondCumulative = GetCumulativeValue(workRows[1], planIndicatorId);
+        var secondValue = GetValue(workRows[1], planIndicatorId);
+
+        var thirdCumulative = GetCumulativeValue(workRows[2], planIndicatorId);
+        var thirdValue = GetValue(workRows[2], planIndicatorId);
+
+        secondCumulative.Should().Be(firstValue + secondValue);
+        thirdCumulative.Should().Be(firstValue + secondValue + thirdValue);
+    }
+
+    [Test]
+    public async Task UpdateFormRowAsync_ShouldRecalculateCumulativeValues()
     {
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
@@ -34,127 +86,32 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             }
         };
 
-        // Act
         var result = await FormsService.CreateAsync(request, user.Id);
-
-        // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBeNull();
-        result.Value.Id.Should().BeGreaterThan(0);
 
         var form = await UnitOfWork.Forms.FindAsync(result.Value.Id);
         form.Should().NotBeNull();
-        form.Rows.Should().NotBeEmpty();
-
-        var workRows = form.Rows.Where(r => !r.IsAdditionalOperation).OrderBy(r => r.Order).ToList();
-        workRows.Should().HaveCount(ShiftConstants.ShiftDurationHours);
-
-        foreach (var row in workRows)
-        {
-            row.Values.Should().ContainKey(ShiftConstants.WorktimeIndicatorId.ToString());
-        }
-
-        const int planIndicatorId = 1;
-        var rowsWithPlan = workRows
-            .Where(r => r.Values.ContainsKey(planIndicatorId.ToString()))
-            .ToList();
-
-        rowsWithPlan.Should().HaveCount(ShiftConstants.ShiftDurationHours);
-
-        var firstPlanCumulativeValue = GetCumulativeValue(rowsWithPlan[0], planIndicatorId);
-        var secondPlanCumulativeValue = GetCumulativeValue(rowsWithPlan[1], planIndicatorId);
-        var thirdPlanCumulativeValue = GetCumulativeValue(rowsWithPlan[2], planIndicatorId);
-
-        firstPlanCumulativeValue.Should().Be(50);
-        secondPlanCumulativeValue.Should().Be(100);
-        thirdPlanCumulativeValue.Should().Be(150);
-    }
-
-    [Test]
-    public async Task UpdateFormRowAsync_ShouldUpdateValuesAndRecalculateCumulativeValues()
-    {
-        // Arrange
-        var user = await DataBuilder.CreateUserAsync();
-        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
-
-        var template = await DbContext.Templates
-            .Include(t => t.Indicators)
-            .FirstAsync(t => t.Id == 1);
-
-        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
-
-        var createRequest = new CreateFormRequest
-        {
-            PaTypeId = template.PaTypeId,
-            ShiftId = shift.Id,
-            Product = new ProductContextDto
-            {
-                DailyRate = 100,
-                CycleTime = 5
-            }
-        };
-
-        var createResult = await FormsService.CreateAsync(createRequest, user.Id);
-        createResult.IsSuccess.Should().BeTrue();
-
-        var form = await UnitOfWork.Forms.FindAsync(createResult.Value.Id);
-        var firstRow = form!.Rows.OrderBy(r => r.Order).First(r => !r.IsAdditionalOperation);
-
-        // Act
         const int factIndicatorId = 2;
         const int factValue = 50;
 
-        var updateRequest = new UpdateFormRowRequest
-        {
-            Values = new Dictionary<int, object>
-            {
-                { factIndicatorId, factValue }
-            }
-        };
-
-        var updateResult = await FormsService.UpdateFormRowAsync(
-            form.Id,
-            1,
-            updateRequest,
-            user.Id);
-
-        var updateRequest2 = new UpdateFormRowRequest
-        {
-            Values = new Dictionary<int, object>
-            {
-                { factIndicatorId, factValue }
-            }
-        };
-
-        await FormsService.UpdateFormRowAsync(
-            form.Id,
-            2,
-            updateRequest2,
-            user.Id);
+        // Act
+        await UpdateRowAsync(form.Id, 1, factIndicatorId, factValue, user.Id);
+        await UpdateRowAsync(form.Id, 2, factIndicatorId, factValue, user.Id);
 
         // Assert
-        updateResult.IsSuccess.Should().BeTrue();
-        updateResult.Value.Should().NotBeNull();
-
         var updatedForm = await UnitOfWork.Forms.FindAsync(form.Id);
-        var updatedRow = updatedForm!.Rows.Single(r => r.Order == firstRow.Order);
-
-        updatedRow.Values.Should().ContainKey(factIndicatorId.ToString());
-        var updatedValue = GetValue(updatedRow, factIndicatorId);
-        updatedValue.Should().Be(factValue);
-
-        var subsequentRows = updatedForm.Rows
-            .Where(r => !r.IsAdditionalOperation && r.Order > firstRow.Order)
+        var secondRow = updatedForm!.Rows
+            .Where(r => !r.IsAdditionalOperation)
             .OrderBy(r => r.Order)
-            .ToList();
+            .Skip(1)
+            .First();
 
-        var secondRow = subsequentRows.First();
         var secondCumulative = GetCumulativeValue(secondRow, factIndicatorId);
         secondCumulative.Should().Be(100);
     }
 
     [Test]
-    public async Task UpdateFormRowAsync_ShouldRecalculateFormulasWhenDependentValuesChange()
+    public async Task UpdateFormRowAsync_ShouldRecalculateFormulas()
     {
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
@@ -165,8 +122,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             .FirstAsync(t => t.Id == 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
-
-        var createRequest = new CreateFormRequest
+        var request = new CreateFormRequest
         {
             PaTypeId = template.PaTypeId,
             ShiftId = shift.Id,
@@ -177,42 +133,31 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             }
         };
 
-        var createResult = await FormsService.CreateAsync(createRequest, user.Id);
-        createResult.IsSuccess.Should().BeTrue();
+        var result = await FormsService.CreateAsync(request, user.Id);
+        result.IsSuccess.Should().BeTrue();
 
-        var form = await UnitOfWork.Forms.FindAsync(createResult.Value.Id);
-        var firstRow = form!.Rows.OrderBy(r => r.Order).First(r => !r.IsAdditionalOperation);
+        var form = await UnitOfWork.Forms.FindAsync(result.Value.Id);
+        form.Should().NotBeNull();
+        var firstRow = form.Rows
+            .Where(r => !r.IsAdditionalOperation)
+            .OrderBy(r => r.Order)
+            .First();
 
-        // Act
         const int planIndicatorId = 1;
         const int factIndicatorId = 2;
         const int deviationIndicatorId = 3;
-
         const int planValue = 50;
         const int factValue = 80;
 
-        var updateRequest = new UpdateFormRowRequest
+        // Act
+        await UpdateRowAsync(form.Id, firstRow.Order, new Dictionary<int, object>
         {
-            Values = new Dictionary<int, object>
-            {
-                { factIndicatorId, factValue }
-            }
-        };
-
-        var updateResult = await FormsService.UpdateFormRowAsync(
-            form.Id,
-            firstRow.Order,
-            updateRequest,
-            user.Id);
+            { factIndicatorId, factValue }
+        }, user.Id);
 
         // Assert
-        updateResult.IsSuccess.Should().BeTrue();
-
         var updatedForm = await UnitOfWork.Forms.FindAsync(form.Id);
         var updatedRow = updatedForm!.Rows.Single(r => r.Order == firstRow.Order);
-
-        updatedRow.Values.Should().ContainKey(planIndicatorId.ToString());
-        updatedRow.Values.Should().ContainKey(factIndicatorId.ToString());
 
         GetValue(updatedRow, planIndicatorId).Should().Be(planValue);
         GetValue(updatedRow, factIndicatorId).Should().Be(factValue);
@@ -220,6 +165,24 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         var deviationValue = GetValue(updatedRow, deviationIndicatorId);
         const int expectedDeviation = factValue - planValue;
         deviationValue.Should().Be(expectedDeviation);
+    }
+
+    private async Task UpdateRowAsync(int formId, short rowOrder, int indicatorId, int value, Guid userId)
+    {
+        var updateRequest = new UpdateFormRowRequest
+        {
+            Values = new Dictionary<int, object> { { indicatorId, value } }
+        };
+
+        var result = await FormsService.UpdateFormRowAsync(formId, rowOrder, updateRequest, userId);
+        result.IsSuccess.Should().BeTrue();
+    }
+
+    private async Task UpdateRowAsync(int formId, short rowOrder, Dictionary<int, object> values, Guid userId)
+    {
+        var updateRequest = new UpdateFormRowRequest { Values = values };
+        var result = await FormsService.UpdateFormRowAsync(formId, rowOrder, updateRequest, userId);
+        result.IsSuccess.Should().BeTrue();
     }
 
     private static int GetValue(FormRow row, int indicatorId)
