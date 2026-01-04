@@ -150,12 +150,27 @@ public class FormsService(
             filteredValues,
             userId);
 
+        await unitOfWork.SaveChangesAsync();
+
+        // Перезагружаем форму с обновленными значениями для расчета формул
+        var formForFormulas = await unitOfWork.Forms.FindAsync(formId);
+        if (formForFormulas == null)
+        {
+            return ServiceError.NotFound($"Form {formId} not found after update");
+        }
+
+        var updatedRow = formForFormulas.Rows.SingleOrDefault(r => r.Order == rowOrder);
+        if (updatedRow == null)
+        {
+            return ServiceError.NotFound($"Row {rowOrder} not found in form {formId} after update");
+        }
+
         var updatedIndicatorIds = filteredValues.Select(v => v.IndicatorId).ToList();
         var formulaValuesToUpdate = await formRowFormulaCalculator.CalculateFormulaValuesAsync(
-            row,
+            updatedRow,
             template,
             updatedIndicatorIds,
-            form.Context);
+            formForFormulas.Context);
 
         if (formulaValuesToUpdate.Count != 0)
         {
@@ -164,9 +179,9 @@ public class FormsService(
                 rowOrder,
                 formulaValuesToUpdate,
                 userId);
+            await unitOfWork.SaveChangesAsync();
         }
 
-        await unitOfWork.SaveChangesAsync();
         var formForCumulative = await unitOfWork.Forms.FindAsync(formId);
         if (formForCumulative != null)
         {
@@ -185,14 +200,14 @@ public class FormsService(
 
         await unitOfWork.SaveChangesAsync();
 
-        var updatedForm = await unitOfWork.Forms.FindAsync(formId);
-        var updatedRow = updatedForm?.Rows.SingleOrDefault(r => r.Order == rowOrder);
+        var finalForm = await unitOfWork.Forms.FindAsync(formId);
+        var finalRow = finalForm?.Rows.SingleOrDefault(r => r.Order == rowOrder);
 
-        if (updatedRow == null)
+        if (finalRow == null)
         {
             return ServiceError.NotFound($"Form row with Order={rowOrder} not found after update");
         }
 
-        return updatedRow.ToRowDto();
+        return finalRow.ToRowDto();
     }
 }
