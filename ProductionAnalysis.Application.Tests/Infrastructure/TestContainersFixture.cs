@@ -78,8 +78,6 @@ public class TestContainersFixture
     {
         await using var dbContext = CreateDbContext();
 
-        // Для тестов используем EnsureCreated вместо миграций
-        // Это избегает проблем с миграциями, которые содержат команды изменения типов
         await dbContext.Database.EnsureCreatedAsync();
         Console.WriteLine("Database schema created");
     }

@@ -103,6 +103,11 @@ public abstract class BaseIntegrationTest
         DbContext = scope.ServiceProvider.GetRequiredService<PaDbContext>();
 
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserDbo>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+
+        var testDataSeeder = new TestDataSeeder(DbContext, userManager, roleManager);
+        await testDataSeeder.SeedAllAsync();
+
         DataBuilder = new TestDataBuilder(DbContext, userManager);
     }
 

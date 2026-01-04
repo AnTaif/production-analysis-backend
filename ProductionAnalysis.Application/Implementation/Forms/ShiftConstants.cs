@@ -1,6 +1,6 @@
 namespace ProductionAnalysis.Application.Implementation.Forms;
 
-internal static class ShiftConstants
+public static class ShiftConstants
 {
     public const int ShiftDurationHours = 8;
 
