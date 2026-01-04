@@ -104,6 +104,8 @@ public abstract class BaseIntegrationTest
         services.AddScoped<ICumulativeValueCalculator, CumulativeValueCalculator>();
         services.AddScoped<IFormulaCalculator, FormulaCalculator>();
         services.AddScoped<IProductContextExtractor, ProductContextExtractor>();
+        services.AddScoped<IMultiProductContextExtractor, MultiProductContextExtractor>();
+        services.AddScoped<IFormContextFactory, FormContextFactory>();
         services.AddScoped<IFormRowDataFactory, FormRowDataFactory>();
         services.AddScoped<ITokenProvider, JwtTokenProvider>();
         services.AddScoped<IAuthService, AuthService>();
