@@ -35,7 +35,8 @@ public static class DictionariesConverter
             Id = dbo.Id,
             FullName = fullName.ToString(),
             Position = dbo.Position,
-            DepartmentId = dbo.DepartmentId
+            DepartmentId = dbo.DepartmentId,
+            UserId = dbo.UserId,
         };
     }
 

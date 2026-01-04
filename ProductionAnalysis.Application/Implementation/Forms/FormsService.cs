@@ -46,15 +46,21 @@ public class FormsService(
     public async Task<Result<FormShortDto>> CreateAsync(CreateFormRequest request, Guid creatorId)
     {
         var template = await unitOfWork.Templates.FindLatestVerAsync(request.PaTypeId);
-        if (template == null)
+        if (template is null)
         {
             return ServiceError.NotFound($"Template for PaType {request.PaTypeId} not found");
         }
 
         var employee = await unitOfWork.Dictionaries.FindEmployeeByUserIdAsync(creatorId);
-        if (employee == null)
+        if (employee is null)
         {
             return ServiceError.NotFound($"Employee for user {creatorId} not found");
+        }
+
+        var shift = await unitOfWork.Dictionaries.SelectShiftByIdAsync(request.ShiftId);
+        if (shift == null)
+        {
+            return ServiceError.NotFound($"Shift not found by id {request.ShiftId}");
         }
 
         var context = request.ExtractDomainContext();
@@ -69,17 +75,11 @@ public class FormsService(
             template,
             new List<FormRow>(),
             creatorId,
-            request.ShiftId,
+            shift.Id,
             employee.DepartmentId
         );
 
         var form = await unitOfWork.Forms.CreateAsync(newForm);
-
-        var shift = await unitOfWork.Dictionaries.SelectShiftByIdAsync(request.ShiftId);
-        if (shift == null)
-        {
-            return ServiceError.NotFound($"Shift not found by id {request.ShiftId}");
-        }
 
         var schedules = await unitOfWork.Dictionaries.SelectShiftSchedulesByShiftIdAsync(shift.Id);
         var rows = await formRowInitializer.InitializeRowsForShiftAsync(

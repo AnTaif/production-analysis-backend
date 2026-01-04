@@ -14,7 +14,8 @@ public static class FormsConverter
             PaTypeId = form.PaTypeId,
             Status = FormStatusConverter.ConvertToClientFormStatus(form.Status),
             CreationDate = form.CreationDate,
-            UpdateDate = form.UpdateDate
+            UpdateDate = form.UpdateDate,
+            DepartmentId = form.DepartmentId,
         };
     }
 

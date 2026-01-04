@@ -288,7 +288,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
 
         result.Should().NotBeNull();
         result.Value.Items.Should().NotBeEmpty();
-        //TODO: result.Value.Items.Should().OnlyContain(f => f.DepartmentId == 1);
+        result.Value.Items.Should().OnlyContain(f => f.DepartmentId == 1);
     }
 
     [Test]

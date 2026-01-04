@@ -7,4 +7,5 @@ public record FormShortDto
     public FormStatus Status { get; init; }
     public DateTime CreationDate { get; init; }
     public DateTime UpdateDate { get; init; }
+    public int DepartmentId { get; init; }
 }

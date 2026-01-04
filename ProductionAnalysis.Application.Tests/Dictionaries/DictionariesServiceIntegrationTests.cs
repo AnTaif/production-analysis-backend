@@ -33,7 +33,7 @@ public class DictionariesServiceIntegrationTests : BaseIntegrationTest
         var result = await DictionariesService.GetEmployeesAsync();
 
         result.Should().NotBeNull();
-        //TODO: result.Should().Contain(e => e.UserId == user.Id);
+        result.Should().Contain(e => e.UserId == user.Id);
     }
 
     [Test]

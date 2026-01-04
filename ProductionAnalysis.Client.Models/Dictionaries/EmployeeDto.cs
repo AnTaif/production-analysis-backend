@@ -6,4 +6,5 @@ public record EmployeeDto
     public string FullName { get; init; } = string.Empty;
     public string Position { get; init; } = string.Empty;
     public int DepartmentId { get; init; }
+    public Guid? UserId { get; init; }
 }
