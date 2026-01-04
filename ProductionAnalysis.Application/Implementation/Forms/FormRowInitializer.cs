@@ -32,30 +32,38 @@ public class FormRowInitializer(
         var additionalOperationsByIds = await LoadAdditionalOperationsAsync();
         var productContext = productContextExtractor.Extract(formContext);
         var sortedBreaks = schedules.OrderBy(s => s.StartTime).ToList();
-        var shiftEndTime = shiftStartTime.AddHours(ShiftConstants.ShiftDurationHours);
+
+        var totalWorkTime = TimeSpan.FromHours(ShiftConstants.ShiftDurationHours);
 
         var rows = new List<FormRowData>();
         var currentTime = shiftStartTime;
+        var elapsedWorkTime = TimeSpan.Zero;
         var breakIndex = 0;
         short order = 1;
 
-        while (currentTime < shiftEndTime)
+        while (elapsedWorkTime < totalWorkTime)
         {
-            var hourEnd = CalculateHourEnd(currentTime, shiftEndTime);
             var nextBreak = GetNextBreak(sortedBreaks, breakIndex);
+            var remainingWorkTime = totalWorkTime - elapsedWorkTime;
 
-            if (nextBreak != null && IsBreakInTimeRange(nextBreak, currentTime, hourEnd))
+            var workIntervalDuration = remainingWorkTime >= TimeSpan.FromHours(1)
+                ? TimeSpan.FromHours(1)
+                : remainingWorkTime;
+
+            var workIntervalEndTime = currentTime.Add(workIntervalDuration);
+
+            if (nextBreak != null && IsBreakInWorkInterval(nextBreak, currentTime, workIntervalEndTime))
             {
                 order = ProcessBreakInterval(
                     rows,
                     order,
-                    hourEnd,
                     nextBreak,
                     additionalOperationsByIds,
                     indicators,
                     productContext,
                     ref breakIndex,
-                    ref currentTime);
+                    ref currentTime,
+                    ref elapsedWorkTime);
             }
             else
             {
@@ -64,12 +72,32 @@ public class FormRowInitializer(
                     indicators.WorkTime,
                     indicators.Plan,
                     currentTime,
-                    hourEnd,
+                    workIntervalEndTime,
                     productContext);
 
                 rows.Add(workRow);
-                currentTime = hourEnd;
+                currentTime = workIntervalEndTime;
+                elapsedWorkTime = elapsedWorkTime.Add(workIntervalDuration);
             }
+        }
+
+        // Если чистое рабочее время закончилось, но остались перерывы - в цикле добавляем их в расписание
+        while (breakIndex < sortedBreaks.Count)
+        {
+            var nextBreak = sortedBreaks[breakIndex];
+            var breakMetaInfo = additionalOperationsByIds[nextBreak.AdditionalOperationId];
+            var breakEndTime = nextBreak.StartTime.Add(breakMetaInfo.Duration);
+
+            var breakRow = formRowDataFactory.CreateBreakRow(
+                order++,
+                indicators.WorkTime,
+                nextBreak.StartTime,
+                breakEndTime,
+                breakMetaInfo.Name,
+                nextBreak.AdditionalOperationId);
+
+            rows.Add(breakRow);
+            breakIndex++;
         }
 
         cumulativeValueCalculator.FillCumulativeValues(rows, template.Indicators);
@@ -97,25 +125,26 @@ public class FormRowInitializer(
         return breakIndex < sortedBreaks.Count ? sortedBreaks[breakIndex] : null;
     }
 
-    private static bool IsBreakInTimeRange(ShiftScheduleDto breakSchedule, TimeOnly rangeStart, TimeOnly rangeEnd)
+    private static bool IsBreakInWorkInterval(ShiftScheduleDto breakSchedule, TimeOnly intervalStart,
+        TimeOnly intervalEnd)
     {
-        return rangeStart <= breakSchedule.StartTime && breakSchedule.StartTime < rangeEnd;
+        return intervalStart <= breakSchedule.StartTime && breakSchedule.StartTime < intervalEnd;
     }
 
     private short ProcessBreakInterval(
         List<FormRowData> rows,
         short order,
-        TimeOnly hourEnd,
         ShiftScheduleDto nextBreak,
         Dictionary<int, AdditionalOperationDto> additionalOperationsByIds,
         InitializedIndicators indicators,
         ProductContext? productContext,
         ref int breakIndex,
-        ref TimeOnly currentTime)
+        ref TimeOnly currentTime,
+        ref TimeSpan elapsedWorkTime)
     {
-        // Создаем строку работы до перерыва
         if (currentTime < nextBreak.StartTime)
         {
+            var workDuration = nextBreak.StartTime - currentTime;
             var workRowBeforeBreak = formRowDataFactory.CreateWorkRow(
                 order++,
                 indicators.WorkTime,
@@ -125,9 +154,10 @@ public class FormRowInitializer(
                 productContext);
 
             rows.Add(workRowBeforeBreak);
+
+            elapsedWorkTime = elapsedWorkTime.Add(workDuration);
         }
 
-        // Создаем строку для обед/перерыв
         var breakMetaInfo = additionalOperationsByIds[nextBreak.AdditionalOperationId];
         var breakEndTime = nextBreak.StartTime.Add(breakMetaInfo.Duration);
 
@@ -144,28 +174,7 @@ public class FormRowInitializer(
         currentTime = breakEndTime;
         breakIndex++;
 
-        // Если после перерыва осталось время в этом часе, создаем строку работы
-        if (currentTime < hourEnd)
-        {
-            var workRowAfterBreak = formRowDataFactory.CreateWorkRow(
-                order++,
-                indicators.WorkTime,
-                indicators.Plan,
-                currentTime,
-                hourEnd,
-                productContext);
-
-            rows.Add(workRowAfterBreak);
-            currentTime = hourEnd;
-        }
-
         return order;
-    }
-
-    private static TimeOnly CalculateHourEnd(TimeOnly currentTime, TimeOnly shiftEndTime)
-    {
-        var hourEnd = currentTime.AddHours(1);
-        return hourEnd > shiftEndTime ? shiftEndTime : hourEnd;
     }
 
     private record InitializedIndicators
