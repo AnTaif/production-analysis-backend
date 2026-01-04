@@ -1,5 +1,6 @@
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Templates;
+using ProductionAnalysis.Application.Implementation.Forms;
 using ProductionAnalysis.Client.Models.Forms;
 
 namespace ProductionAnalysis.Application.Converters;
@@ -124,34 +125,61 @@ public static class FormsConverter
     {
         var domainContext = new Dictionary<string, FormContextBase>();
 
-        // Поддержка нескольких продуктов (приоритет)
-        if (request.Products != null && request.Products.Count > 0)
+        var paType = PaTypeHelper.TryParse(request.PaTypeId);
+        if (paType == null)
         {
-            var products = request.Products.Select(p => new ProductInfo(
-                p.ProductId,
-                p.CycleTime,
-                p.WorkstationCapacity,
-                p.DailyRate)).ToList();
-
-            domainContext["multiProduct"] = new MultiProductFormContext(products);
-        }
-        // Обратная совместимость: один продукт
-        else if (request.Product != null)
-        {
-            domainContext["product"] = new ProductFormContext(
-                request.Product.ProductId,
-                request.Product.CycleTime,
-                request.Product.WorkstationCapacity,
-                request.Product.DailyRate);
+            throw new NotSupportedException($"Unknown form type: {request.PaTypeId}");
         }
 
-        // Можно добавить обработку для OperationContext в будущем
-        if (request.Operation != null)
+        switch (paType.Value)
         {
-            // TODO: создать OperationFormContext когда будет определен
+            case PaType.SingleProductWithCycleTime:
+                domainContext["product"] = CreateSingleProductContextWithCycleTime(request.Product!);
+                break;
+
+            case PaType.SingleProductWithWorkstationCapacity:
+                domainContext["product"] = CreateSingleProductContextWithWorkstationCapacity(request.Product!);
+                break;
+
+            case PaType.MultipleProductsWithCycleTime:
+                domainContext["multiProduct"] = CreateMultipleProductsContextWithCycleTime(request.Products!);
+                break;
+
+            default:
+                throw new NotSupportedException($"Unsupported form type: {paType.Value}");
         }
 
         return domainContext;
+    }
+
+    private static ProductFormContext CreateSingleProductContextWithCycleTime(ProductContextDto product)
+    {
+        return new ProductFormContext(
+            product.ProductId,
+            product.CycleTime,
+            null,
+            product.DailyRate);
+    }
+
+    private static ProductFormContext CreateSingleProductContextWithWorkstationCapacity(ProductContextDto product)
+    {
+        return new ProductFormContext(
+            product.ProductId,
+            null,
+            product.WorkstationCapacity,
+            product.DailyRate);
+    }
+
+    private static MultiProductFormContext CreateMultipleProductsContextWithCycleTime(
+        ICollection<ProductContextDto> products)
+    {
+        var productInfos = products.Select(p => new ProductInfo(
+            p.ProductId,
+            p.CycleTime,
+            null,
+            p.DailyRate)).ToList();
+
+        return new MultiProductFormContext(productInfos);
     }
 
     private static FormTemplateDto ConvertTemplateToDto(Template template)

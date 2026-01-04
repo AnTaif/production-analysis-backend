@@ -241,6 +241,9 @@ public class FormulaCalculator : IFormulaCalculator
             }
 
             // Второй ключ - это свойство контекста
+            // Примечание: логика работы с paTypeId реализована в ExtractDomainContext,
+            // где ненужные поля (CycleTime или WorkstationCapacity) обнуляются в зависимости от paTypeId.
+            // Этот метод просто возвращает значения из контекста (0 если поле обнулено).
             var propertyName = keys[1];
             return propertyName.ToLowerInvariant() switch
             {

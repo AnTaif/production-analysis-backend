@@ -1,4 +1,5 @@
 using Core.Results;
+using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Templates;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Client.Models.Dictionaries;
@@ -38,48 +39,69 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
             return ServiceError.NotFound($"Shift not found by id {request.ShiftId}");
         }
 
-        // Валидация ProductContext: должно быть указано либо CycleTime, либо WorkstationCapacity
-        // Поддержка нескольких продуктов (приоритет)
-        if (request.Products != null && request.Products.Count > 0)
+        var paType = PaTypeHelper.TryParse(request.PaTypeId);
+        var validationResult = paType!.Value switch
         {
-            foreach (var product in request.Products)
-            {
-                var validationResult = ValidateProductContext(product);
-                if (validationResult.IsFailure)
-                {
-                    return validationResult.Error;
-                }
-            }
-        }
-        // Обратная совместимость: один продукт
-        else if (request.Product != null)
+            PaType.SingleProductWithCycleTime => ValidateSingleProductWithCycleTime(request),
+            PaType.SingleProductWithWorkstationCapacity => ValidateSingleProductWithWorkstationCapacity(request),
+            PaType.MultipleProductsWithCycleTime => ValidateMultipleProductsWithCycleTime(request),
+            _ => throw new NotSupportedException($"Unknown form type: {request.PaTypeId}")
+        };
+
+        if (validationResult.IsFailure)
         {
-            var validationResult = ValidateProductContext(request.Product);
-            if (validationResult.IsFailure)
-            {
-                return validationResult.Error;
-            }
+            return validationResult.Error;
         }
 
         return (template, employee, shift);
     }
 
-    private static Result ValidateProductContext(ProductContextDto product)
+    private static Result ValidateSingleProductWithCycleTime(CreateFormRequest request)
     {
-        var hasCycleTime = product.CycleTime.HasValue && product.CycleTime.Value > 0;
-        var hasWorkstationCapacity = product.WorkstationCapacity.HasValue &&
-                                     product.WorkstationCapacity.Value > 0;
-
-        if (hasCycleTime && hasWorkstationCapacity)
+        if (request.Product == null)
         {
             return ServiceError.BadRequest(
-                "Cannot specify both CycleTime and WorkstationCapacity. Please specify only one of them.");
+                $"Product is required for {PaType.SingleProductWithCycleTime}");
         }
 
-        if (!hasCycleTime && !hasWorkstationCapacity)
+        if (request.Product.CycleTime is not > 0)
         {
             return ServiceError.BadRequest(
-                "Either CycleTime or WorkstationCapacity must be specified.");
+                $"CycleTime is required and must be greater than 0 for {PaType.SingleProductWithCycleTime}");
+        }
+
+        return Result.Success;
+    }
+
+    private static Result ValidateSingleProductWithWorkstationCapacity(CreateFormRequest request)
+    {
+        if (request.Product == null)
+        {
+            return ServiceError.BadRequest(
+                $"Product is required for {PaType.SingleProductWithWorkstationCapacity}");
+        }
+
+        if (request.Product.WorkstationCapacity is not > 0)
+        {
+            return ServiceError.BadRequest(
+                $"WorkstationCapacity is required and must be greater than 0 for {PaType.SingleProductWithWorkstationCapacity}");
+        }
+
+        return Result.Success;
+    }
+
+    private static Result ValidateMultipleProductsWithCycleTime(CreateFormRequest request)
+    {
+        if (request.Products == null || request.Products.Count == 0)
+        {
+            return ServiceError.BadRequest(
+                $"Products are required for {PaType.MultipleProductsWithCycleTime}");
+        }
+
+        if (request.Products.Any(product => product.CycleTime is not > 0))
+        {
+            return ServiceError.BadRequest(
+                $"CycleTime is required and must be greater than 0 for all products in {PaType.MultipleProductsWithCycleTime}");
         }
 
         return Result.Success;
