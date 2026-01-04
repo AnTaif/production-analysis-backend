@@ -24,7 +24,8 @@ public class ProductContextExtractor : IProductContextExtractor
                 return new ProductContext
                 {
                     DailyRate = productContext.DailyRate,
-                    CycleTime = productContext.CycleTime ?? 0
+                    CycleTime = productContext.CycleTime,
+                    WorkstationCapacity = productContext.WorkstationCapacity
                 };
             }
         }

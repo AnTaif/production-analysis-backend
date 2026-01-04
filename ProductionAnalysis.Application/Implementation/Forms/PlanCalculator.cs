@@ -12,13 +12,23 @@ public class PlanCalculator : IPlanCalculator
     {
         var workDuration = endTime - startTime;
 
-        if (workDuration <= TimeSpan.MinValue || productContext.CycleTime <= 0)
+        if (workDuration <= TimeSpan.MinValue)
         {
             return 0;
         }
 
-        var plan = workDuration.TotalSeconds / productContext.CycleTime;
+        if (productContext.WorkstationCapacity is > 0)
+        {
+            var plan = workDuration.TotalHours * productContext.WorkstationCapacity.Value;
+            return (int)Math.Round(plan);
+        }
 
-        return (int)plan;
+        if (productContext.CycleTime is > 0)
+        {
+            var plan = workDuration.TotalSeconds / productContext.CycleTime.Value;
+            return (int)plan;
+        }
+
+        return 0;
     }
 }

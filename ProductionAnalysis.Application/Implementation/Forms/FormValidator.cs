@@ -38,6 +38,26 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
             return ServiceError.NotFound($"Shift not found by id {request.ShiftId}");
         }
 
+        // Валидация ProductContext: должно быть указано либо CycleTime, либо WorkstationCapacity
+        if (request.Product != null)
+        {
+            var hasCycleTime = request.Product.CycleTime.HasValue && request.Product.CycleTime.Value > 0;
+            var hasWorkstationCapacity = request.Product.WorkstationCapacity.HasValue &&
+                                         request.Product.WorkstationCapacity.Value > 0;
+
+            if (hasCycleTime && hasWorkstationCapacity)
+            {
+                return ServiceError.BadRequest(
+                    "Cannot specify both CycleTime and WorkstationCapacity. Please specify only one of them.");
+            }
+
+            if (!hasCycleTime && !hasWorkstationCapacity)
+            {
+                return ServiceError.BadRequest(
+                    "Either CycleTime or WorkstationCapacity must be specified.");
+            }
+        }
+
         return (template, employee, shift);
     }
 }
