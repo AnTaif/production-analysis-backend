@@ -110,13 +110,11 @@ public static class FormsConverter
 
         if (request.Product != null)
         {
-            domainContext["product"] = new ProductFormContext
-            {
-                ProductId = request.Product.ProductId,
-                CycleTime = request.Product.CycleTime,
-                WorkstationCapacity = request.Product.WorkstationCapacity,
-                DailyRate = request.Product.DailyRate
-            };
+            domainContext["product"] = new ProductFormContext(
+                request.Product.ProductId,
+                request.Product.CycleTime,
+                request.Product.WorkstationCapacity,
+                request.Product.DailyRate);
         }
 
         // Можно добавить обработку для OperationContext в будущем

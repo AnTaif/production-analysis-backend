@@ -4,15 +4,41 @@ namespace ProductionAnalysis.Application.Domain.Forms;
 
 public class Form
 {
-    public int Id { get; set; }
-    public int PaTypeId { get; set; }
-    public FormStatus Status { get; set; }
-    public DateTime CreationDate { get; set; }
-    public DateTime UpdateDate { get; set; }
-    public Dictionary<string, FormContextBase> Context { get; set; } = new();
-    public Template TemplateSnapshot { get; set; } = null!;
-    public ICollection<FormRow> Rows { get; set; } = new List<FormRow>();
-    public Guid CreatorId { get; set; }
-    public int ShiftId { get; set; }
-    public int DepartmentId { get; set; }
+    public Form(
+        int id,
+        int paTypeId,
+        FormStatus status,
+        DateTime creationDate,
+        DateTime updateDate,
+        Dictionary<string, FormContextBase> context,
+        Template templateSnapshot,
+        ICollection<FormRow> rows,
+        Guid creatorId,
+        int shiftId,
+        int departmentId)
+    {
+        Id = id;
+        PaTypeId = paTypeId;
+        Status = status;
+        CreationDate = creationDate;
+        UpdateDate = updateDate;
+        Context = context;
+        TemplateSnapshot = templateSnapshot;
+        Rows = rows;
+        CreatorId = creatorId;
+        ShiftId = shiftId;
+        DepartmentId = departmentId;
+    }
+
+    public int Id { get; }
+    public int PaTypeId { get; }
+    public FormStatus Status { get; }
+    public DateTime CreationDate { get; }
+    public DateTime UpdateDate { get; }
+    public Dictionary<string, FormContextBase> Context { get; }
+    public Template TemplateSnapshot { get; }
+    public ICollection<FormRow> Rows { get; }
+    public Guid CreatorId { get; }
+    public int ShiftId { get; }
+    public int DepartmentId { get; }
 }

@@ -23,19 +23,18 @@ public static class FormsConverter
 
         var template = TemplateParser.ParseTemplateSnapshot(dbo.TemplateSnapshot, dbo.PaTypeId);
 
-        return new Form
-        {
-            Id = dbo.Id,
-            PaTypeId = dbo.PaTypeId,
-            Status = (FormStatus)dbo.Status,
-            CreationDate = dbo.CreationDate,
-            UpdateDate = dbo.UpdateDate,
-            Context = context,
-            TemplateSnapshot = template,
-            Rows = rows,
-            ShiftId = dbo.ShiftId,
-            DepartmentId = dbo.DepartmentId
-        };
+        return new Form(
+            dbo.Id,
+            dbo.PaTypeId,
+            (FormStatus)dbo.Status,
+            dbo.CreationDate,
+            dbo.UpdateDate,
+            context,
+            template,
+            rows,
+            dbo.CreatorId,
+            dbo.ShiftId,
+            dbo.DepartmentId);
     }
 
     public static FormRow ToDomain(this FormRowDbo dbo)
@@ -51,21 +50,17 @@ public static class FormsConverter
                     ? DeserializeValue(valueDbo.CumulativeValue)
                     : null;
 
-                values[valueDbo.IndicatorId.ToString()] = new FormRowValue
-                {
-                    Value = value,
-                    CumulativeValue = cumulativeValue
-                };
+                values[valueDbo.IndicatorId.ToString()] = new FormRowValue(
+                    value,
+                    cumulativeValue);
             }
         }
 
-        return new FormRow
-        {
-            Order = dbo.Order,
-            IsAdditionalOperation = dbo.IsAdditionalOperation,
-            AdditionalOperationId = dbo.AdditionalOperationId,
-            Values = values
-        };
+        return new FormRow(
+            dbo.Order,
+            dbo.IsAdditionalOperation,
+            dbo.AdditionalOperationId,
+            values);
     }
 
     private static object? DeserializeValue(string jsonValue)

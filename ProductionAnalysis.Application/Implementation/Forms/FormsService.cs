@@ -3,6 +3,7 @@ using ProductionAnalysis.Application.Converters;
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Client.Models.Forms;
+using FormStatus = ProductionAnalysis.Application.Domain.Forms.FormStatus;
 
 namespace ProductionAnalysis.Application.Implementation.Forms;
 
@@ -58,15 +59,19 @@ public class FormsService(
 
         var context = request.ExtractDomainContext();
 
-        var newForm = new Form
-        {
-            PaTypeId = request.PaTypeId,
-            TemplateSnapshot = template,
-            Context = context,
-            CreatorId = creatorId,
-            ShiftId = request.ShiftId,
-            DepartmentId = employee.DepartmentId
-        };
+        var newForm = new Form(
+            0,
+            request.PaTypeId,
+            FormStatus.InProgress,
+            DateTime.UtcNow,
+            DateTime.UtcNow,
+            context,
+            template,
+            new List<FormRow>(),
+            creatorId,
+            request.ShiftId,
+            employee.DepartmentId
+        );
 
         var form = await unitOfWork.Forms.CreateAsync(newForm);
 

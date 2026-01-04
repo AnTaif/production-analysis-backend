@@ -7,10 +7,14 @@ public static class TemplateSerializer
 {
     public static string SerializeTemplateSnapshot(this Template? template)
     {
-        if (template == null || template.Indicators.Count == 0)
+        if (template == null)
         {
             return JsonSerializer.Serialize(new
             {
+                id = 0,
+                name = string.Empty,
+                paTypeId = 0,
+                version = 0,
                 tableColumns = Array.Empty<object>()
             });
         }
@@ -31,6 +35,10 @@ public static class TemplateSerializer
 
         return JsonSerializer.Serialize(new
         {
+            id = template.Id,
+            name = template.Name,
+            paTypeId = template.PaTypeId,
+            version = template.Version,
             tableColumns
         });
     }

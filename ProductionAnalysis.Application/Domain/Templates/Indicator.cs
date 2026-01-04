@@ -2,12 +2,32 @@ namespace ProductionAnalysis.Application.Domain.Templates;
 
 public class Indicator
 {
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string ValueType { get; set; } = string.Empty;
-    public string InputType { get; set; } = string.Empty;
-    public string? ValueSelector { get; set; }
-    public string? Formula { get; set; }
-    public bool IsCumulative { get; set; }
-    public bool HasSummation { get; set; }
+    public Indicator(
+        int id,
+        string name,
+        string valueType,
+        string inputType,
+        string? valueSelector,
+        string? formula,
+        bool isCumulative,
+        bool hasSummation)
+    {
+        Id = id;
+        Name = name;
+        ValueType = valueType;
+        InputType = inputType;
+        ValueSelector = valueSelector;
+        Formula = formula;
+        IsCumulative = isCumulative;
+        HasSummation = hasSummation;
+    }
+
+    public int Id { get; }
+    public string Name { get; }
+    public string ValueType { get; }
+    public string InputType { get; }
+    public string? ValueSelector { get; }
+    public string? Formula { get; }
+    public bool IsCumulative { get; }
+    public bool HasSummation { get; }
 }

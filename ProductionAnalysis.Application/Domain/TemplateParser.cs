@@ -12,6 +12,23 @@ public static class TemplateParser
             var jsonDoc = JsonDocument.Parse(templateSnapshot);
             var root = jsonDoc.RootElement;
 
+            var id = root.TryGetProperty("id", out var idElement)
+                ? idElement.GetInt32()
+                : 0;
+
+            var name = root.TryGetProperty("name", out var nameElement)
+                ? nameElement.GetString() ?? string.Empty
+                : string.Empty;
+
+            var version = root.TryGetProperty("version", out var versionElement)
+                ? versionElement.GetInt32()
+                : 0;
+
+            // Если paTypeId не указан в JSON, используем переданный параметр
+            var templatePaTypeId = root.TryGetProperty("paTypeId", out var paTypeIdElement)
+                ? paTypeIdElement.GetInt32()
+                : paTypeId;
+
             var indicators = new List<Indicator>();
 
             if (root.TryGetProperty("tableColumns", out var tableColumnsElement))
@@ -19,20 +36,21 @@ public static class TemplateParser
                 indicators = ParseIndicators(tableColumnsElement);
             }
 
-            return new Template
-            {
-                PaTypeId = paTypeId,
-                Indicators = indicators
-            };
+            return new Template(
+                id,
+                name,
+                templatePaTypeId,
+                version,
+                indicators);
         }
         catch
         {
-            // Если не удалось распарсить, возвращаем пустой шаблон
-            return new Template
-            {
-                PaTypeId = paTypeId,
-                Indicators = new List<Indicator>()
-            };
+            return new Template(
+                0,
+                string.Empty,
+                paTypeId,
+                0,
+                new List<Indicator>());
         }
     }
 
@@ -74,17 +92,16 @@ public static class TemplateParser
                 var hasSummation = fieldElement.TryGetProperty("hasSummation", out var hasSummationElement)
                                    && hasSummationElement.GetBoolean();
 
-                indicators.Add(new Indicator
-                {
-                    Id = id,
-                    Name = name,
-                    InputType = inputType,
-                    ValueSelector = inputSelector,
-                    ValueType = valueType,
-                    Formula = formula,
-                    IsCumulative = isCumulative,
-                    HasSummation = hasSummation
-                });
+                indicators.Add(new Indicator(
+                    id,
+                    name,
+                    valueType,
+                    inputType,
+                    inputSelector,
+                    formula,
+                    isCumulative,
+                    hasSummation
+                ));
             }
         }
 

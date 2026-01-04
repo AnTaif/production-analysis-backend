@@ -7,28 +7,24 @@ public static class TemplatesConverter
 {
     public static Template ToDomain(this TemplateDbo dbo)
     {
-        return new Template
-        {
-            Id = dbo.Id,
-            Name = dbo.Name,
-            PaTypeId = dbo.PaTypeId,
-            Version = dbo.Version,
-            Indicators = dbo.Indicators.Select(i => i.ToDomain()).ToList()
-        };
+        return new Template(
+            dbo.Id,
+            dbo.Name,
+            dbo.PaTypeId,
+            dbo.Version,
+            dbo.Indicators.Select(i => i.ToDomain()).ToList());
     }
 
     public static Indicator ToDomain(this IndicatorDbo dbo)
     {
-        return new Indicator
-        {
-            Id = dbo.Id,
-            Name = dbo.Name,
-            ValueType = dbo.ValueType,
-            InputType = dbo.InputType,
-            ValueSelector = dbo.ValueSelector,
-            Formula = dbo.Formula,
-            IsCumulative = dbo.IsCumulative,
-            HasSummation = dbo.HasSummation
-        };
+        return new Indicator(
+            dbo.Id,
+            dbo.Name,
+            dbo.ValueType,
+            dbo.InputType,
+            dbo.ValueSelector,
+            dbo.Formula,
+            dbo.IsCumulative,
+            dbo.HasSummation);
     }
 }
