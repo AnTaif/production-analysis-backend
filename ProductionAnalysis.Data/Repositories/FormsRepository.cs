@@ -55,12 +55,22 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
 
         var templateSnapshotJson = newForm.TemplateSnapshot.SerializeTemplateSnapshot();
 
+        string? totalValuesJson = null;
+        if (newForm.TotalValues != null && newForm.TotalValues.Count > 0)
+        {
+            totalValuesJson = JsonSerializer.Serialize(newForm.TotalValues, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+        }
+
         var formDbo = new FormDbo
         {
             PaTypeId = newForm.PaTypeId,
             Status = (int)FormStatus.InProgress,
             Context = contextJson,
             TemplateSnapshot = templateSnapshotJson,
+            TotalValues = totalValuesJson,
             CreationDate = now,
             UpdateDate = now,
             CreatorId = newForm.CreatorId,
@@ -84,5 +94,29 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
             .FirstOrDefaultAsync(f => f.Id == formId);
 
         return formDbo?.ToDomain();
+    }
+
+    public async Task UpdateTotalValuesAsync(int formId, Dictionary<int, object> totalValues, Guid userId)
+    {
+        var formDbo = await dbContext.Forms.FirstOrDefaultAsync(f => f.Id == formId);
+        if (formDbo == null)
+        {
+            return;
+        }
+
+        string? totalValuesJson = null;
+        if (totalValues != null && totalValues.Count > 0)
+        {
+            totalValuesJson = JsonSerializer.Serialize(totalValues, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+        }
+
+        formDbo.TotalValues = totalValuesJson;
+        formDbo.LastEditorId = userId;
+        formDbo.UpdateDate = DateTime.UtcNow;
+
+        await dbContext.SaveChangesAsync();
     }
 }

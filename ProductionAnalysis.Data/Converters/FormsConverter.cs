@@ -23,6 +23,16 @@ public static class FormsConverter
 
         var template = TemplateParser.ParseTemplateSnapshot(dbo.TemplateSnapshot, dbo.PaTypeId);
 
+        Dictionary<int, object>? totalValues = null;
+        if (!string.IsNullOrEmpty(dbo.TotalValues))
+        {
+            totalValues = JsonSerializer.Deserialize<Dictionary<int, object>>(dbo.TotalValues,
+                new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+        }
+
         return new Form(
             dbo.Id,
             dbo.PaTypeId,
@@ -34,7 +44,8 @@ public static class FormsConverter
             rows,
             dbo.CreatorId,
             dbo.ShiftId,
-            dbo.DepartmentId);
+            dbo.DepartmentId,
+            totalValues);
     }
 
     public static FormRow ToDomain(this FormRowDbo dbo)

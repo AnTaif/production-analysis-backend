@@ -12,6 +12,8 @@ public class FormDbo
 
     public required string TemplateSnapshot { get; set; }
 
+    public string? TotalValues { get; set; }
+
     public DateTime CreationDate { get; set; }
 
     public DateTime UpdateDate { get; set; }

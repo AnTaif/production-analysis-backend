@@ -7,4 +7,5 @@ public interface IFormsRepository
     Task<(ICollection<Form> Forms, int TotalCount)> SearchFormsAsync(SearchFormsFilter filter);
     Task<Form> CreateAsync(Form newForm);
     Task<Form?> FindAsync(int formId);
+    Task UpdateTotalValuesAsync(int formId, Dictionary<int, object> totalValues, Guid userId);
 }

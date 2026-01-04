@@ -61,7 +61,8 @@ public static class FormsConverter
                 Operation = operationDto
             },
             Rows = rows,
-            Template = template
+            Template = template,
+            TotalValues = form.TotalValues
         };
     }
 

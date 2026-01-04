@@ -10,4 +10,5 @@ public record FormDto
     public required FormContextDto Context { get; init; }
     public ICollection<FormRowDto> Rows { get; init; } = new List<FormRowDto>();
     public FormTemplateDto Template { get; init; } = null!;
+    public Dictionary<int, object>? TotalValues { get; init; }
 }

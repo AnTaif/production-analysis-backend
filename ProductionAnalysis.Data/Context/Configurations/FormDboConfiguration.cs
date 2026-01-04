@@ -20,6 +20,7 @@ public class FormDboConfiguration : IEntityTypeConfiguration<FormDbo>
 
         builder.Property(x => x.Context).HasColumnType("jsonb");
         builder.Property(x => x.TemplateSnapshot).HasColumnType("jsonb");
+        builder.Property(x => x.TotalValues).HasColumnType("jsonb");
 
         builder.HasOne<PaTypeDbo>()
             .WithMany()

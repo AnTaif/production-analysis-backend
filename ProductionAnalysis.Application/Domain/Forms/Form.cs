@@ -15,7 +15,8 @@ public class Form
         ICollection<FormRow> rows,
         Guid creatorId,
         int shiftId,
-        int departmentId)
+        int departmentId,
+        Dictionary<int, object>? totalValues = null)
     {
         Id = id;
         PaTypeId = paTypeId;
@@ -28,6 +29,7 @@ public class Form
         CreatorId = creatorId;
         ShiftId = shiftId;
         DepartmentId = departmentId;
+        TotalValues = totalValues;
     }
 
     public int Id { get; }
@@ -41,4 +43,5 @@ public class Form
     public Guid CreatorId { get; }
     public int ShiftId { get; }
     public int DepartmentId { get; }
+    public Dictionary<int, object>? TotalValues { get; }
 }
