@@ -1,11 +1,11 @@
-﻿namespace ProductionAnalysis.Application.Domain.Forms;
+﻿namespace ProductionAnalysis.Application.Domain.Forms.Context;
 
 /// <summary>
-/// Информация о продукте в контексте формы
+/// Контекст одного продукта
 /// </summary>
-public class ProductInfo
+public class ProductContext : FormContext
 {
-    public ProductInfo(
+    public ProductContext(
         int productId,
         int? cycleTime,
         int? workstationCapacity,

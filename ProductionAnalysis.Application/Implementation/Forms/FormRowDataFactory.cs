@@ -1,4 +1,5 @@
 using ProductionAnalysis.Application.Domain.Forms;
+using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Application.Domain.Templates;
 
 namespace ProductionAnalysis.Application.Implementation.Forms;
@@ -11,8 +12,7 @@ public interface IFormRowDataFactory
         Indicator? planIndicator,
         TimeOnly startTime,
         TimeOnly endTime,
-        ProductContext? productContext,
-        int? productId = null);
+        ProductContext? productContext);
 
     FormRowData CreateBreakRow(
         short order,
@@ -32,8 +32,7 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         Indicator? planIndicator,
         TimeOnly startTime,
         TimeOnly endTime,
-        ProductContext? productContext,
-        int? productId = null)
+        ProductContext? productContext)
     {
         var values = new List<FormRowValueData>
         {
@@ -55,7 +54,7 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         {
             Order = order,
             IsAdditionalOperation = false,
-            ProductId = productId,
+            ProductId = productContext?.ProductId,
             Values = values
         };
     }

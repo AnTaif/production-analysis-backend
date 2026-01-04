@@ -1,3 +1,4 @@
+using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Application.Implementation.Forms;
 
 namespace ProductionAnalysis.Application.Domain.Forms;
@@ -5,7 +6,7 @@ namespace ProductionAnalysis.Application.Domain.Forms;
 /// <summary>
 /// Расширения для работы с формой
 /// </summary>
-public static class FormExtensions
+public static class FormPaTypeExtensions
 {
     /// <summary>
     /// Получает тип формы (PaType) из формы
@@ -50,7 +51,7 @@ public static class FormExtensions
     /// <summary>
     /// Получает все продукты из формы
     /// </summary>
-    public static IReadOnlyCollection<ProductInfo> GetAllProducts(this Form form)
+    public static IReadOnlyCollection<ProductContext> GetAllProducts(this Form form)
     {
         return form.Context.GetAllProducts();
     }

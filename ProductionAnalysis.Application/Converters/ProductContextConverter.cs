@@ -1,11 +1,12 @@
+using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Client.Models.Forms;
 
-namespace ProductionAnalysis.Application.Domain.Forms;
+namespace ProductionAnalysis.Application.Converters;
 
 /// <summary>
 /// Расширения для конвертации контекста продукта в DTO
 /// </summary>
-public static class ProductContextDtoExtensions
+public static class ProductContextConverter
 {
     /// <summary>
     /// Конвертирует ProductContext в ProductContextDto
@@ -18,20 +19,6 @@ public static class ProductContextDtoExtensions
             CycleTime = context.CycleTime,
             WorkstationCapacity = context.WorkstationCapacity,
             DailyRate = context.DailyRate
-        };
-    }
-
-    /// <summary>
-    /// Конвертирует ProductInfo в ProductContextDto
-    /// </summary>
-    public static ProductContextDto ToDto(this ProductInfo productInfo)
-    {
-        return new ProductContextDto
-        {
-            ProductId = productInfo.ProductId,
-            CycleTime = productInfo.CycleTime,
-            WorkstationCapacity = productInfo.WorkstationCapacity,
-            DailyRate = productInfo.DailyRate
         };
     }
 }

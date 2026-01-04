@@ -1,7 +1,8 @@
 using ProductionAnalysis.Application.Domain.Forms;
+using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Client.Models.Forms;
 
-namespace ProductionAnalysis.Application.Implementation.Forms;
+namespace ProductionAnalysis.Application.Implementation.Forms.Context;
 
 public interface IFormContextFactory
 {
@@ -74,7 +75,7 @@ public class FormContextFactory : IFormContextFactory
             throw new ArgumentException("Products are required for MultipleProductsWithCycleTime", nameof(request));
         }
 
-        var productInfos = request.Products.Select(p => new ProductInfo(
+        var productContexts = request.Products.Select(p => new ProductContext(
             p.ProductId,
             p.CycleTime,
             null,
@@ -82,7 +83,7 @@ public class FormContextFactory : IFormContextFactory
 
         return new Dictionary<string, FormContext>
         {
-            ["multiProduct"] = new MultiProductContext(productInfos)
+            ["multiProduct"] = new MultiProductContext(productContexts)
         };
     }
 }

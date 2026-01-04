@@ -1,6 +1,7 @@
 using System.Text.Json;
 using ProductionAnalysis.Application.Domain;
 using ProductionAnalysis.Application.Domain.Forms;
+using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Data.Models.Forms;
 using FormStatus = ProductionAnalysis.Application.Domain.Forms.FormStatus;
 
@@ -119,7 +120,7 @@ public static class FormsConverter
                     productDbo.WorkstationCapacity,
                     productDbo.DailyRate),
                 MultiProductFormContextDbo multiProductDbo => new MultiProductContext(
-                    multiProductDbo.Products.Select(p => new ProductInfo(
+                    multiProductDbo.Products.Select(p => new ProductContext(
                         p.ProductId,
                         p.CycleTime,
                         p.WorkstationCapacity,
@@ -151,7 +152,7 @@ public static class FormsConverter
                     productContext.WorkstationCapacity,
                     productContext.DailyRate),
                 MultiProductContext multiProductContext => new MultiProductFormContextDbo(
-                    multiProductContext.Products.Select(p => new ProductInfoDbo(
+                    multiProductContext.Products.Select(p => new ProductFormContextDbo(
                         p.ProductId,
                         p.CycleTime,
                         p.WorkstationCapacity,

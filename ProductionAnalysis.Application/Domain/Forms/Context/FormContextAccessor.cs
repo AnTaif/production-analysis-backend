@@ -1,4 +1,4 @@
-namespace ProductionAnalysis.Application.Domain.Forms;
+namespace ProductionAnalysis.Application.Domain.Forms.Context;
 
 /// <summary>
 /// Предоставляет удобный доступ к контексту формы
@@ -49,7 +49,7 @@ public static class FormContextAccessor
     /// <summary>
     /// Получает все продукты из контекста (один или несколько)
     /// </summary>
-    public static IReadOnlyCollection<ProductInfo> GetAllProducts(this Dictionary<string, FormContext> context)
+    public static IReadOnlyCollection<ProductContext> GetAllProducts(this Dictionary<string, FormContext> context)
     {
         var multiProductContext = context.GetMultiProductContext();
         if (multiProductContext != null)
@@ -60,14 +60,7 @@ public static class FormContextAccessor
         var productContext = context.GetProductContext();
         if (productContext != null)
         {
-            return new List<ProductInfo>
-            {
-                new(
-                    productContext.ProductId,
-                    productContext.CycleTime,
-                    productContext.WorkstationCapacity,
-                    productContext.DailyRate)
-            };
+            return [productContext];
         }
 
         return [];

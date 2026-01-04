@@ -1,5 +1,7 @@
 using ProductionAnalysis.Application.Domain.Forms;
+using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Application.Domain.Templates;
+using ProductionAnalysis.Application.Implementation.Forms.Context;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Client.Models.Dictionaries;
 
@@ -17,7 +19,6 @@ public interface IFormRowInitializer
 [RegisterScoped]
 public class FormRowInitializer(
     IPaUnitOfWork unitOfWork,
-    IProductContextExtractor productContextExtractor,
     IMultiProductContextExtractor multiProductContextExtractor,
     IFormRowDataFactory formRowDataFactory,
     ICumulativeValueCalculator cumulativeValueCalculator
@@ -61,7 +62,6 @@ public class FormRowInitializer(
             indicators,
             additionalOperationsByIds,
             productContext,
-            productContext.ProductId,
             ref order);
 
         cumulativeValueCalculator.FillCumulativeValues(rows, template.Indicators);
@@ -81,35 +81,14 @@ public class FormRowInitializer(
         var allRows = new List<FormRowData>();
         short globalOrder = 1;
 
-        // Получаем информацию о продуктах из контекста
-        var productInfos = new List<(int? ProductId, ProductInfo ProductInfo)>();
-        foreach (var (_, context) in formContext ?? new Dictionary<string, FormContext>())
+        foreach (var productContext in multiProducts)
         {
-            if (context is MultiProductContext multiProductContext)
-            {
-                foreach (var productInfo in multiProductContext.Products)
-                {
-                    productInfos.Add((productInfo.ProductId, productInfo));
-                }
-            }
-        }
-
-        foreach (var (productId, productInfo) in productInfos)
-        {
-            // Преобразуем ProductInfo в ProductContext для расчетов
-            var productContext = new ProductContext(
-                productInfo.ProductId,
-                productInfo.CycleTime,
-                productInfo.WorkstationCapacity,
-                productInfo.DailyRate);
-
             var productRows = InitializeRowsForSingleProduct(
                 shiftStartTime,
                 sortedBreaks,
                 indicators,
                 additionalOperationsByIds,
                 productContext,
-                productId,
                 ref globalOrder);
 
             allRows.AddRange(productRows);
@@ -126,7 +105,6 @@ public class FormRowInitializer(
         InitializedIndicators indicators,
         Dictionary<int, AdditionalOperationDto> additionalOperationsByIds,
         ProductContext? productContext,
-        int? productId,
         ref short order)
     {
         var totalWorkTime = TimeSpan.FromHours(ShiftConstants.ShiftDurationHours);
@@ -157,7 +135,6 @@ public class FormRowInitializer(
                     additionalOperationsByIds,
                     indicators,
                     productContext,
-                    productId,
                     ref breakIndex,
                     ref currentTime,
                     ref elapsedWorkTime);
@@ -170,8 +147,7 @@ public class FormRowInitializer(
                     indicators.Plan,
                     currentTime,
                     workIntervalEndTime,
-                    productContext,
-                    productId);
+                    productContext);
 
                 rows.Add(workRow);
                 currentTime = workIntervalEndTime;
@@ -235,7 +211,6 @@ public class FormRowInitializer(
         Dictionary<int, AdditionalOperationDto> additionalOperationsByIds,
         InitializedIndicators indicators,
         ProductContext? productContext,
-        int? productId,
         ref int breakIndex,
         ref TimeOnly currentTime,
         ref TimeSpan elapsedWorkTime)
@@ -249,8 +224,7 @@ public class FormRowInitializer(
                 indicators.Plan,
                 currentTime,
                 nextBreak.StartTime,
-                productContext,
-                productId);
+                productContext);
 
             rows.Add(workRowBeforeBreak);
 

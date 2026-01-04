@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace ProductionAnalysis.Application.Domain.Forms;
+namespace ProductionAnalysis.Application.Domain.Forms.Context;
 
 public static class FormContextExtensions
 {

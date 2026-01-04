@@ -1,6 +1,6 @@
-using ProductionAnalysis.Application.Domain.Forms;
+using ProductionAnalysis.Application.Domain.Forms.Context;
 
-namespace ProductionAnalysis.Application.Implementation.Forms;
+namespace ProductionAnalysis.Application.Implementation.Forms.Context;
 
 public interface IProductContextExtractor
 {

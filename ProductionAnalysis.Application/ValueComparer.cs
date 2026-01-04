@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace ProductionAnalysis.Application.Implementation.Forms;
+namespace ProductionAnalysis.Application;
 
 /// <summary>
 /// Утилитный класс для сравнения значений различных типов

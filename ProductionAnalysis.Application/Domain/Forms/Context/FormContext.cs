@@ -1,4 +1,4 @@
-namespace ProductionAnalysis.Application.Domain.Forms;
+namespace ProductionAnalysis.Application.Domain.Forms.Context;
 
 /// <summary>
 /// Базовый класс для контекста формы

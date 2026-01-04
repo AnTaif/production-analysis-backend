@@ -1,6 +1,7 @@
 using ProductionAnalysis.Application.Domain.Forms;
+using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Application.Domain.Templates;
-using ProductionAnalysis.Application.Implementation.Forms;
+using ProductionAnalysis.Application.Implementation.Forms.Context;
 using ProductionAnalysis.Client.Models.Forms;
 
 namespace ProductionAnalysis.Application.Converters;
@@ -29,7 +30,6 @@ public static class FormsConverter
             .Select(r => r.ToRowDto())
             .ToList();
 
-        // Конвертируем типизированный контекст в отдельные поля DTO
         var productDto = form.GetProductContext()?.ToDto();
         var productsDto = form.GetMultiProductContext()?.Products.Select(p => p.ToDto()).ToList();
         OperationContextDto? operationDto = null; // Можно добавить обработку для OperationContext в будущем
