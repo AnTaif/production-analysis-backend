@@ -409,7 +409,7 @@ public class PaDataSeeder(
             return Task.CompletedTask;
 
         dbContext.Shifts.AddRange(
-            new ShiftDbo { Id = 1, Name = "1", StartTime = new TimeOnly(7, 0) },
+            new ShiftDbo { Id = 1, Name = "1", StartTime = new TimeOnly(8, 0) },
             new ShiftDbo { Id = 2, Name = "2", StartTime = new TimeOnly(16, 0) },
             new ShiftDbo { Id = 3, Name = "3 (ночная)", StartTime = new TimeOnly(0, 0) }
         );
@@ -426,38 +426,34 @@ public class PaDataSeeder(
         if (dbContext.ShiftSchedules.Any())
             return Task.CompletedTask;
 
-        // Смена 1: 7:00-15:40
-        // Перерывы: 9:00-9:10 (15 мин), 13:50-14:00 (15 мин)
-        // Обед: 11:00-11:40 (30 мин)
-        // Уборка: 15:30-15:40 (15 мин)
         dbContext.ShiftSchedules.AddRange(
             new ShiftScheduleDbo
             {
                 Id = 1,
                 ShiftId = 1,
                 AdditionalOperationId = 2, // Перерыв 15 мин
-                StartTime = new TimeOnly(9, 0)
+                StartTime = new TimeOnly(10, 0)
             },
             new ShiftScheduleDbo
             {
                 Id = 2,
                 ShiftId = 1,
                 AdditionalOperationId = 1, // Обед 30 мин
-                StartTime = new TimeOnly(11, 0)
+                StartTime = new TimeOnly(12, 15)
             },
             new ShiftScheduleDbo
             {
                 Id = 3,
                 ShiftId = 1,
                 AdditionalOperationId = 2, // Перерыв 15 мин
-                StartTime = new TimeOnly(13, 50)
+                StartTime = new TimeOnly(14, 45)
             },
             new ShiftScheduleDbo
             {
                 Id = 4,
                 ShiftId = 1,
                 AdditionalOperationId = 3, // Уборка 15 мин
-                StartTime = new TimeOnly(15, 30)
+                StartTime = new TimeOnly(17, 00)
             }
         );
 

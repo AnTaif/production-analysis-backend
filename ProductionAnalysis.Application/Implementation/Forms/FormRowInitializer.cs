@@ -32,7 +32,7 @@ public class FormRowInitializer(
         var additionalOperationsByIds = await LoadAdditionalOperationsAsync();
         var productContext = productContextExtractor.Extract(formContext);
         var sortedBreaks = schedules.OrderBy(s => s.StartTime).ToList();
-        var shiftEndTime = CalculateShiftEndTime(shiftStartTime);
+        var shiftEndTime = shiftStartTime.AddHours(ShiftConstants.ShiftDurationHours);
 
         var rows = new List<FormRowData>();
         var currentTime = shiftStartTime;
@@ -160,13 +160,6 @@ public class FormRowInitializer(
         }
 
         return order;
-    }
-
-    private static TimeOnly CalculateShiftEndTime(TimeOnly shiftStartTime)
-    {
-        return shiftStartTime
-            .AddHours(ShiftConstants.ShiftDurationHours)
-            .AddMinutes(ShiftConstants.ShiftDurationMinutes);
     }
 
     private static TimeOnly CalculateHourEnd(TimeOnly currentTime, TimeOnly shiftEndTime)
