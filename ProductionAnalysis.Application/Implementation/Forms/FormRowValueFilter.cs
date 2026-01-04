@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using ProductionAnalysis.Application.Domain;
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Templates;
@@ -14,6 +15,12 @@ public interface IFormRowValueFilter
 [RegisterScoped]
 public class FormRowValueFilter : IFormRowValueFilter
 {
+    private static readonly FrozenSet<string> UpdatableInputTypes = new HashSet<string>
+    {
+        FieldInputTypes.Manual,
+        FieldInputTypes.Dictionary
+    }.ToFrozenSet();
+
     public ICollection<FormRowValueData> FilterUpdatableValues(
         Dictionary<int, object> requestValues,
         Template template)
@@ -25,12 +32,8 @@ public class FormRowValueFilter : IFormRowValueFilter
         var filteredValues = new List<FormRowValueData>();
         foreach (var (indicatorId, value) in requestValues)
         {
-            if (!indicatorsDict.TryGetValue(indicatorId, out var inputType))
-            {
-                continue;
-            }
-
-            if (inputType is FieldInputTypes.Manual or FieldInputTypes.Dictionary)
+            if (indicatorsDict.TryGetValue(indicatorId, out var inputType)
+                && UpdatableInputTypes.Contains(inputType))
             {
                 filteredValues.Add(new FormRowValueData
                 {
