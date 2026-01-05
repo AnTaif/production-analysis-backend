@@ -5,5 +5,6 @@ public record FormRowDto
     public short Order { get; init; }
     public bool IsAuxiliaryOperation { get; init; }
     public int? ProductId { get; init; }
+    public int? GroupKey { get; init; }
     public Dictionary<string, FormRowValueDto> Values { get; init; } = new();
 }

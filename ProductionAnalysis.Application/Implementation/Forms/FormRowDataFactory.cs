@@ -23,8 +23,8 @@ public interface IFormRowDataFactory
         string operationName,
         int auxiliaryOperationId);
 
-    FormRowData CreateOperationCycleRow(
-        short order,
+    ICollection<FormRowData> CreateOperationCycleRows(
+        ref short order,
         Indicator workTimeIndicator,
         Indicator? planIndicator,
         Indicator? operationNameIndicator,
@@ -97,8 +97,8 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         return $"{startTime:HH:mm}-{endTime:HH:mm}";
     }
 
-    public FormRowData CreateOperationCycleRow(
-        short order,
+    public ICollection<FormRowData> CreateOperationCycleRows(
+        ref short order,
         Indicator workTimeIndicator,
         Indicator? planIndicator,
         Indicator? operationNameIndicator,
@@ -107,38 +107,55 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         TimeOnly endTime,
         ICollection<OperationDto> operations)
     {
-        var values = new List<FormRowValueData>
-        {
-            CreateFormRowValueData(workTimeIndicator, FormatTimeRange(startTime, endTime))
-        };
+        var rows = new List<FormRowData>();
+        var workTimeValue = FormatTimeRange(startTime, endTime);
+        var planValue = "1"; // В плане всегда 1 шт. в рамках полного цикла под-операций
 
-        if (planIndicator is not null)
+        // Генерируем уникальный ключ группы для группировки строк
+        var groupKey = order;
+
+        // Создаем отдельную строку для каждой под-операции
+        var operationList = operations.ToList();
+        for (var i = 0; i < operationList.Count; i++)
         {
-            // В плане всегда 1 шт. в рамках полного цикла под-операций
-            values.Add(CreateFormRowValueData(planIndicator, "1"));
+            var operation = operationList[i];
+            var values = new List<FormRowValueData>
+            {
+                CreateFormRowValueData(workTimeIndicator, workTimeValue)
+            };
+
+            // План одинаковый для всех строк цикла
+            if (planIndicator is not null)
+            {
+                values.Add(CreateFormRowValueData(planIndicator, planValue));
+            }
+
+            // Наименование операции - только для текущей операции
+            if (operationNameIndicator is not null)
+            {
+                var operationName = $"{i + 1}. {operation.Name}";
+                values.Add(CreateFormRowValueData(operationNameIndicator, operationName));
+            }
+
+            // Время операции - только для текущей операции
+            if (operationTimeIndicator is not null)
+            {
+                var operationTime = operation.Duration.HasValue
+                    ? operation.Duration.Value.TotalMinutes.ToString("0")
+                    : "-";
+                values.Add(CreateFormRowValueData(operationTimeIndicator, operationTime));
+            }
+
+            rows.Add(new FormRowData
+            {
+                Order = order++,
+                IsAuxiliaryOperation = false,
+                GroupKey = groupKey, // Все строки одной группы имеют одинаковый GroupKey
+                Values = values
+            });
         }
 
-        // Добавляем наименования операций
-        if (operationNameIndicator is not null)
-        {
-            var operationNames = string.Join("\n", operations.Select((op, index) => $"{index + 1}. {op.Name}"));
-            values.Add(CreateFormRowValueData(operationNameIndicator, operationNames));
-        }
-
-        // Добавляем время каждой операции в минутах
-        if (operationTimeIndicator is not null)
-        {
-            var operationTimes = string.Join("\n", operations.Select(op =>
-                op.Duration.HasValue ? (op.Duration.Value.TotalMinutes).ToString("0") : "-"));
-            values.Add(CreateFormRowValueData(operationTimeIndicator, operationTimes));
-        }
-
-        return new FormRowData
-        {
-            Order = order,
-            IsAuxiliaryOperation = false,
-            Values = values
-        };
+        return rows;
     }
 
     private static FormRowValueData CreateFormRowValueData(Indicator indicator, string value) =>

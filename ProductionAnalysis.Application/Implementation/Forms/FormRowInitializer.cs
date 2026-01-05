@@ -318,8 +318,8 @@ public class FormRowInitializer(
                 // Помещается полный цикл операций
                 var cycleEndTime = currentTime.Add(TimeSpan.FromSeconds(cycleDuration));
 
-                var cycleRow = formRowDataFactory.CreateOperationCycleRow(
-                    order++,
+                var cycleRows = formRowDataFactory.CreateOperationCycleRows(
+                    ref order,
                     indicators.WorkTime,
                     indicators.Plan,
                     indicators.OperationName,
@@ -328,7 +328,7 @@ public class FormRowInitializer(
                     cycleEndTime,
                     relatedOperations);
 
-                rows.Add(cycleRow);
+                rows.AddRange(cycleRows);
                 currentTime = cycleEndTime;
                 elapsedWorkTime = elapsedWorkTime.Add(TimeSpan.FromSeconds(cycleDuration));
             }
@@ -337,8 +337,8 @@ public class FormRowInitializer(
                 // Осталось меньше времени, чем цикл, но больше 0 - создаем последний цикл
                 var cycleEndTime = currentTime.Add(remainingWorkTime);
 
-                var cycleRow = formRowDataFactory.CreateOperationCycleRow(
-                    order++,
+                var cycleRows = formRowDataFactory.CreateOperationCycleRows(
+                    ref order,
                     indicators.WorkTime,
                     indicators.Plan,
                     indicators.OperationName,
@@ -347,7 +347,7 @@ public class FormRowInitializer(
                     cycleEndTime,
                     relatedOperations);
 
-                rows.Add(cycleRow);
+                rows.AddRange(cycleRows);
                 elapsedWorkTime = totalWorkTime;
                 break;
             }

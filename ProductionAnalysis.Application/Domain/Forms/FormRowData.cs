@@ -6,5 +6,6 @@ public class FormRowData
     public bool IsAuxiliaryOperation { get; set; }
     public int? AuxiliaryOperationId { get; set; }
     public int? ProductId { get; set; }
+    public int? GroupKey { get; set; }
     public ICollection<FormRowValueData> Values { get; set; } = new List<FormRowValueData>();
 }

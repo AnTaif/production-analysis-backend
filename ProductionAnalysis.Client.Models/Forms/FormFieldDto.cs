@@ -8,4 +8,10 @@ public record FormFieldDto
     public string? InputSelector { get; init; }
     public string? ValueType { get; init; }
     public bool IsCumulative { get; init; }
+
+    /// <summary>
+    /// Указывает, должна ли колонка объединяться для строк с одинаковым GroupKey.
+    /// Используется для форм, где несколько строк относятся к одной группе (например, цикл операций).
+    /// </summary>
+    public bool ShouldMergeInGroup { get; init; }
 }

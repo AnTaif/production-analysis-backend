@@ -1,5 +1,6 @@
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Templates;
+using ProductionAnalysis.Application.Implementation.Forms;
 using ProductionAnalysis.Client.Models.Forms;
 
 namespace ProductionAnalysis.Application.Converters;
@@ -21,7 +22,7 @@ public static class FormsConverter
 
     public static FormDto ToDto(this Form form)
     {
-        var template = ConvertTemplateToDto(form.TemplateSnapshot);
+        var template = ConvertTemplateToDto(form.TemplateSnapshot, form.PaType);
 
         var rows = form.Rows
             .OrderBy(r => r.Order)
@@ -88,12 +89,15 @@ public static class FormsConverter
             Order = row.Order,
             IsAuxiliaryOperation = row.IsAuxiliaryOperation,
             ProductId = row.ProductId,
+            GroupKey = row.GroupKey,
             Values = values
         };
     }
 
-    private static FormTemplateDto ConvertTemplateToDto(Template template)
+    private static FormTemplateDto ConvertTemplateToDto(Template template, PaType paType)
     {
+        var mergedIndicatorIds = GetMergedIndicatorIds(paType, template);
+
         return new FormTemplateDto
         {
             TableColumns = template.Indicators
@@ -105,9 +109,42 @@ public static class FormsConverter
                     InputType = indicator.InputType,
                     InputSelector = indicator.ValueSelector,
                     ValueType = indicator.ValueType,
-                    IsCumulative = indicator.IsCumulative
+                    IsCumulative = indicator.IsCumulative,
+                    ShouldMergeInGroup = mergedIndicatorIds.Contains(indicator.Id)
                 })
                 .ToList()
         };
+    }
+
+    private static HashSet<int> GetMergedIndicatorIds(PaType paType, Template template)
+    {
+        // Для форм типа "Менее 1 шт. в час" объединяем следующие колонки для строк группы:
+        // - Время работы (16)
+        // - План, шт. (1)
+        // - Факт, шт. (2) - если есть в шаблоне
+        // - Отклонение, шт. (3) - если есть в шаблоне
+        // - Простой, мин. (4) - если есть в шаблоне
+        if (paType == PaType.LessThanOnePerHour)
+        {
+            var mergedIds = new HashSet<int>
+            {
+                ShiftConstants.WorktimeIndicatorId, // 16 - Время работы
+                ShiftConstants.PlanIndicatorId // 1 - План, шт.
+            };
+
+            // Добавляем дополнительные индикаторы, если они есть в шаблоне
+            var indicatorIds = template.Indicators.Select(i => i.Id).ToHashSet();
+
+            if (indicatorIds.Contains(2)) // Факт, шт.
+                mergedIds.Add(2);
+            if (indicatorIds.Contains(3)) // Отклонение, шт.
+                mergedIds.Add(3);
+            if (indicatorIds.Contains(4)) // Простой, мин.
+                mergedIds.Add(4);
+
+            return mergedIds;
+        }
+
+        return new HashSet<int>();
     }
 }

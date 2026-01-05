@@ -82,7 +82,8 @@ public static class FormsConverter
             dbo.IsAuxiliaryOperation,
             dbo.AuxiliaryOperationId,
             values,
-            dbo.ProductId);
+            dbo.ProductId,
+            dbo.GroupKey);
     }
 
     private static object? DeserializeValue(string jsonValue)

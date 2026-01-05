@@ -23,6 +23,7 @@ public class FormRowsRepository(PaDbContext dbContext) : IFormRowsRepository
                 IsAuxiliaryOperation = row.IsAuxiliaryOperation,
                 AuxiliaryOperationId = row.AuxiliaryOperationId,
                 ProductId = row.ProductId,
+                GroupKey = row.GroupKey,
                 Values = new List<FormRowValueDbo>()
             };
 

@@ -12,6 +12,8 @@ public class FormRowDbo
 
     public int? ProductId { get; set; }
 
+    public int? GroupKey { get; set; }
+
     public FormDbo Form { get; set; } = null!;
 
     public ICollection<FormRowValueDbo> Values { get; set; } = new List<FormRowValueDbo>();

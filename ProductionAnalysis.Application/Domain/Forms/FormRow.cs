@@ -7,13 +7,15 @@ public class FormRow
         bool isAuxiliaryOperation,
         int? auxiliaryOperationId,
         Dictionary<string, FormRowValue> values,
-        int? productId = null)
+        int? productId = null,
+        int? groupKey = null)
     {
         Order = order;
         IsAuxiliaryOperation = isAuxiliaryOperation;
         AuxiliaryOperationId = auxiliaryOperationId;
         Values = values;
         ProductId = productId;
+        GroupKey = groupKey;
     }
 
     public short Order { get; }
@@ -21,4 +23,5 @@ public class FormRow
     public int? AuxiliaryOperationId { get; }
     public Dictionary<string, FormRowValue> Values { get; }
     public int? ProductId { get; }
+    public int? GroupKey { get; }
 }
