@@ -34,6 +34,19 @@ public class FormRowInitializer(
         var auxiliaryOperationsByIds = await LoadAuxiliaryOperationsAsync();
         var sortedBreaks = schedules.OrderBy(s => s.StartTime).ToList();
 
+        // Проверяем, есть ли контекст операций
+        var operationContext = formContext?.GetOperationContext();
+        if (operationContext != null)
+        {
+            return await InitializeRowsForOperationsAsync(
+                shiftStartTime,
+                sortedBreaks,
+                template,
+                indicators,
+                auxiliaryOperationsByIds,
+                operationContext);
+        }
+
         // Проверяем, есть ли несколько продуктов
         var multiProducts = multiProductContextExtractor.Extract(formContext);
         if (multiProducts.Count > 1)
@@ -189,7 +202,9 @@ public class FormRowInitializer(
         return new InitializedIndicators
         {
             WorkTime = template.Indicators.Single(i => i.Id == ShiftConstants.WorktimeIndicatorId),
-            Plan = template.Indicators.FirstOrDefault(i => i.Id == ShiftConstants.PlanIndicatorId)
+            Plan = template.Indicators.FirstOrDefault(i => i.Id == ShiftConstants.PlanIndicatorId),
+            OperationName = template.Indicators.FirstOrDefault(i => i.Id == ShiftConstants.OperationNameIndicatorId),
+            OperationTime = template.Indicators.FirstOrDefault(i => i.Id == ShiftConstants.OperationTimeIndicatorId)
         };
     }
 
@@ -250,9 +265,244 @@ public class FormRowInitializer(
         return order;
     }
 
+    private async Task<ICollection<FormRowData>> InitializeRowsForOperationsAsync(
+        TimeOnly shiftStartTime,
+        List<ShiftScheduleDto> sortedBreaks,
+        Template template,
+        InitializedIndicators indicators,
+        Dictionary<int, AuxiliaryOperationDto> auxiliaryOperationsByIds,
+        OperationContext operationContext)
+    {
+        var allOperations = await LoadOperationsAsync();
+        var relatedOperations = GetRelatedOperations(operationContext.OperationId, allOperations);
+
+        if (relatedOperations.Count == 0)
+        {
+            throw new InvalidOperationException($"No operations found for operation id {operationContext.OperationId}");
+        }
+
+        var totalWorkTime = TimeSpan.FromHours(ShiftConstants.ShiftDurationHours);
+        var cycleDuration = CalculateCycleDuration(relatedOperations);
+
+        var rows = new List<FormRowData>();
+        var currentTime = shiftStartTime;
+        var elapsedWorkTime = TimeSpan.Zero;
+        var breakIndex = 0;
+        short order = 1;
+
+        while (elapsedWorkTime < totalWorkTime)
+        {
+            var nextBreak = GetNextBreak(sortedBreaks, breakIndex);
+            var remainingWorkTime = totalWorkTime - elapsedWorkTime;
+
+            // Проверяем, помещается ли полный цикл операций до следующего перерыва или конца смены
+            var timeUntilBreak = nextBreak != null
+                ? (nextBreak.StartTime - currentTime).TotalSeconds
+                : remainingWorkTime.TotalSeconds;
+
+            if (nextBreak != null && timeUntilBreak > 0 && timeUntilBreak < cycleDuration)
+            {
+                // До перерыва не помещается полный цикл, обрабатываем перерыв
+                order = ProcessBreakIntervalForOperations(
+                    rows,
+                    order,
+                    nextBreak,
+                    auxiliaryOperationsByIds,
+                    indicators,
+                    ref breakIndex,
+                    ref currentTime,
+                    ref elapsedWorkTime);
+            }
+            else if (remainingWorkTime.TotalSeconds >= cycleDuration)
+            {
+                // Помещается полный цикл операций
+                var cycleEndTime = currentTime.Add(TimeSpan.FromSeconds(cycleDuration));
+
+                var cycleRow = formRowDataFactory.CreateOperationCycleRow(
+                    order++,
+                    indicators.WorkTime,
+                    indicators.Plan,
+                    indicators.OperationName,
+                    indicators.OperationTime,
+                    currentTime,
+                    cycleEndTime,
+                    relatedOperations);
+
+                rows.Add(cycleRow);
+                currentTime = cycleEndTime;
+                elapsedWorkTime = elapsedWorkTime.Add(TimeSpan.FromSeconds(cycleDuration));
+            }
+            else
+            {
+                // Осталось меньше времени, чем цикл, но больше 0 - создаем последний цикл
+                var cycleEndTime = currentTime.Add(remainingWorkTime);
+
+                var cycleRow = formRowDataFactory.CreateOperationCycleRow(
+                    order++,
+                    indicators.WorkTime,
+                    indicators.Plan,
+                    indicators.OperationName,
+                    indicators.OperationTime,
+                    currentTime,
+                    cycleEndTime,
+                    relatedOperations);
+
+                rows.Add(cycleRow);
+                elapsedWorkTime = totalWorkTime;
+                break;
+            }
+        }
+
+        // Если чистое рабочее время закончилось, но остались перерывы - добавляем их
+        while (breakIndex < sortedBreaks.Count)
+        {
+            var nextBreak = sortedBreaks[breakIndex];
+            var breakMetaInfo = auxiliaryOperationsByIds[nextBreak.AuxiliaryOperationId];
+            var breakEndTime = nextBreak.StartTime.Add(breakMetaInfo.Duration);
+
+            var breakRow = formRowDataFactory.CreateBreakRow(
+                order++,
+                indicators.WorkTime,
+                nextBreak.StartTime,
+                breakEndTime,
+                breakMetaInfo.Name,
+                nextBreak.AuxiliaryOperationId);
+
+            rows.Add(breakRow);
+            breakIndex++;
+        }
+
+        cumulativeValueCalculator.FillCumulativeValues(rows, template.Indicators);
+
+        return rows;
+    }
+
+    private async Task<ICollection<OperationDto>> LoadOperationsAsync()
+    {
+        return await unitOfWork.Dictionaries.SelectOperationsAsync();
+    }
+
+    private static ICollection<OperationDto> GetRelatedOperations(int operationId,
+        ICollection<OperationDto> allOperations)
+    {
+        var operationsById = allOperations.ToDictionary(op => op.Id);
+        var result = new List<OperationDto>();
+        var visited = new HashSet<int>();
+
+        if (!operationsById.TryGetValue(operationId, out var mainOperation))
+        {
+            return result;
+        }
+
+        // Добавляем основную операцию
+        result.Add(mainOperation);
+        visited.Add(operationId);
+
+        // Собираем все операции, которые связаны с основной операцией или продуктом
+        // через BasedOperationId или BasedProductId
+        CollectRelatedOperations(mainOperation, operationsById, result, visited);
+
+        return result;
+    }
+
+    private static void CollectRelatedOperations(
+        OperationDto operation,
+        Dictionary<int, OperationDto> operationsById,
+        List<OperationDto> result,
+        HashSet<int> visited)
+    {
+        // Если операция основана на другой операции, добавляем эту операцию и её связанные
+        if (operation.BasedOnType == OperationBasedOnType.Operation && operation.BasedOperationId.HasValue)
+        {
+            var basedOperationId = operation.BasedOperationId.Value;
+            if (!visited.Contains(basedOperationId) &&
+                operationsById.TryGetValue(basedOperationId, out var basedOperation))
+            {
+                visited.Add(basedOperationId);
+                result.Add(basedOperation);
+                CollectRelatedOperations(basedOperation, operationsById, result, visited);
+            }
+        }
+
+        // Если операция связана с продуктом, собираем все операции, связанные с тем же продуктом
+        if (operation.BasedOnType == OperationBasedOnType.Product && operation.BasedProductId.HasValue)
+        {
+            var productRelatedOperations = operationsById.Values
+                .Where(op => !visited.Contains(op.Id) &&
+                             op.BasedOnType == OperationBasedOnType.Product &&
+                             op.BasedProductId == operation.BasedProductId);
+
+            foreach (var productOp in productRelatedOperations)
+            {
+                visited.Add(productOp.Id);
+                result.Add(productOp);
+                CollectRelatedOperations(productOp, operationsById, result, visited);
+            }
+        }
+
+        // Собираем операции, которые основаны на текущей операции
+        var dependentOperations = operationsById.Values
+            .Where(op => !visited.Contains(op.Id) &&
+                         op.BasedOnType == OperationBasedOnType.Operation &&
+                         op.BasedOperationId == operation.Id);
+
+        foreach (var dependentOp in dependentOperations)
+        {
+            visited.Add(dependentOp.Id);
+            result.Add(dependentOp);
+            CollectRelatedOperations(dependentOp, operationsById, result, visited);
+        }
+    }
+
+    private static double CalculateCycleDuration(ICollection<OperationDto> operations)
+    {
+        // Суммируем длительность всех операций в цикле
+        return operations
+            .Where(op => op.Duration.HasValue)
+            .Sum(op => op.Duration.Value.TotalSeconds);
+    }
+
+    private short ProcessBreakIntervalForOperations(
+        List<FormRowData> rows,
+        short order,
+        ShiftScheduleDto nextBreak,
+        Dictionary<int, AuxiliaryOperationDto> auxiliaryOperationsByIds,
+        InitializedIndicators indicators,
+        ref int breakIndex,
+        ref TimeOnly currentTime,
+        ref TimeSpan elapsedWorkTime)
+    {
+        if (currentTime < nextBreak.StartTime)
+        {
+            // Не должно быть работы перед перерывом в режиме операций, но на всякий случай
+            elapsedWorkTime = elapsedWorkTime.Add(nextBreak.StartTime - currentTime);
+        }
+
+        var breakMetaInfo = auxiliaryOperationsByIds[nextBreak.AuxiliaryOperationId];
+        var breakEndTime = nextBreak.StartTime.Add(breakMetaInfo.Duration);
+
+        var breakRow = formRowDataFactory.CreateBreakRow(
+            order++,
+            indicators.WorkTime,
+            nextBreak.StartTime,
+            breakEndTime,
+            breakMetaInfo.Name,
+            nextBreak.AuxiliaryOperationId);
+
+        rows.Add(breakRow);
+
+        currentTime = breakEndTime;
+        elapsedWorkTime = elapsedWorkTime.Add(breakMetaInfo.Duration);
+        breakIndex++;
+
+        return order;
+    }
+
     private record InitializedIndicators
     {
         public required Indicator WorkTime { get; init; }
         public Indicator? Plan { get; init; }
+        public Indicator? OperationName { get; init; }
+        public Indicator? OperationTime { get; init; }
     }
 }

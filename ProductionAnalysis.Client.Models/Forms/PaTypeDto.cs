@@ -12,4 +12,7 @@ public enum PaTypeDto
 
     [Description("Почасовой несколько номенклатур")]
     MultipleProductsWithCycleTime = 3,
+
+    [Description("Менее 1 шт. в час")]
+    LessThanOnePerHour = 4,
 }

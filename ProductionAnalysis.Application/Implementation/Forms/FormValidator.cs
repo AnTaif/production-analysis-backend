@@ -46,6 +46,7 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
             PaType.SingleProductWithCycleTime => ValidateSingleProductWithCycleTime(request),
             PaType.SingleProductWithWorkstationCapacity => ValidateSingleProductWithWorkstationCapacity(request),
             PaType.MultipleProductsWithCycleTime => ValidateMultipleProductsWithCycleTime(request),
+            PaType.LessThanOnePerHour => ValidateLessThanOnePerHour(request),
             _ => throw new NotSupportedException($"Unknown form type: {request.PaType}")
         };
 
@@ -108,6 +109,23 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
         return Result.Success;
     }
 
+    private static Result ValidateLessThanOnePerHour(CreateFormRequest request)
+    {
+        if (request.Operation == null)
+        {
+            return ServiceError.BadRequest(
+                $"Operation is required for {PaType.LessThanOnePerHour}");
+        }
+
+        if (request.Operation.OperationId <= 0)
+        {
+            return ServiceError.BadRequest(
+                $"OperationId must be greater than 0 for {PaType.LessThanOnePerHour}");
+        }
+
+        return Result.Success;
+    }
+
     private static PaType ConvertToDomainPaType(PaTypeDto paTypeDto)
     {
         return paTypeDto switch
@@ -115,6 +133,7 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
             PaTypeDto.SingleProductWithCycleTime => PaType.SingleProductWithCycleTime,
             PaTypeDto.SingleProductWithWorkstationCapacity => PaType.SingleProductWithWorkstationCapacity,
             PaTypeDto.MultipleProductsWithCycleTime => PaType.MultipleProductsWithCycleTime,
+            PaTypeDto.LessThanOnePerHour => PaType.LessThanOnePerHour,
             _ => throw new ArgumentOutOfRangeException(nameof(paTypeDto), paTypeDto, "Unknown PaTypeDto value")
         };
     }

@@ -79,4 +79,14 @@ public static class FormContextAccessor
 
         return context.HasSingleProduct() ? 1 : 0;
     }
+
+    /// <summary>
+    /// Получает контекст операций
+    /// </summary>
+    public static OperationContext? GetOperationContext(this Dictionary<string, FormContext> context)
+    {
+        return context.TryGetValue(OperationContextKey, out var ctx) && ctx is OperationContext operationContext
+            ? operationContext
+            : null;
+    }
 }

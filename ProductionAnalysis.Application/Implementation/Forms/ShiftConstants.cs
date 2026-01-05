@@ -6,5 +6,6 @@ public static class ShiftConstants
 
     public const int WorktimeIndicatorId = 16;
     public const int OperationNameIndicatorId = 9;
+    public const int OperationTimeIndicatorId = 10;
     public const int PlanIndicatorId = 1;
 }

@@ -2,5 +2,5 @@ namespace ProductionAnalysis.Client.Models.Forms;
 
 public record OperationContextDto
 {
-    // Поля для OperationContext
+    public int OperationId { get; init; }
 }

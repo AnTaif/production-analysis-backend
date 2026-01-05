@@ -344,6 +344,31 @@ public class PaDataSeeder(
                 DurationInSeconds = 1200,
                 BasedOnType = 3,
                 BasedProductId = 1
+            },
+            // Операции для продукта "Корпус редуктора" (Id = 1)
+            new OperationDbo
+            {
+                Id = 4,
+                Name = "Подсборка",
+                DurationInSeconds = 900, // 15 мин
+                BasedOnType = 3,
+                BasedProductId = 1
+            },
+            new OperationDbo
+            {
+                Id = 5,
+                Name = "Установка",
+                DurationInSeconds = 600, // 10 мин
+                BasedOnType = 3,
+                BasedProductId = 1
+            },
+            new OperationDbo
+            {
+                Id = 6,
+                Name = "Настройка",
+                DurationInSeconds = 600, // 10 мин
+                BasedOnType = 3,
+                BasedProductId = 1
             }
         );
 
@@ -649,6 +674,8 @@ public class PaDataSeeder(
         var downtimeReason = await dbContext.Indicators.FirstAsync(i => i.Id == 6);
         var downTimeReasonsGroup = await dbContext.Indicators.FirstAsync(i => i.Id == 7);
         var actionsTaken = await dbContext.Indicators.FirstAsync(i => i.Id == 8);
+        var operationName = await dbContext.Indicators.FirstAsync(i => i.Id == 9);
+        var operationTime = await dbContext.Indicators.FirstAsync(i => i.Id == 10);
 
         var template1 = new TemplateDbo
         {
@@ -668,6 +695,28 @@ public class PaDataSeeder(
         template1.Indicators.Add(actionsTaken);
 
         dbContext.Templates.Add(template1);
+
+        // Шаблон для типа "Менее 1 шт. в час"
+        var template4 = new TemplateDbo
+        {
+            Id = 4,
+            Name = "Шаблон для изготовления продукции менее 1 шт. в час",
+            PaTypeId = 4,
+            Version = 1
+        };
+        template4.Indicators.Add(worktime);
+        template4.Indicators.Add(plan);
+        template4.Indicators.Add(operationName);
+        template4.Indicators.Add(operationTime);
+        template4.Indicators.Add(fact);
+        template4.Indicators.Add(deviation);
+        template4.Indicators.Add(downtime);
+        template4.Indicators.Add(downtimeResponsible);
+        template4.Indicators.Add(downtimeReason);
+        template4.Indicators.Add(downTimeReasonsGroup);
+        template4.Indicators.Add(actionsTaken);
+
+        dbContext.Templates.Add(template4);
     }
 
     #endregion

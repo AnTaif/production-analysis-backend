@@ -24,6 +24,7 @@ public class FormContextFactory : IFormContextFactory
             PaType.SingleProductWithCycleTime => CreateSingleProductContextWithCycleTime(request),
             PaType.SingleProductWithWorkstationCapacity => CreateSingleProductContextWithWorkstationCapacity(request),
             PaType.MultipleProductsWithCycleTime => CreateMultipleProductsContextWithCycleTime(request),
+            PaType.LessThanOnePerHour => CreateOperationContext(request),
             _ => throw new NotSupportedException($"Unsupported form type: {paType}")
         };
     }
@@ -35,6 +36,7 @@ public class FormContextFactory : IFormContextFactory
             PaTypeDto.SingleProductWithCycleTime => PaType.SingleProductWithCycleTime,
             PaTypeDto.SingleProductWithWorkstationCapacity => PaType.SingleProductWithWorkstationCapacity,
             PaTypeDto.MultipleProductsWithCycleTime => PaType.MultipleProductsWithCycleTime,
+            PaTypeDto.LessThanOnePerHour => PaType.LessThanOnePerHour,
             _ => throw new ArgumentOutOfRangeException(nameof(paTypeDto), paTypeDto, "Unknown PaTypeDto value")
         };
     }
@@ -91,6 +93,19 @@ public class FormContextFactory : IFormContextFactory
         return new Dictionary<string, FormContext>
         {
             ["multiProduct"] = new MultiProductContext(productContexts)
+        };
+    }
+
+    private static Dictionary<string, FormContext> CreateOperationContext(CreateFormRequest request)
+    {
+        if (request.Operation == null)
+        {
+            throw new ArgumentException("Operation is required for LessThanOnePerHour", nameof(request));
+        }
+
+        return new Dictionary<string, FormContext>
+        {
+            ["operation"] = new OperationContext(request.Operation.OperationId)
         };
     }
 }

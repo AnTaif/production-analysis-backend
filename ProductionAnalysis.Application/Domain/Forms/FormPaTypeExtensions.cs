@@ -54,4 +54,12 @@ public static class FormPaTypeExtensions
     {
         return form.Context.GetProductCount();
     }
+
+    /// <summary>
+    /// Получает контекст операций
+    /// </summary>
+    public static OperationContext? GetOperationContext(this Form form)
+    {
+        return form.Context.GetOperationContext();
+    }
 }

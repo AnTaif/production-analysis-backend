@@ -13,6 +13,7 @@ public static class PaTypeConverter
             PaType.SingleProductWithCycleTime => PaTypeDto.SingleProductWithCycleTime,
             PaType.SingleProductWithWorkstationCapacity => PaTypeDto.SingleProductWithWorkstationCapacity,
             PaType.MultipleProductsWithCycleTime => PaTypeDto.MultipleProductsWithCycleTime,
+            PaType.LessThanOnePerHour => PaTypeDto.LessThanOnePerHour,
             _ => throw ExhaustiveMatch.Failed(typeof(PaType))
         };
     }
@@ -24,6 +25,7 @@ public static class PaTypeConverter
             PaTypeDto.SingleProductWithCycleTime => PaType.SingleProductWithCycleTime,
             PaTypeDto.SingleProductWithWorkstationCapacity => PaType.SingleProductWithWorkstationCapacity,
             PaTypeDto.MultipleProductsWithCycleTime => PaType.MultipleProductsWithCycleTime,
+            PaTypeDto.LessThanOnePerHour => PaType.LessThanOnePerHour,
             _ => throw ExhaustiveMatch.Failed(typeof(PaTypeDto))
         };
     }

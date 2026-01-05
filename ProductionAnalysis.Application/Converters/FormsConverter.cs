@@ -30,7 +30,7 @@ public static class FormsConverter
 
         var productDto = form.GetProductContext()?.ToDto();
         var productsDto = form.GetMultiProductContext()?.Products.Select(p => p.ToDto()).ToList();
-        OperationContextDto? operationDto = null; // Можно добавить обработку для OperationContext в будущем
+        var operationDto = form.GetOperationContext()?.ToDto();
 
         return new FormDto
         {

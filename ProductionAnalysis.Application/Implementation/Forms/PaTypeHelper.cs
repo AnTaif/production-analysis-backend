@@ -33,6 +33,14 @@ public static class PaTypeHelper
     }
 
     /// <summary>
+    /// Проверяет, является ли тип формы типом с операциями (менее 1 шт. в час)
+    /// </summary>
+    public static bool IsOperationType(PaType paType)
+    {
+        return paType == PaType.LessThanOnePerHour;
+    }
+
+    /// <summary>
     /// Проверяет, использует ли тип формы время цикла
     /// </summary>
     public static bool UsesCycleTime(PaType paType)
