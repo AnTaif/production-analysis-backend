@@ -69,20 +69,6 @@ public class TestDataBuilder(PaDbContext dbContext, UserManager<UserDbo> userMan
         return department;
     }
 
-    public async Task<PaTypeDbo> CreatePaTypeAsync(int id = 1, string name = "Test PA Type")
-    {
-        var paType = new PaTypeDbo
-        {
-            Id = id,
-            Name = name
-        };
-
-        dbContext.PaTypes.Add(paType);
-        await dbContext.SaveChangesAsync();
-
-        return paType;
-    }
-
     public async Task<ShiftDbo> CreateShiftAsync(int id = 1, TimeOnly startTime = default)
     {
         if (startTime == default)

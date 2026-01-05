@@ -7,7 +7,7 @@ public class Form
 {
     public Form(
         int id,
-        int paTypeId,
+        PaType paType,
         FormStatus status,
         DateTime creationDate,
         DateTime updateDate,
@@ -20,7 +20,7 @@ public class Form
         Dictionary<int, object>? totalValues = null)
     {
         Id = id;
-        PaTypeId = paTypeId;
+        PaType = paType;
         Status = status;
         CreationDate = creationDate;
         UpdateDate = updateDate;
@@ -34,7 +34,7 @@ public class Form
     }
 
     public int Id { get; }
-    public int PaTypeId { get; }
+    public PaType PaType { get; }
     public FormStatus Status { get; }
     public DateTime CreationDate { get; }
     public DateTime UpdateDate { get; }

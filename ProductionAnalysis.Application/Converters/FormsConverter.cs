@@ -1,7 +1,5 @@
 using ProductionAnalysis.Application.Domain.Forms;
-using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Application.Domain.Templates;
-using ProductionAnalysis.Application.Implementation.Forms.Context;
 using ProductionAnalysis.Client.Models.Forms;
 
 namespace ProductionAnalysis.Application.Converters;
@@ -13,7 +11,7 @@ public static class FormsConverter
         return new FormShortDto
         {
             Id = form.Id,
-            PaTypeId = form.PaTypeId,
+            PaType = form.PaType.ToDto(),
             Status = FormStatusConverter.ConvertToClientFormStatus(form.Status),
             CreationDate = form.CreationDate,
             UpdateDate = form.UpdateDate,
@@ -37,7 +35,7 @@ public static class FormsConverter
         return new FormDto
         {
             Id = form.Id,
-            PaTypeId = form.PaTypeId,
+            PaType = form.PaType.ToDto(),
             Status = FormStatusConverter.ConvertToClientFormStatus(form.Status),
             CreationDate = form.CreationDate,
             UpdateDate = form.UpdateDate,
@@ -92,14 +90,6 @@ public static class FormsConverter
             ProductId = row.ProductId,
             Values = values
         };
-    }
-
-    [Obsolete("Use IFormContextFactory instead")]
-    public static Dictionary<string, FormContext> ExtractDomainContext(this CreateFormRequest request)
-    {
-        // Для обратной совместимости используем фабрику напрямую
-        var factory = new FormContextFactory();
-        return factory.CreateContext(request);
     }
 
     private static FormTemplateDto ConvertTemplateToDto(Template template)

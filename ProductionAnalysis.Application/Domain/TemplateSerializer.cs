@@ -37,7 +37,7 @@ public static class TemplateSerializer
         {
             id = template.Id,
             name = template.Name,
-            paTypeId = template.PaTypeId,
+            paTypeId = (int)template.PaType,
             version = template.Version,
             tableColumns
         });

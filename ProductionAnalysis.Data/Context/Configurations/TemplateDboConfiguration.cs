@@ -12,10 +12,6 @@ public class TemplateDboConfiguration : IEntityTypeConfiguration<TemplateDbo>
 
         builder.HasKey(e => e.Id);
 
-        builder.HasOne<PaTypeDbo>()
-            .WithMany()
-            .HasForeignKey(e => e.PaTypeId);
-
         builder.HasMany(e => e.Indicators)
             .WithMany(e => e.Templates)
             .UsingEntity(j => j.ToTable("templates_indicators"));

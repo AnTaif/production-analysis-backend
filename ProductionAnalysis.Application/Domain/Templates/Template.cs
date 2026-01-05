@@ -1,3 +1,5 @@
+using ProductionAnalysis.Application.Domain.Forms;
+
 namespace ProductionAnalysis.Application.Domain.Templates;
 
 public class Template
@@ -5,20 +7,20 @@ public class Template
     public Template(
         int id,
         string name,
-        int paTypeId,
+        PaType paType,
         int version,
         ICollection<Indicator> indicators)
     {
         Id = id;
         Name = name;
-        PaTypeId = paTypeId;
+        PaType = paType;
         Version = version;
         Indicators = indicators;
     }
 
     public int Id { get; }
     public string Name { get; }
-    public int PaTypeId { get; }
+    public PaType PaType { get; }
     public int Version { get; }
     public ICollection<Indicator> Indicators { get; }
 }

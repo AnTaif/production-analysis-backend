@@ -1,0 +1,15 @@
+using System.ComponentModel;
+
+namespace ProductionAnalysis.Client.Models.Forms;
+
+public enum PaTypeDto
+{
+    [Description("Почасовой по времени такта")]
+    SingleProductWithCycleTime = 1,
+
+    [Description("Почасовой по мощности рабочего места")]
+    SingleProductWithWorkstationCapacity = 2,
+
+    [Description("Почасовой несколько номенклатур")]
+    MultipleProductsWithCycleTime = 3,
+}

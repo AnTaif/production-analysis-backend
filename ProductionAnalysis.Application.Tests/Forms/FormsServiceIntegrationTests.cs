@@ -26,7 +26,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Act
         var request = new CreateFormRequest
         {
-            PaTypeId = template.PaTypeId,
+            PaType = (PaTypeDto)template.PaTypeId,
             ShiftId = shift.Id,
             Product = new ProductContextDto
             {
@@ -69,15 +69,11 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
 
-        var template = await DbContext.Templates
-            .Include(t => t.Indicators)
-            .FirstAsync(t => t.Id == 1);
-
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
         var request = new CreateFormRequest
         {
-            PaTypeId = template.PaTypeId,
+            PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             Product = new ProductContextDto
             {
@@ -117,14 +113,10 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
 
-        var template = await DbContext.Templates
-            .Include(t => t.Indicators)
-            .FirstAsync(t => t.Id == 1);
-
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
         var request = new CreateFormRequest
         {
-            PaTypeId = template.PaTypeId,
+            PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             Product = new ProductContextDto
             {
@@ -218,15 +210,11 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
 
-        var template = await DbContext.Templates
-            .Include(t => t.Indicators)
-            .FirstAsync(t => t.Id == 1);
-
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
         var createRequest = new CreateFormRequest
         {
-            PaTypeId = template.PaTypeId,
+            PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             Product = new ProductContextDto
             {
@@ -258,15 +246,11 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
 
-        var template = await DbContext.Templates
-            .Include(t => t.Indicators)
-            .FirstAsync(t => t.Id == 1);
-
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
         var createRequest = new CreateFormRequest
         {
-            PaTypeId = template.PaTypeId,
+            PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             Product = new ProductContextDto
             {
@@ -297,15 +281,11 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
 
-        var template = await DbContext.Templates
-            .Include(t => t.Indicators)
-            .FirstAsync(t => t.Id == 1);
-
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
         var createRequest = new CreateFormRequest
         {
-            PaTypeId = template.PaTypeId,
+            PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             Product = new ProductContextDto
             {
@@ -322,7 +302,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().NotBeNull();
         result.Value.Id.Should().Be(createResult.Value.Id);
-        result.Value.PaTypeId.Should().Be(template.PaTypeId);
+        result.Value.PaType.Should().Be(PaTypeDto.SingleProductWithCycleTime);
     }
 
     [Test]
@@ -341,15 +321,11 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
 
-        var template = await DbContext.Templates
-            .Include(t => t.Indicators)
-            .FirstAsync(t => t.Id == 1);
-
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
         var createRequest = new CreateFormRequest
         {
-            PaTypeId = template.PaTypeId,
+            PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             Product = new ProductContextDto
             {
@@ -388,7 +364,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
 
         var request = new CreateFormRequest
         {
-            PaTypeId = 99999,
+            PaType = (PaTypeDto)99999,
             ShiftId = shift.Id,
             Product = new ProductContextDto
             {
@@ -410,15 +386,11 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
     {
         var user = await DataBuilder.CreateUserAsync();
 
-        var template = await DbContext.Templates
-            .Include(t => t.Indicators)
-            .FirstAsync(t => t.Id == 1);
-
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
         var request = new CreateFormRequest
         {
-            PaTypeId = template.PaTypeId,
+            PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             Product = new ProductContextDto
             {
@@ -441,13 +413,9 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
 
-        var template = await DbContext.Templates
-            .Include(t => t.Indicators)
-            .FirstAsync(t => t.Id == 1);
-
         var request = new CreateFormRequest
         {
-            PaTypeId = template.PaTypeId,
+            PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = 99999,
             Product = new ProductContextDto
             {

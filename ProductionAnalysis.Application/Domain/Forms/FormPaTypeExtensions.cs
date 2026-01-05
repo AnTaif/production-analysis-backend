@@ -1,5 +1,4 @@
 using ProductionAnalysis.Application.Domain.Forms.Context;
-using ProductionAnalysis.Application.Implementation.Forms;
 
 namespace ProductionAnalysis.Application.Domain.Forms;
 
@@ -8,14 +7,6 @@ namespace ProductionAnalysis.Application.Domain.Forms;
 /// </summary>
 public static class FormPaTypeExtensions
 {
-    /// <summary>
-    /// Получает тип формы (PaType) из формы
-    /// </summary>
-    public static PaType? GetPaType(this Form form)
-    {
-        return PaTypeHelper.TryParse(form.PaTypeId);
-    }
-
     /// <summary>
     /// Получает контекст одного продукта
     /// </summary>

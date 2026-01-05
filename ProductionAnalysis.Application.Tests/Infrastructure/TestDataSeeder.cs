@@ -27,7 +27,6 @@ public class TestDataSeeder
     {
         await SeedEnterprisesAsync();
         await SeedDepartmentsAsync();
-        await SeedPaTypesAsync();
         await SeedShiftsAsync();
         await SeedAdditionalOperationsAsync();
         await SeedProductsAsync();
@@ -58,22 +57,6 @@ public class TestDataSeeder
             new DepartmentDbo { Id = 1, Name = "Цех №1", EnterpriseId = 1 },
             new DepartmentDbo { Id = 2, Name = "Цех №2", EnterpriseId = 1 },
             new DepartmentDbo { Id = 3, Name = "Литейный участок", EnterpriseId = 2 }
-        );
-
-        return Task.CompletedTask;
-    }
-
-    private Task SeedPaTypesAsync()
-    {
-        if (dbContext.PaTypes.Any())
-            return Task.CompletedTask;
-
-        dbContext.PaTypes.AddRange(
-            new PaTypeDbo { Id = 1, Name = "Более 1 шт. в час (по времени такта)" },
-            new PaTypeDbo { Id = 2, Name = "Более 1 шт. в час исходя из мощности рабочего  места" },
-            new PaTypeDbo { Id = 3, Name = "Более 1 шт. в час нескольких номенклатур" },
-            new PaTypeDbo { Id = 4, Name = "Менее 1 шт. в час" },
-            new PaTypeDbo { Id = 5, Name = "Менее 1 шт. в смену" }
         );
 
         return Task.CompletedTask;

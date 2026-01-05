@@ -22,10 +22,6 @@ public class FormDboConfiguration : IEntityTypeConfiguration<FormDbo>
         builder.Property(x => x.TemplateSnapshot).HasColumnType("jsonb");
         builder.Property(x => x.TotalValues).HasColumnType("jsonb");
 
-        builder.HasOne<PaTypeDbo>()
-            .WithMany()
-            .HasForeignKey(x => x.PaTypeId);
-
         builder.HasOne<UserDbo>()
             .WithMany()
             .HasForeignKey(x => x.CreatorId);

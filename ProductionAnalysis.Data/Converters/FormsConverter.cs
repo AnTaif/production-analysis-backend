@@ -4,6 +4,7 @@ using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Data.Models.Forms;
 using FormStatus = ProductionAnalysis.Application.Domain.Forms.FormStatus;
+using PaType = ProductionAnalysis.Application.Domain.Forms.PaType;
 
 namespace ProductionAnalysis.Data.Converters;
 
@@ -26,6 +27,10 @@ public static class FormsConverter
             .Select(r => r.ToDomain())
             .ToList();
 
+        var paType = Enum.IsDefined(typeof(PaType), dbo.PaTypeId)
+            ? (PaType)dbo.PaTypeId
+            : throw new InvalidOperationException($"Invalid PaTypeId: {dbo.PaTypeId}");
+
         var template = TemplateParser.ParseTemplateSnapshot(dbo.TemplateSnapshot, dbo.PaTypeId);
 
         Dictionary<int, object>? totalValues = null;
@@ -40,7 +45,7 @@ public static class FormsConverter
 
         return new Form(
             dbo.Id,
-            dbo.PaTypeId,
+            paType,
             (FormStatus)dbo.Status,
             dbo.CreationDate,
             dbo.UpdateDate,

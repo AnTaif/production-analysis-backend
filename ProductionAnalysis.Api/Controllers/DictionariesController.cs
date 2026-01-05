@@ -64,15 +64,6 @@ public class DictionariesController(IDictionariesService dictionariesService) : 
         return Ok(dtos);
     }
 
-    [HttpGet("pa-types")]
-    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerablePaTypeDtoExample))]
-    [ProducesResponseType<IEnumerable<PaTypeDto>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetPaTypes()
-    {
-        var dtos = await dictionariesService.GetPaTypesAsync();
-        return Ok(dtos);
-    }
-
     [HttpGet("products")]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerableProductDtoExample))]
     [ProducesResponseType<IEnumerable<ProductDto>>(StatusCodes.Status200OK)]

@@ -29,7 +29,6 @@ public class PaDataSeeder(
         await SeedDepartmentsAsync();
         await SeedDowntimeReasonGroupsAsync();
         await SeedEmployeesAsync();
-        await SeedPaTypesAsync();
         await SeedAdditionalOperationsAsync();
         await SeedOperationsAsync();
         await SeedProductsAsync();
@@ -277,25 +276,6 @@ public class PaDataSeeder(
 
     #endregion
 
-    #region PaTypes
-
-    private Task SeedPaTypesAsync()
-    {
-        if (dbContext.PaTypes.Any())
-            return Task.CompletedTask;
-
-        dbContext.PaTypes.AddRange(
-            new PaTypeDbo { Id = 1, Name = "Более 1 шт. в час (по времени такта)" },
-            new PaTypeDbo { Id = 2, Name = "Более 1 шт. в час исходя из мощности рабочего  места" },
-            new PaTypeDbo { Id = 3, Name = "Более 1 шт. в час нескольких номенклатур" },
-            new PaTypeDbo { Id = 4, Name = "Менее 1 шт. в час" },
-            new PaTypeDbo { Id = 5, Name = "Менее 1 шт. в смену" }
-        );
-
-        return Task.CompletedTask;
-    }
-
-    #endregion
 
     #region Operations
 

@@ -72,15 +72,6 @@ public static class DictionariesConverter
         };
     }
 
-    public static PaTypeDto ToDto(this PaTypeDbo dbo)
-    {
-        return new PaTypeDto
-        {
-            Id = dbo.Id,
-            Name = dbo.Name
-        };
-    }
-
     public static ProductDto ToDto(this ProductDbo dbo)
     {
         return new ProductDto

@@ -63,7 +63,7 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
 
         var formDbo = new FormDbo
         {
-            PaTypeId = newForm.PaTypeId,
+            PaTypeId = (int)newForm.PaType,
             Status = (int)FormStatus.InProgress,
             Context = contextJson,
             TemplateSnapshot = templateSnapshotJson,

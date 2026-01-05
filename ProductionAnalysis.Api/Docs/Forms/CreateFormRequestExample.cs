@@ -8,7 +8,7 @@ public class CreateFormRequestExample : IExamplesProvider<CreateFormRequest>
     public CreateFormRequest GetExamples() =>
         new()
         {
-            PaTypeId = 1,
+            PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = 1,
             Product = new ProductContextDto
             {

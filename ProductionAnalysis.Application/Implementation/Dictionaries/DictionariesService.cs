@@ -11,7 +11,6 @@ public interface IDictionariesService
     Task<ICollection<EnterpriseDto>> GetEnterprisesAsync();
     Task<ICollection<AdditionalOperationDto>> GetAdditionalOperationsAsync();
     Task<ICollection<OperationDto>> GetOperationsAsync();
-    Task<ICollection<PaTypeDto>> GetPaTypesAsync();
     Task<ICollection<ProductDto>> GetProductsAsync();
     Task<ICollection<ShiftDto>> GetShiftsAsync();
 }
@@ -47,11 +46,6 @@ public class DictionariesService(IPaUnitOfWork unitOfWork) : IDictionariesServic
     public async Task<ICollection<OperationDto>> GetOperationsAsync()
     {
         return await unitOfWork.Dictionaries.SelectOperationsAsync();
-    }
-
-    public async Task<ICollection<PaTypeDto>> GetPaTypesAsync()
-    {
-        return await unitOfWork.Dictionaries.SelectPaTypesAsync();
     }
 
     public async Task<ICollection<ProductDto>> GetProductsAsync()

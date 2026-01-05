@@ -1,3 +1,4 @@
+using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Templates;
 using ProductionAnalysis.Data.Models.Dictionaries;
 
@@ -7,10 +8,12 @@ public static class TemplatesConverter
 {
     public static Template ToDomain(this TemplateDbo dbo)
     {
+        var paType = (PaType)dbo.PaTypeId;
+
         return new Template(
             dbo.Id,
             dbo.Name,
-            dbo.PaTypeId,
+            paType,
             dbo.Version,
             dbo.Indicators.Select(i => i.ToDomain()).ToList());
     }

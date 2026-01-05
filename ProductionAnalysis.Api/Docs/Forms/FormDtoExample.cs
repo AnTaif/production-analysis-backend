@@ -10,7 +10,7 @@ public class FormDtoExample : IExamplesProvider<FormDto>
         return new FormDto
         {
             Id = 4,
-            PaTypeId = 1,
+            PaType = PaTypeDto.SingleProductWithCycleTime,
             Status = FormStatus.InProgress,
             CreationDate = DateTime.UtcNow,
             UpdateDate = DateTime.UtcNow,

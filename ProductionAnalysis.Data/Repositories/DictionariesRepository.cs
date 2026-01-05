@@ -57,12 +57,6 @@ public class DictionariesRepository(
         return dbos.Select(o => o.ToDto()).ToList();
     }
 
-    public async Task<ICollection<PaTypeDto>> SelectPaTypesAsync()
-    {
-        var dbos = await dbContext.PaTypes.ToListAsync();
-        return dbos.Select(p => p.ToDto()).ToList();
-    }
-
     public async Task<ICollection<ProductDto>> SelectProductsAsync()
     {
         var dbos = await dbContext.Products.ToListAsync();

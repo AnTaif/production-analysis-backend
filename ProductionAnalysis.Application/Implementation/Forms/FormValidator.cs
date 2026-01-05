@@ -21,10 +21,11 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
         CreateFormRequest request,
         Guid creatorId)
     {
-        var template = await unitOfWork.Templates.FindLatestVerAsync(request.PaTypeId);
+        var paTypeId = (int)request.PaType;
+        var template = await unitOfWork.Templates.FindLatestVerAsync(paTypeId);
         if (template is null)
         {
-            return ServiceError.NotFound($"Template for PaType {request.PaTypeId} not found");
+            return ServiceError.NotFound($"Template for PaType {request.PaType} not found");
         }
 
         var employee = await unitOfWork.Dictionaries.FindEmployeeByUserIdAsync(creatorId);
@@ -39,13 +40,13 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
             return ServiceError.NotFound($"Shift not found by id {request.ShiftId}");
         }
 
-        var paType = PaTypeHelper.TryParse(request.PaTypeId);
-        var validationResult = paType!.Value switch
+        var paType = ConvertToDomainPaType(request.PaType);
+        var validationResult = paType switch
         {
             PaType.SingleProductWithCycleTime => ValidateSingleProductWithCycleTime(request),
             PaType.SingleProductWithWorkstationCapacity => ValidateSingleProductWithWorkstationCapacity(request),
             PaType.MultipleProductsWithCycleTime => ValidateMultipleProductsWithCycleTime(request),
-            _ => throw new NotSupportedException($"Unknown form type: {request.PaTypeId}")
+            _ => throw new NotSupportedException($"Unknown form type: {request.PaType}")
         };
 
         if (validationResult.IsFailure)
@@ -105,5 +106,16 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
         }
 
         return Result.Success;
+    }
+
+    private static PaType ConvertToDomainPaType(PaTypeDto paTypeDto)
+    {
+        return paTypeDto switch
+        {
+            PaTypeDto.SingleProductWithCycleTime => PaType.SingleProductWithCycleTime,
+            PaTypeDto.SingleProductWithWorkstationCapacity => PaType.SingleProductWithWorkstationCapacity,
+            PaTypeDto.MultipleProductsWithCycleTime => PaType.MultipleProductsWithCycleTime,
+            _ => throw new ArgumentOutOfRangeException(nameof(paTypeDto), paTypeDto, "Unknown PaTypeDto value")
+        };
     }
 }

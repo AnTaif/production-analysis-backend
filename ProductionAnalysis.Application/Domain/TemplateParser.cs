@@ -1,4 +1,5 @@
 using System.Text.Json;
+using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Templates;
 
 namespace ProductionAnalysis.Application.Domain;
@@ -29,6 +30,10 @@ public static class TemplateParser
                 ? paTypeIdElement.GetInt32()
                 : paTypeId;
 
+            var paType = Enum.IsDefined(typeof(PaType), templatePaTypeId)
+                ? (PaType)templatePaTypeId
+                : throw new InvalidOperationException($"Invalid PaTypeId: {templatePaTypeId}");
+
             var indicators = new List<Indicator>();
 
             if (root.TryGetProperty("tableColumns", out var tableColumnsElement))
@@ -39,16 +44,20 @@ public static class TemplateParser
             return new Template(
                 id,
                 name,
-                templatePaTypeId,
+                paType,
                 version,
                 indicators);
         }
         catch
         {
+            var paType = Enum.IsDefined(typeof(PaType), paTypeId)
+                ? (PaType)paTypeId
+                : throw new InvalidOperationException($"Invalid PaTypeId: {paTypeId}");
+
             return new Template(
                 0,
                 string.Empty,
-                paTypeId,
+                paType,
                 0,
                 new List<Indicator>());
         }

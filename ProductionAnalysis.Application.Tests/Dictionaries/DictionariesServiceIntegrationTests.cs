@@ -65,16 +65,6 @@ public class DictionariesServiceIntegrationTests : BaseIntegrationTest
     }
 
     [Test]
-    public async Task GetPaTypesAsync_ShouldReturnPaTypes()
-    {
-        var result = await DictionariesService.GetPaTypesAsync();
-
-        result.Should().NotBeNull();
-        result.Should().NotBeEmpty();
-        result.Should().OnlyContain(t => t.Id > 0 && !string.IsNullOrEmpty(t.Name));
-    }
-
-    [Test]
     public async Task GetProductsAsync_ShouldReturnProducts()
     {
         var result = await DictionariesService.GetProductsAsync();

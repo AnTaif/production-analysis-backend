@@ -1,6 +1,6 @@
-using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Client.Models.Forms;
+using PaType = ProductionAnalysis.Application.Domain.Forms.PaType;
 
 namespace ProductionAnalysis.Application.Implementation.Forms.Context;
 
@@ -17,18 +17,25 @@ public class FormContextFactory : IFormContextFactory
 {
     public Dictionary<string, FormContext> CreateContext(CreateFormRequest request)
     {
-        var paType = PaTypeHelper.TryParse(request.PaTypeId);
-        if (paType == null)
-        {
-            throw new NotSupportedException($"Unknown form type: {request.PaTypeId}");
-        }
+        var paType = ConvertToDomainPaType(request.PaType);
 
-        return paType.Value switch
+        return paType switch
         {
             PaType.SingleProductWithCycleTime => CreateSingleProductContextWithCycleTime(request),
             PaType.SingleProductWithWorkstationCapacity => CreateSingleProductContextWithWorkstationCapacity(request),
             PaType.MultipleProductsWithCycleTime => CreateMultipleProductsContextWithCycleTime(request),
-            _ => throw new NotSupportedException($"Unsupported form type: {paType.Value}")
+            _ => throw new NotSupportedException($"Unsupported form type: {paType}")
+        };
+    }
+
+    private static PaType ConvertToDomainPaType(PaTypeDto paTypeDto)
+    {
+        return paTypeDto switch
+        {
+            PaTypeDto.SingleProductWithCycleTime => PaType.SingleProductWithCycleTime,
+            PaTypeDto.SingleProductWithWorkstationCapacity => PaType.SingleProductWithWorkstationCapacity,
+            PaTypeDto.MultipleProductsWithCycleTime => PaType.MultipleProductsWithCycleTime,
+            _ => throw new ArgumentOutOfRangeException(nameof(paTypeDto), paTypeDto, "Unknown PaTypeDto value")
         };
     }
 
