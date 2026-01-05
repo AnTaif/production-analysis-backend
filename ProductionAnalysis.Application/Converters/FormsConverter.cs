@@ -86,7 +86,7 @@ public static class FormsConverter
         return new FormRowDto
         {
             Order = row.Order,
-            IsAdditionalOperation = row.IsAdditionalOperation,
+            IsAuxiliaryOperation = row.IsAuxiliaryOperation,
             ProductId = row.ProductId,
             Values = values
         };

@@ -43,7 +43,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         form.Should().NotBeNull();
 
         var workRows = form.Rows
-            .Where(r => !r.IsAdditionalOperation)
+            .Where(r => !r.IsAuxiliaryOperation)
             .OrderBy(r => r.Order)
             .ToList();
 
@@ -97,7 +97,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Assert
         var updatedForm = await UnitOfWork.Forms.FindAsync(form.Id);
         var secondRow = updatedForm!.Rows
-            .Where(r => !r.IsAdditionalOperation)
+            .Where(r => !r.IsAuxiliaryOperation)
             .OrderBy(r => r.Order)
             .Skip(1)
             .First();
@@ -131,7 +131,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         var form = await UnitOfWork.Forms.FindAsync(result.Value.Id);
         form.Should().NotBeNull();
         var firstRow = form.Rows
-            .Where(r => !r.IsAdditionalOperation)
+            .Where(r => !r.IsAuxiliaryOperation)
             .OrderBy(r => r.Order)
             .First();
 

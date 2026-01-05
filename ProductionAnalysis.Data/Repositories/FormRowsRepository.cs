@@ -20,8 +20,8 @@ public class FormRowsRepository(PaDbContext dbContext) : IFormRowsRepository
             {
                 FormId = formId,
                 Order = row.Order,
-                IsAdditionalOperation = row.IsAdditionalOperation,
-                AdditionalOperationId = row.AdditionalOperationId,
+                IsAuxiliaryOperation = row.IsAuxiliaryOperation,
+                AuxiliaryOperationId = row.AuxiliaryOperationId,
                 ProductId = row.ProductId,
                 Values = new List<FormRowValueDbo>()
             };

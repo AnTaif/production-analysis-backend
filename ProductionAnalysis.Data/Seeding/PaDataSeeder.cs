@@ -29,7 +29,7 @@ public class PaDataSeeder(
         await SeedDepartmentsAsync();
         await SeedDowntimeReasonGroupsAsync();
         await SeedEmployeesAsync();
-        await SeedAdditionalOperationsAsync();
+        await SeedAuxiliaryOperationsAsync();
         await SeedOperationsAsync();
         await SeedProductsAsync();
         await SeedShiftsAsync();
@@ -279,31 +279,31 @@ public class PaDataSeeder(
 
     #region Operations
 
-    private Task SeedAdditionalOperationsAsync()
+    private Task SeedAuxiliaryOperationsAsync()
     {
-        if (dbContext.AdditionalOperations.Any())
+        if (dbContext.AuxiliaryOperations.Any())
             return Task.CompletedTask;
 
-        dbContext.AdditionalOperations.AddRange(
-            new AdditionalOperationDbo
+        dbContext.AuxiliaryOperations.AddRange(
+            new AuxiliaryOperationDbo
             {
                 Id = 1,
                 Name = "Обед 30 мин",
                 DurationInSeconds = 1800
             },
-            new AdditionalOperationDbo
+            new AuxiliaryOperationDbo
             {
                 Id = 2,
                 Name = "Перерыв 15 мин",
                 DurationInSeconds = 900
             },
-            new AdditionalOperationDbo
+            new AuxiliaryOperationDbo
             {
                 Id = 3,
                 Name = "Уборка 15 мин",
                 DurationInSeconds = 900
             },
-            new AdditionalOperationDbo
+            new AuxiliaryOperationDbo
             {
                 Id = 4,
                 Name = "Переналадка 15 мин",
@@ -411,28 +411,28 @@ public class PaDataSeeder(
             {
                 Id = 1,
                 ShiftId = 1,
-                AdditionalOperationId = 2, // Перерыв 15 мин
+                AuxiliaryOperationId = 2, // Перерыв 15 мин
                 StartTime = new TimeOnly(10, 0)
             },
             new ShiftScheduleDbo
             {
                 Id = 2,
                 ShiftId = 1,
-                AdditionalOperationId = 1, // Обед 30 мин
+                AuxiliaryOperationId = 1, // Обед 30 мин
                 StartTime = new TimeOnly(12, 15)
             },
             new ShiftScheduleDbo
             {
                 Id = 3,
                 ShiftId = 1,
-                AdditionalOperationId = 2, // Перерыв 15 мин
+                AuxiliaryOperationId = 2, // Перерыв 15 мин
                 StartTime = new TimeOnly(14, 45)
             },
             new ShiftScheduleDbo
             {
                 Id = 4,
                 ShiftId = 1,
-                AdditionalOperationId = 3, // Уборка 15 мин
+                AuxiliaryOperationId = 3, // Уборка 15 мин
                 StartTime = new TimeOnly(17, 00)
             }
         );

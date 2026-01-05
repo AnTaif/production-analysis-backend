@@ -188,7 +188,7 @@ public class TestDataBuilder(PaDbContext dbContext, UserManager<UserDbo> userMan
 
     public async Task<ShiftScheduleDbo> CreateShiftScheduleAsync(
         int shiftId,
-        int additionalOperationId,
+        int auxiliaryOperationId,
         TimeOnly startTime)
     {
         var maxId = dbContext.ShiftSchedules.Any()
@@ -199,7 +199,7 @@ public class TestDataBuilder(PaDbContext dbContext, UserManager<UserDbo> userMan
         {
             Id = maxId + 1,
             ShiftId = shiftId,
-            AdditionalOperationId = additionalOperationId,
+            AuxiliaryOperationId = auxiliaryOperationId,
             StartTime = startTime
         };
 
@@ -209,19 +209,19 @@ public class TestDataBuilder(PaDbContext dbContext, UserManager<UserDbo> userMan
         return schedule;
     }
 
-    public async Task<AdditionalOperationDbo> CreateAdditionalOperationAsync(
+    public async Task<AuxiliaryOperationDbo> CreateAuxiliaryOperationAsync(
         int id = 1,
         string name = "Break",
         int durationInSeconds = 1800)
     {
-        var operation = new AdditionalOperationDbo
+        var operation = new AuxiliaryOperationDbo
         {
             Id = id,
             Name = name,
             DurationInSeconds = durationInSeconds
         };
 
-        dbContext.AdditionalOperations.Add(operation);
+        dbContext.AuxiliaryOperations.Add(operation);
         await dbContext.SaveChangesAsync();
 
         return operation;

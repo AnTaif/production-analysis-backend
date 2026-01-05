@@ -20,7 +20,7 @@ public interface IFormRowDataFactory
         TimeOnly startTime,
         TimeOnly endTime,
         string operationName,
-        int additionalOperationId);
+        int auxiliaryOperationId);
 }
 
 [RegisterScoped]
@@ -53,7 +53,7 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         return new FormRowData
         {
             Order = order,
-            IsAdditionalOperation = false,
+            IsAuxiliaryOperation = false,
             ProductId = productContext?.ProductId,
             Values = values
         };
@@ -65,7 +65,7 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         TimeOnly startTime,
         TimeOnly endTime,
         string operationName,
-        int additionalOperationId)
+        int auxiliaryOperationId)
     {
         var values = new List<FormRowValueData>
         {
@@ -75,8 +75,8 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         return new FormRowData
         {
             Order = order,
-            IsAdditionalOperation = true,
-            AdditionalOperationId = additionalOperationId,
+            IsAuxiliaryOperation = true,
+            AuxiliaryOperationId = auxiliaryOperationId,
             Values = values
         };
     }

@@ -69,7 +69,7 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
 
         // Группируем строки по продуктам для отдельного расчета накопительных значений
         var rowsByProduct = rows
-            .Where(r => !r.IsAdditionalOperation)
+            .Where(r => !r.IsAuxiliaryOperation)
             .GroupBy(r => r.ProductId)
             .ToList();
 
@@ -112,7 +112,7 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
 
     private static IEnumerable<FormRow> GetWorkRows(ICollection<FormRow> rows)
     {
-        return rows.Where(r => !r.IsAdditionalOperation);
+        return rows.Where(r => !r.IsAuxiliaryOperation);
     }
 
     private static FormRow? FindPreviousWorkRow(ICollection<FormRow> rows, short fromRowOrder, int? productId)

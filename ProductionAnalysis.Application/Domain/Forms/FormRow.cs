@@ -4,21 +4,21 @@ public class FormRow
 {
     public FormRow(
         short order,
-        bool isAdditionalOperation,
-        int? additionalOperationId,
+        bool isAuxiliaryOperation,
+        int? auxiliaryOperationId,
         Dictionary<string, FormRowValue> values,
         int? productId = null)
     {
         Order = order;
-        IsAdditionalOperation = isAdditionalOperation;
-        AdditionalOperationId = additionalOperationId;
+        IsAuxiliaryOperation = isAuxiliaryOperation;
+        AuxiliaryOperationId = auxiliaryOperationId;
         Values = values;
         ProductId = productId;
     }
 
     public short Order { get; }
-    public bool IsAdditionalOperation { get; }
-    public int? AdditionalOperationId { get; }
+    public bool IsAuxiliaryOperation { get; }
+    public int? AuxiliaryOperationId { get; }
     public Dictionary<string, FormRowValue> Values { get; }
     public int? ProductId { get; }
 }

@@ -28,7 +28,7 @@ public class TestDataSeeder
         await SeedEnterprisesAsync();
         await SeedDepartmentsAsync();
         await SeedShiftsAsync();
-        await SeedAdditionalOperationsAsync();
+        await SeedAuxiliaryOperationsAsync();
         await SeedProductsAsync();
         await SeedIndicatorsAsync();
         await SeedTemplatesAsync();
@@ -76,31 +76,31 @@ public class TestDataSeeder
         return Task.CompletedTask;
     }
 
-    private Task SeedAdditionalOperationsAsync()
+    private Task SeedAuxiliaryOperationsAsync()
     {
-        if (dbContext.AdditionalOperations.Any())
+        if (dbContext.AuxiliaryOperations.Any())
             return Task.CompletedTask;
 
-        dbContext.AdditionalOperations.AddRange(
-            new AdditionalOperationDbo
+        dbContext.AuxiliaryOperations.AddRange(
+            new AuxiliaryOperationDbo
             {
                 Id = 1,
                 Name = "Обед 30 мин",
                 DurationInSeconds = 1800
             },
-            new AdditionalOperationDbo
+            new AuxiliaryOperationDbo
             {
                 Id = 2,
                 Name = "Перерыв 15 мин",
                 DurationInSeconds = 900
             },
-            new AdditionalOperationDbo
+            new AuxiliaryOperationDbo
             {
                 Id = 3,
                 Name = "Уборка 15 мин",
                 DurationInSeconds = 900
             },
-            new AdditionalOperationDbo
+            new AuxiliaryOperationDbo
             {
                 Id = 4,
                 Name = "Переналадка 15 мин",

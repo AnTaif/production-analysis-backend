@@ -79,8 +79,8 @@ public static class FormsConverter
 
         return new FormRow(
             dbo.Order,
-            dbo.IsAdditionalOperation,
-            dbo.AdditionalOperationId,
+            dbo.IsAuxiliaryOperation,
+            dbo.AuxiliaryOperationId,
             values,
             dbo.ProductId);
     }

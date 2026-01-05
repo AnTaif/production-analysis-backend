@@ -6,11 +6,11 @@ public class ShiftScheduleDbo
 
     public int ShiftId { get; set; }
 
-    public int AdditionalOperationId { get; set; }
+    public int AuxiliaryOperationId { get; set; }
 
     public TimeOnly StartTime { get; set; }
 
     public ShiftDbo Shift { get; set; } = null!;
 
-    public AdditionalOperationDbo AdditionalOperation { get; set; } = null!;
+    public AuxiliaryOperationDbo AuxiliaryOperation { get; set; } = null!;
 }

@@ -21,9 +21,9 @@ public class ShiftScheduleDboConfiguration : IEntityTypeConfiguration<ShiftSched
             .HasForeignKey(x => x.ShiftId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(x => x.AdditionalOperation)
+        builder.HasOne(x => x.AuxiliaryOperation)
             .WithMany()
-            .HasForeignKey(x => x.AdditionalOperationId)
+            .HasForeignKey(x => x.AuxiliaryOperationId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(x => x.ShiftId);

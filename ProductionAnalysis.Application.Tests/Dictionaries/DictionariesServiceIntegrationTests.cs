@@ -47,9 +47,9 @@ public class DictionariesServiceIntegrationTests : BaseIntegrationTest
     }
 
     [Test]
-    public async Task GetAdditionalOperationsAsync_ShouldReturnOperations()
+    public async Task GetAuxiliaryOperationsAsync_ShouldReturnOperations()
     {
-        var result = await DictionariesService.GetAdditionalOperationsAsync();
+        var result = await DictionariesService.GetAuxiliaryOperationsAsync();
 
         result.Should().NotBeNull();
         result.Should().NotBeEmpty();

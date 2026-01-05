@@ -46,12 +46,12 @@ public class DictionariesController(IDictionariesService dictionariesService) : 
         return Ok(dtos);
     }
 
-    [HttpGet("additional-operations")]
-    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerableAdditionalOperationDtoExample))]
-    [ProducesResponseType<IEnumerable<AdditionalOperationDto>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAdditionalOperations()
+    [HttpGet("auxiliary-operations")]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerableAuxiliaryOperationDtoExample))]
+    [ProducesResponseType<IEnumerable<AuxiliaryOperationDto>>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAuxiliaryOperations()
     {
-        var dtos = await dictionariesService.GetAdditionalOperationsAsync();
+        var dtos = await dictionariesService.GetAuxiliaryOperationsAsync();
         return Ok(dtos);
     }
 

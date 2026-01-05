@@ -30,7 +30,7 @@ public class FormDtoExample : IExamplesProvider<FormDto>
                 new()
                 {
                     Order = 1,
-                    IsAdditionalOperation = false,
+                    IsAuxiliaryOperation = false,
                     Values = new Dictionary<string, FormRowValueDto>
                     {
                         {
@@ -51,7 +51,7 @@ public class FormDtoExample : IExamplesProvider<FormDto>
                 new()
                 {
                     Order = 2,
-                    IsAdditionalOperation = false,
+                    IsAuxiliaryOperation = false,
                     Values = new Dictionary<string, FormRowValueDto>
                     {
                         {
@@ -72,7 +72,7 @@ public class FormDtoExample : IExamplesProvider<FormDto>
                 new()
                 {
                     Order = 3,
-                    IsAdditionalOperation = true,
+                    IsAuxiliaryOperation = true,
                     Values = new Dictionary<string, FormRowValueDto>
                     {
                         {
@@ -93,7 +93,7 @@ public class FormDtoExample : IExamplesProvider<FormDto>
                 new()
                 {
                     Order = 4,
-                    IsAdditionalOperation = false,
+                    IsAuxiliaryOperation = false,
                     Values = new Dictionary<string, FormRowValueDto>
                     {
                         {

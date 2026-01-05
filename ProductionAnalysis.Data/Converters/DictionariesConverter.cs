@@ -49,9 +49,9 @@ public static class DictionariesConverter
         };
     }
 
-    public static AdditionalOperationDto ToDto(this AdditionalOperationDbo dbo)
+    public static AuxiliaryOperationDto ToDto(this AuxiliaryOperationDbo dbo)
     {
-        return new AdditionalOperationDto
+        return new AuxiliaryOperationDto
         {
             Id = dbo.Id,
             Name = dbo.Name,
@@ -99,7 +99,7 @@ public static class DictionariesConverter
         {
             Id = dbo.Id,
             ShiftId = dbo.ShiftId,
-            AdditionalOperationId = dbo.AdditionalOperationId,
+            AuxiliaryOperationId = dbo.AuxiliaryOperationId,
             StartTime = dbo.StartTime
         };
     }

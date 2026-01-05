@@ -31,7 +31,7 @@ public class FormRowInitializer(
         Dictionary<string, FormContext>? formContext = null)
     {
         var indicators = ExtractIndicators(template);
-        var additionalOperationsByIds = await LoadAdditionalOperationsAsync();
+        var auxiliaryOperationsByIds = await LoadAuxiliaryOperationsAsync();
         var sortedBreaks = schedules.OrderBy(s => s.StartTime).ToList();
 
         // Проверяем, есть ли несколько продуктов
@@ -43,7 +43,7 @@ public class FormRowInitializer(
                 sortedBreaks,
                 template,
                 indicators,
-                additionalOperationsByIds,
+                auxiliaryOperationsByIds,
                 formContext);
         }
 
@@ -60,7 +60,7 @@ public class FormRowInitializer(
             shiftStartTime,
             sortedBreaks,
             indicators,
-            additionalOperationsByIds,
+            auxiliaryOperationsByIds,
             productContext,
             ref order);
 
@@ -74,7 +74,7 @@ public class FormRowInitializer(
         List<ShiftScheduleDto> sortedBreaks,
         Template template,
         InitializedIndicators indicators,
-        Dictionary<int, AdditionalOperationDto> additionalOperationsByIds,
+        Dictionary<int, AuxiliaryOperationDto> auxiliaryOperationsByIds,
         Dictionary<string, FormContext>? formContext)
     {
         var multiProducts = multiProductContextExtractor.Extract(formContext);
@@ -87,7 +87,7 @@ public class FormRowInitializer(
                 shiftStartTime,
                 sortedBreaks,
                 indicators,
-                additionalOperationsByIds,
+                auxiliaryOperationsByIds,
                 productContext,
                 ref globalOrder);
 
@@ -103,7 +103,7 @@ public class FormRowInitializer(
         TimeOnly shiftStartTime,
         List<ShiftScheduleDto> sortedBreaks,
         InitializedIndicators indicators,
-        Dictionary<int, AdditionalOperationDto> additionalOperationsByIds,
+        Dictionary<int, AuxiliaryOperationDto> auxiliaryOperationsByIds,
         ProductContext? productContext,
         ref short order)
     {
@@ -132,7 +132,7 @@ public class FormRowInitializer(
                     rows,
                     localOrder,
                     nextBreak,
-                    additionalOperationsByIds,
+                    auxiliaryOperationsByIds,
                     indicators,
                     productContext,
                     ref breakIndex,
@@ -159,7 +159,7 @@ public class FormRowInitializer(
         while (breakIndex < sortedBreaks.Count)
         {
             var nextBreak = sortedBreaks[breakIndex];
-            var breakMetaInfo = additionalOperationsByIds[nextBreak.AdditionalOperationId];
+            var breakMetaInfo = auxiliaryOperationsByIds[nextBreak.AuxiliaryOperationId];
             var breakEndTime = nextBreak.StartTime.Add(breakMetaInfo.Duration);
 
             var breakRow = formRowDataFactory.CreateBreakRow(
@@ -168,7 +168,7 @@ public class FormRowInitializer(
                 nextBreak.StartTime,
                 breakEndTime,
                 breakMetaInfo.Name,
-                nextBreak.AdditionalOperationId);
+                nextBreak.AuxiliaryOperationId);
 
             rows.Add(breakRow);
             breakIndex++;
@@ -178,9 +178,9 @@ public class FormRowInitializer(
         return rows;
     }
 
-    private async Task<Dictionary<int, AdditionalOperationDto>> LoadAdditionalOperationsAsync()
+    private async Task<Dictionary<int, AuxiliaryOperationDto>> LoadAuxiliaryOperationsAsync()
     {
-        var operations = await unitOfWork.Dictionaries.SelectAdditionalOperationsAsync();
+        var operations = await unitOfWork.Dictionaries.SelectAuxiliaryOperationsAsync();
         return operations.ToDictionary(ao => ao.Id);
     }
 
@@ -208,7 +208,7 @@ public class FormRowInitializer(
         List<FormRowData> rows,
         short order,
         ShiftScheduleDto nextBreak,
-        Dictionary<int, AdditionalOperationDto> additionalOperationsByIds,
+        Dictionary<int, AuxiliaryOperationDto> auxiliaryOperationsByIds,
         InitializedIndicators indicators,
         ProductContext? productContext,
         ref int breakIndex,
@@ -231,7 +231,7 @@ public class FormRowInitializer(
             elapsedWorkTime = elapsedWorkTime.Add(workDuration);
         }
 
-        var breakMetaInfo = additionalOperationsByIds[nextBreak.AdditionalOperationId];
+        var breakMetaInfo = auxiliaryOperationsByIds[nextBreak.AuxiliaryOperationId];
         var breakEndTime = nextBreak.StartTime.Add(breakMetaInfo.Duration);
 
         var breakRow = formRowDataFactory.CreateBreakRow(
@@ -240,7 +240,7 @@ public class FormRowInitializer(
             nextBreak.StartTime,
             breakEndTime,
             breakMetaInfo.Name,
-            nextBreak.AdditionalOperationId);
+            nextBreak.AuxiliaryOperationId);
 
         rows.Add(breakRow);
 

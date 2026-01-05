@@ -45,9 +45,9 @@ public class DictionariesRepository(
         return dbos.Select(e => e.ToDto()).ToList();
     }
 
-    public async Task<ICollection<AdditionalOperationDto>> SelectAdditionalOperationsAsync()
+    public async Task<ICollection<AuxiliaryOperationDto>> SelectAuxiliaryOperationsAsync()
     {
-        var dbos = await dbContext.AdditionalOperations.ToListAsync();
+        var dbos = await dbContext.AuxiliaryOperations.ToListAsync();
         return dbos.Select(d => d.ToDto()).ToList();
     }
 

@@ -9,7 +9,7 @@ public interface IDictionariesRepository
     Task<ICollection<EmployeeDto>> SelectEmployeesAsync();
     Task<EmployeeDto?> FindEmployeeByUserIdAsync(Guid userId);
     Task<ICollection<EnterpriseDto>> SelectEnterprisesAsync();
-    Task<ICollection<AdditionalOperationDto>> SelectAdditionalOperationsAsync();
+    Task<ICollection<AuxiliaryOperationDto>> SelectAuxiliaryOperationsAsync();
     Task<ICollection<OperationDto>> SelectOperationsAsync();
     Task<ICollection<ProductDto>> SelectProductsAsync();
     Task<ICollection<ShiftDto>> SelectShiftsAsync();

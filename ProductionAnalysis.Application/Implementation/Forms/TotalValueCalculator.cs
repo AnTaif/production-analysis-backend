@@ -27,7 +27,7 @@ public class TotalValueCalculator : ITotalValueCalculator
 
         // Получаем только рабочие строки (не дополнительные операции)
         var workRows = form.Rows
-            .Where(r => !r.IsAdditionalOperation)
+            .Where(r => !r.IsAuxiliaryOperation)
             .OrderBy(r => r.Order)
             .ToList();
 
