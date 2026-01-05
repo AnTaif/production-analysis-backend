@@ -370,24 +370,6 @@ namespace ProductionAnalysis.Data.Migrations
                     b.ToTable("operations", (string)null);
                 });
 
-            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.PaTypeDbo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("pa_types", (string)null);
-                });
-
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.ProductDbo", b =>
                 {
                     b.Property<int>("Id")
@@ -482,8 +464,6 @@ namespace ProductionAnalysis.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PaTypeId");
-
                     b.ToTable("templates", (string)null);
                 });
 
@@ -537,8 +517,6 @@ namespace ProductionAnalysis.Data.Migrations
                     b.HasIndex("DepartmentId");
 
                     b.HasIndex("LastEditorId");
-
-                    b.HasIndex("PaTypeId");
 
                     b.HasIndex("ShiftId");
 
@@ -804,15 +782,6 @@ namespace ProductionAnalysis.Data.Migrations
                     b.Navigation("Shift");
                 });
 
-            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.TemplateDbo", b =>
-                {
-                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.PaTypeDbo", null)
-                        .WithMany()
-                        .HasForeignKey("PaTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Forms.FormDbo", b =>
                 {
                     b.HasOne("ProductionAnalysis.Data.Models.UserDbo", null)
@@ -830,12 +799,6 @@ namespace ProductionAnalysis.Data.Migrations
                     b.HasOne("ProductionAnalysis.Data.Models.UserDbo", null)
                         .WithMany()
                         .HasForeignKey("LastEditorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.PaTypeDbo", null)
-                        .WithMany()
-                        .HasForeignKey("PaTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
