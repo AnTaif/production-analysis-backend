@@ -1,29 +1,29 @@
 ﻿networks:
-  productionanalysis-dev:
+  pa-dev:
     driver: bridge
 
 services:
-  productionanalysis.api:
-    container_name: productionanalysis.api
-    image: productionanalysis.api
+  pa.api:
+    container_name: pa.api
+    image: pa.api
     build:
       context: .
       dockerfile: ProductionAnalysis.Api/Dockerfile
-    restart: always
+    restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      DB_CONTAINER: "productionanalysis.db"
+      DB_CONTAINER: "pa.db"
     env_file:
       - .env
     ports:
       - "8080:8080"
     depends_on:
-      - productionanalysis.db
-      
-  productionanalysis.db:
-    container_name: productionanalysis.db
+      - pa.db
+  
+  pa.db:
+    container_name: pa.db
     image: postgres:18.0-alpine
-    restart: always
+    restart: unless-stopped
     environment:
       - POSTGRES_DB=${DATABASE_NAME}
       - POSTGRES_USER=${DATABASE_USER}
