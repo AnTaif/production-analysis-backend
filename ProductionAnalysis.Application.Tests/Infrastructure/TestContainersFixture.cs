@@ -2,7 +2,6 @@ using System.Data.Common;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using NUnit.Framework;
 using ProductionAnalysis.Data.Context;
 using Respawn;
 using Respawn.Graph;
@@ -10,7 +9,6 @@ using Testcontainers.PostgreSql;
 
 namespace ProductionAnalysis.Application.Tests.Infrastructure;
 
-[SetUpFixture]
 public class TestContainersFixture
 {
     private PostgreSqlContainer postgresContainer = null!;
@@ -21,7 +19,6 @@ public class TestContainersFixture
 
     public bool IsInitialized { get; private set; }
 
-    [OneTimeSetUp]
     public async Task GlobalSetup()
     {
         if (!IsDockerAvailable())
@@ -51,7 +48,6 @@ public class TestContainersFixture
         IsInitialized = true;
     }
 
-    [OneTimeTearDown]
     public async Task GlobalTeardown()
     {
         if (IsInitialized)
