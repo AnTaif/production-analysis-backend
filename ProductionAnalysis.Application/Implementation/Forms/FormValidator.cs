@@ -1,4 +1,6 @@
 using Core.Results;
+using ExhaustiveMatching;
+using ProductionAnalysis.Application.Converters;
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Templates;
 using ProductionAnalysis.Application.Repositories;
@@ -40,14 +42,14 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
             return ServiceError.NotFound($"Shift not found by id {request.ShiftId}");
         }
 
-        var paType = ConvertToDomainPaType(request.PaType);
+        var paType = request.PaType.ToDomain();
         var validationResult = paType switch
         {
             PaType.SingleProductWithCycleTime => ValidateSingleProductWithCycleTime(request),
             PaType.SingleProductWithWorkstationCapacity => ValidateSingleProductWithWorkstationCapacity(request),
             PaType.MultipleProductsWithCycleTime => ValidateMultipleProductsWithCycleTime(request),
             PaType.LessThanOnePerHour => ValidateLessThanOnePerHour(request),
-            _ => throw new NotSupportedException($"Unknown form type: {request.PaType}")
+            _ => throw ExhaustiveMatch.Failed(typeof(PaType))
         };
 
         if (validationResult.IsFailure)
@@ -124,17 +126,5 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
         }
 
         return Result.Success;
-    }
-
-    private static PaType ConvertToDomainPaType(PaTypeDto paTypeDto)
-    {
-        return paTypeDto switch
-        {
-            PaTypeDto.SingleProductWithCycleTime => PaType.SingleProductWithCycleTime,
-            PaTypeDto.SingleProductWithWorkstationCapacity => PaType.SingleProductWithWorkstationCapacity,
-            PaTypeDto.MultipleProductsWithCycleTime => PaType.MultipleProductsWithCycleTime,
-            PaTypeDto.LessThanOnePerHour => PaType.LessThanOnePerHour,
-            _ => throw new ArgumentOutOfRangeException(nameof(paTypeDto), paTypeDto, "Unknown PaTypeDto value")
-        };
     }
 }

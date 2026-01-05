@@ -1,3 +1,5 @@
+using ExhaustiveMatching;
+using ProductionAnalysis.Application.Converters;
 using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Client.Models.Forms;
 using PaType = ProductionAnalysis.Application.Domain.Forms.PaType;
@@ -17,7 +19,7 @@ public class FormContextFactory : IFormContextFactory
 {
     public Dictionary<string, FormContext> CreateContext(CreateFormRequest request)
     {
-        var paType = ConvertToDomainPaType(request.PaType);
+        var paType = request.PaType.ToDomain();
 
         return paType switch
         {
@@ -25,19 +27,7 @@ public class FormContextFactory : IFormContextFactory
             PaType.SingleProductWithWorkstationCapacity => CreateSingleProductContextWithWorkstationCapacity(request),
             PaType.MultipleProductsWithCycleTime => CreateMultipleProductsContextWithCycleTime(request),
             PaType.LessThanOnePerHour => CreateOperationContext(request),
-            _ => throw new NotSupportedException($"Unsupported form type: {paType}")
-        };
-    }
-
-    private static PaType ConvertToDomainPaType(PaTypeDto paTypeDto)
-    {
-        return paTypeDto switch
-        {
-            PaTypeDto.SingleProductWithCycleTime => PaType.SingleProductWithCycleTime,
-            PaTypeDto.SingleProductWithWorkstationCapacity => PaType.SingleProductWithWorkstationCapacity,
-            PaTypeDto.MultipleProductsWithCycleTime => PaType.MultipleProductsWithCycleTime,
-            PaTypeDto.LessThanOnePerHour => PaType.LessThanOnePerHour,
-            _ => throw new ArgumentOutOfRangeException(nameof(paTypeDto), paTypeDto, "Unknown PaTypeDto value")
+            _ => throw ExhaustiveMatch.Failed(typeof(PaType))
         };
     }
 

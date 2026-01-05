@@ -226,4 +226,28 @@ public class TestDataBuilder(PaDbContext dbContext, UserManager<UserDbo> userMan
 
         return operation;
     }
+
+    public async Task<OperationDbo> CreateOperationAsync(
+        int id,
+        string name,
+        int? durationInSeconds = null,
+        int basedOnType = 1,
+        int? basedOperationId = null,
+        int? basedProductId = null)
+    {
+        var operation = new OperationDbo
+        {
+            Id = id,
+            Name = name,
+            DurationInSeconds = durationInSeconds,
+            BasedOnType = basedOnType,
+            BasedOperationId = basedOperationId,
+            BasedProductId = basedProductId
+        };
+
+        dbContext.Operations.Add(operation);
+        await dbContext.SaveChangesAsync();
+
+        return operation;
+    }
 }

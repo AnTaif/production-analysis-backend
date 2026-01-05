@@ -29,7 +29,8 @@ public class TestDataSeeder
         await SeedDepartmentsAsync();
         await SeedShiftsAsync();
         await SeedAuxiliaryOperationsAsync();
-        await SeedProductsAsync();
+        await SeedProductsAsync(); // Продукты должны быть созданы до операций
+        await SeedOperationsAsync();
         await SeedIndicatorsAsync();
         await SeedTemplatesAsync();
         await dbContext.SaveChangesAsync();
@@ -105,6 +106,67 @@ public class TestDataSeeder
                 Id = 4,
                 Name = "Переналадка 15 мин",
                 DurationInSeconds = 900
+            }
+        );
+
+        return Task.CompletedTask;
+    }
+
+    private Task SeedOperationsAsync()
+    {
+        if (dbContext.Operations.Any())
+            return Task.CompletedTask;
+
+        dbContext.Operations.AddRange(
+            new OperationDbo
+            {
+                Id = 1,
+                Name = "Подготовка",
+                DurationInSeconds = 300,
+                BasedOnType = 1,
+                BasedOperationId = null,
+                BasedProductId = null
+            },
+            new OperationDbo
+            {
+                Id = 2,
+                Name = "Обработка",
+                DurationInSeconds = 900,
+                BasedOnType = 2,
+                BasedOperationId = 1,
+            },
+            new OperationDbo
+            {
+                Id = 3,
+                Name = "Сборка",
+                DurationInSeconds = 1200,
+                BasedOnType = 3,
+                BasedProductId = 1
+            },
+            // Операции для продукта "Корпус редуктора" (Id = 1)
+            new OperationDbo
+            {
+                Id = 4,
+                Name = "Подсборка",
+                DurationInSeconds = 900, // 15 мин
+                BasedOnType = 3,
+                BasedProductId = 1
+            },
+            new OperationDbo
+            {
+                Id = 5,
+                Name = "Установка",
+                DurationInSeconds = 600, // 10 мин
+                BasedOnType = 3,
+                BasedProductId = 1
+            },
+            new OperationDbo
+            {
+                Id = 6,
+                Name = "Настройка",
+                DurationInSeconds = 600, // 10 мин
+                BasedOnType = 3,
+                BasedProductId = 1
             }
         );
 
@@ -188,6 +250,28 @@ public class TestDataSeeder
             },
             new IndicatorDbo
             {
+                Id = 9,
+                Name = "Наименование операции",
+                ValueType = FieldValueTypes.Text,
+                InputType = FieldInputTypes.Dictionary,
+                ValueSelector = null,
+                Formula = null,
+                IsCumulative = false,
+                HasSummation = false
+            },
+            new IndicatorDbo
+            {
+                Id = 10,
+                Name = "Время операции/элемента, мин.",
+                ValueType = FieldValueTypes.Text,
+                InputType = FieldInputTypes.Context,
+                ValueSelector = null,
+                Formula = null,
+                IsCumulative = false,
+                HasSummation = false
+            },
+            new IndicatorDbo
+            {
                 Id = 16,
                 Name = "Время работы, час.",
                 ValueType = FieldValueTypes.Text,
@@ -212,6 +296,8 @@ public class TestDataSeeder
         var fact = await dbContext.Indicators.FirstAsync(i => i.Id == 2);
         var deviation = await dbContext.Indicators.FirstAsync(i => i.Id == 3);
         var downtime = await dbContext.Indicators.FirstAsync(i => i.Id == 4);
+        var operationName = await dbContext.Indicators.FirstAsync(i => i.Id == 9);
+        var operationTime = await dbContext.Indicators.FirstAsync(i => i.Id == 10);
 
         var template1 = new TemplateDbo
         {
@@ -227,6 +313,24 @@ public class TestDataSeeder
         template1.Indicators.Add(downtime);
 
         dbContext.Templates.Add(template1);
+
+        // Шаблон для типа "Менее 1 шт. в час"
+        var template4 = new TemplateDbo
+        {
+            Id = 4,
+            Name = "Шаблон для изготовления продукции менее 1 шт. в час",
+            PaTypeId = 4,
+            Version = 1
+        };
+        template4.Indicators.Add(worktime);
+        template4.Indicators.Add(plan);
+        template4.Indicators.Add(operationName);
+        template4.Indicators.Add(operationTime);
+        template4.Indicators.Add(fact);
+        template4.Indicators.Add(deviation);
+        template4.Indicators.Add(downtime);
+
+        dbContext.Templates.Add(template4);
         await dbContext.SaveChangesAsync();
     }
 }
