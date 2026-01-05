@@ -56,11 +56,9 @@ public class FormsService(
         var (template, employee, shift) = validationResult.Value;
         var context = formContextFactory.CreateContext(request);
 
-        var paType = ConvertToDomainPaType(request.PaType);
-
         var newForm = new Form(
             0,
-            paType,
+            request.PaType.ToDomain(),
             FormStatus.InProgress,
             DateTime.UtcNow,
             DateTime.UtcNow,
@@ -123,16 +121,5 @@ public class FormsService(
         Guid userId)
     {
         return await formRowUpdateOrchestrator.UpdateRowAsync(formId, rowOrder, request, userId);
-    }
-
-    private static PaType ConvertToDomainPaType(PaTypeDto paTypeDto)
-    {
-        return paTypeDto switch
-        {
-            PaTypeDto.SingleProductWithCycleTime => PaType.SingleProductWithCycleTime,
-            PaTypeDto.SingleProductWithWorkstationCapacity => PaType.SingleProductWithWorkstationCapacity,
-            PaTypeDto.MultipleProductsWithCycleTime => PaType.MultipleProductsWithCycleTime,
-            _ => throw new ArgumentOutOfRangeException(nameof(paTypeDto), paTypeDto, "Unknown PaTypeDto value")
-        };
     }
 }
