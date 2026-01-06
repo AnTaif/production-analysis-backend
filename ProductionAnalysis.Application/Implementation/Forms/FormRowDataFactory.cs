@@ -17,7 +17,7 @@ public interface IFormRowDataFactory
 
     FormRowData CreateBreakRow(
         short order,
-        Indicator workTimeIndicator,
+        Indicator? workTimeIndicator,
         TimeOnly startTime,
         TimeOnly endTime,
         string operationName,
@@ -32,6 +32,17 @@ public interface IFormRowDataFactory
         TimeOnly startTime,
         TimeOnly endTime,
         ICollection<OperationDto> operations);
+
+    FormRowData CreateOperationTimeRow(
+        short order,
+        Indicator? operationNameIndicator,
+        Indicator? planMinutesIndicator,
+        Indicator? startTimePlanIndicator,
+        Indicator? endTimePlanIndicator,
+        TimeOnly startTime,
+        TimeOnly endTime,
+        OperationDto operation,
+        int shiftStartMinutes);
 }
 
 [RegisterScoped]
@@ -72,16 +83,19 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
 
     public FormRowData CreateBreakRow(
         short order,
-        Indicator workTimeIndicator,
+        Indicator? workTimeIndicator,
         TimeOnly startTime,
         TimeOnly endTime,
         string operationName,
         int auxiliaryOperationId)
     {
-        var values = new List<FormRowValueData>
+        var values = new List<FormRowValueData>();
+
+        if (workTimeIndicator is not null)
         {
-            CreateFormRowValueData(workTimeIndicator, FormatTimeRange(startTime, endTime) + " " + operationName)
-        };
+            values.Add(CreateFormRowValueData(workTimeIndicator,
+                FormatTimeRange(startTime, endTime) + " " + operationName));
+        }
 
         return new FormRowData
         {
@@ -156,6 +170,56 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         }
 
         return rows;
+    }
+
+    public FormRowData CreateOperationTimeRow(
+        short order,
+        Indicator? operationNameIndicator,
+        Indicator? planMinutesIndicator,
+        Indicator? startTimePlanIndicator,
+        Indicator? endTimePlanIndicator,
+        TimeOnly startTime,
+        TimeOnly endTime,
+        OperationDto operation,
+        int shiftStartMinutes)
+    {
+        var values = new List<FormRowValueData>();
+
+        // Наименование операции
+        if (operationNameIndicator is not null)
+        {
+            values.Add(CreateFormRowValueData(operationNameIndicator, operation.Name));
+        }
+
+        // Время начала план (в минутах от начала смены)
+        if (startTimePlanIndicator is not null)
+        {
+            var startMinutes = (startTime.Hour * 60 + startTime.Minute) - shiftStartMinutes;
+            values.Add(CreateFormRowValueData(startTimePlanIndicator, startMinutes.ToString()));
+        }
+
+        // Время окончания план (в минутах от начала смены)
+        if (endTimePlanIndicator is not null)
+        {
+            var endMinutes = (endTime.Hour * 60 + endTime.Minute) - shiftStartMinutes;
+            values.Add(CreateFormRowValueData(endTimePlanIndicator, endMinutes.ToString()));
+        }
+
+        // План во времени (время операции в минутах)
+        if (planMinutesIndicator is not null)
+        {
+            var planMinutes = operation.Duration.HasValue
+                ? operation.Duration.Value.TotalMinutes.ToString("0")
+                : "0";
+            values.Add(CreateFormRowValueData(planMinutesIndicator, planMinutes));
+        }
+
+        return new FormRowData
+        {
+            Order = order,
+            IsAuxiliaryOperation = false,
+            Values = values
+        };
     }
 
     private static FormRowValueData CreateFormRowValueData(Indicator indicator, string value) =>

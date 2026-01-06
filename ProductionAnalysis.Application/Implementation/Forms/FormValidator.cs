@@ -49,6 +49,7 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
             PaType.SingleProductWithWorkstationCapacity => ValidateSingleProductWithWorkstationCapacity(request),
             PaType.MultipleProductsWithCycleTime => ValidateMultipleProductsWithCycleTime(request),
             PaType.LessThanOnePerHour => ValidateLessThanOnePerHour(request),
+            PaType.LessThanOnePerShift => ValidateLessThanOnePerShift(request),
             _ => throw ExhaustiveMatch.Failed(typeof(PaType))
         };
 
@@ -123,6 +124,23 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
         {
             return ServiceError.BadRequest(
                 $"OperationId must be greater than 0 for {PaType.LessThanOnePerHour}");
+        }
+
+        return Result.Success;
+    }
+
+    private static Result ValidateLessThanOnePerShift(CreateFormRequest request)
+    {
+        if (request.Operation == null)
+        {
+            return ServiceError.BadRequest(
+                $"Operation is required for {PaType.LessThanOnePerShift}");
+        }
+
+        if (request.Operation.OperationId <= 0)
+        {
+            return ServiceError.BadRequest(
+                $"OperationId must be greater than 0 for {PaType.LessThanOnePerShift}");
         }
 
         return Result.Success;

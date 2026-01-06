@@ -27,6 +27,7 @@ public class FormContextFactory : IFormContextFactory
             PaType.SingleProductWithWorkstationCapacity => CreateSingleProductContextWithWorkstationCapacity(request),
             PaType.MultipleProductsWithCycleTime => CreateMultipleProductsContextWithCycleTime(request),
             PaType.LessThanOnePerHour => CreateOperationContext(request),
+            PaType.LessThanOnePerShift => CreateOperationContext(request),
             _ => throw ExhaustiveMatch.Failed(typeof(PaType))
         };
     }

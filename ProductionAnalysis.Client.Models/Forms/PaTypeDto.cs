@@ -15,4 +15,7 @@ public enum PaTypeDto
 
     [Description("Менее 1 шт. в час")]
     LessThanOnePerHour = 4,
+
+    [Description("Менее 1 шт. в смену")]
+    LessThanOnePerShift = 5,
 }

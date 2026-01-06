@@ -650,6 +650,28 @@ public class PaDataSeeder(
                 Formula = null,
                 IsCumulative = false,
                 HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 17,
+                Name = "План, мин.",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Initialization,
+                ValueSelector = null,
+                Formula = null,
+                IsCumulative = true,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 18,
+                Name = "Факт, мин.",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Manual,
+                ValueSelector = null,
+                Formula = null,
+                IsCumulative = true,
+                HasSummation = true
             }
         );
 
@@ -717,6 +739,38 @@ public class PaDataSeeder(
         template4.Indicators.Add(actionsTaken);
 
         dbContext.Templates.Add(template4);
+
+        // Шаблон для типа "Менее 1 шт. в смену"
+        var startTimePlan = await dbContext.Indicators.FirstAsync(i => i.Id == 11);
+        var startTimeFact = await dbContext.Indicators.FirstAsync(i => i.Id == 12);
+        var endTimePlan = await dbContext.Indicators.FirstAsync(i => i.Id == 13);
+        var endTimeFact = await dbContext.Indicators.FirstAsync(i => i.Id == 14);
+        var planMinutes = await dbContext.Indicators.FirstAsync(i => i.Id == 17);
+        var factMinutes = await dbContext.Indicators.FirstAsync(i => i.Id == 18);
+
+        var template5 = new TemplateDbo
+        {
+            Id = 5,
+            Name = "Шаблон для изготовления продукции менее 1 шт. в смену",
+            PaTypeId = 5,
+            Version = 1
+        };
+        template5.Indicators.Add(operationName);
+        template5.Indicators.Add(startTimePlan);
+        template5.Indicators.Add(startTimeFact);
+        template5.Indicators.Add(endTimePlan);
+        template5.Indicators.Add(endTimeFact);
+        template5.Indicators.Add(planMinutes);
+        template5.Indicators.Add(factMinutes);
+        template5.Indicators.Add(deviation);
+        template5.Indicators.Add(downtime);
+        template5.Indicators.Add(downtimeResponsible);
+        template5.Indicators.Add(downtimeReason);
+        template5.Indicators.Add(downTimeReasonsGroup);
+        template5.Indicators.Add(actionsTaken);
+
+        dbContext.Templates.Add(template5);
+        await dbContext.SaveChangesAsync();
     }
 
     #endregion
