@@ -975,4 +975,364 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         result.Error.Should().NotBeNull();
         result.Error.Message.Should().Contain("Operation");
     }
+
+    [Test]
+    public async Task CreateAsync_ForLessThanOnePerShift_ShouldCreateFormWithSeparateRowsForEachOperation()
+    {
+        // Arrange
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+
+        var template = await DbContext.Templates
+            .Include(t => t.Indicators)
+            .FirstAsync(t => t.PaTypeId == 5);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        // Используем операции, которые уже есть в TestDataSeeder (Id: 4, 5, 6)
+        var request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.LessThanOnePerShift,
+            ShiftId = shift.Id,
+            Operation = new OperationContextDto
+            {
+                OperationId = 4 // Подсборка - операция для продукта Id: 1
+            }
+        };
+
+        var result = await FormsService.CreateAsync(request, user.Id);
+        result.IsSuccess.Should().BeTrue();
+
+        // Assert
+        var form = await UnitOfWork.Forms.FindAsync(result.Value.Id);
+        form.Should().NotBeNull();
+        form.PaType.Should().Be(PaType.LessThanOnePerShift);
+
+        var workRows = form.Rows
+            .Where(r => !r.IsAuxiliaryOperation)
+            .OrderBy(r => r.Order)
+            .ToList();
+
+        workRows.Should().NotBeEmpty();
+
+        // Проверяем, что каждая операция - отдельная строка (нет GroupKey)
+        workRows.Should().OnlyContain(r => r.GroupKey == null,
+            "для типа LessThanOnePerShift каждая операция должна быть отдельной строкой без GroupKey");
+
+        // Проверяем, что есть строки для всех связанных операций
+        workRows.Should().HaveCountGreaterThanOrEqualTo(3,
+            "должны быть строки для всех связанных операций");
+    }
+
+    [Test]
+    public async Task CreateAsync_ForLessThanOnePerShift_ShouldSetStartAndEndTimeInMinutes()
+    {
+        // Arrange
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+        var shiftStartMinutes = shift.StartTime.Hour * 60 + shift.StartTime.Minute;
+
+        var request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.LessThanOnePerShift,
+            ShiftId = shift.Id,
+            Operation = new OperationContextDto
+            {
+                OperationId = 4 // Подсборка
+            }
+        };
+
+        var result = await FormsService.CreateAsync(request, user.Id);
+        result.IsSuccess.Should().BeTrue();
+
+        // Assert
+        var form = await UnitOfWork.Forms.FindAsync(result.Value.Id);
+        form.Should().NotBeNull();
+
+        var workRows = form.Rows
+            .Where(r => !r.IsAuxiliaryOperation)
+            .OrderBy(r => r.Order)
+            .ToList();
+
+        workRows.Should().NotBeEmpty();
+
+        // Проверяем, что время начала и окончания заполнены в минутах от начала смены
+        foreach (var row in workRows)
+        {
+            if (row.Values.TryGetValue("11", out var startTimePlan))
+            {
+                var startMinutes = Convert.ToInt32(startTimePlan.Value);
+                startMinutes.Should().BeGreaterThanOrEqualTo(0,
+                    $"время начала должно быть >= 0 для строки {row.Order}");
+            }
+
+            if (row.Values.TryGetValue("13", out var endTimePlan))
+            {
+                var endMinutes = Convert.ToInt32(endTimePlan.Value);
+                endMinutes.Should().BeGreaterThan(0,
+                    $"время окончания должно быть > 0 для строки {row.Order}");
+
+                // Время окончания должно быть больше времени начала
+                if (row.Values.TryGetValue("11", out var startTime))
+                {
+                    var start = Convert.ToInt32(startTime.Value);
+                    endMinutes.Should().BeGreaterThan(start,
+                        $"время окончания должно быть больше времени начала для строки {row.Order}");
+                }
+            }
+        }
+    }
+
+    [Test]
+    public async Task CreateAsync_ForLessThanOnePerShift_ShouldSetPlanInMinutes()
+    {
+        // Arrange
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        var request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.LessThanOnePerShift,
+            ShiftId = shift.Id,
+            Operation = new OperationContextDto
+            {
+                OperationId = 4 // Подсборка
+            }
+        };
+
+        var result = await FormsService.CreateAsync(request, user.Id);
+        result.IsSuccess.Should().BeTrue();
+
+        // Assert
+        var form = await UnitOfWork.Forms.FindAsync(result.Value.Id);
+        form.Should().NotBeNull();
+
+        var workRows = form.Rows
+            .Where(r => !r.IsAuxiliaryOperation)
+            .OrderBy(r => r.Order)
+            .ToList();
+
+        workRows.Should().NotBeEmpty();
+
+        // Проверяем, что план во времени заполнен для каждой операции
+        foreach (var row in workRows)
+        {
+            if (row.Values.TryGetValue("17", out var planMinutes))
+            {
+                var plan = Convert.ToInt32(planMinutes.Value);
+                plan.Should().BeGreaterThan(0,
+                    $"план во времени должен быть > 0 для строки {row.Order}");
+            }
+        }
+    }
+
+    [Test]
+    public async Task CreateAsync_ForLessThanOnePerShift_ShouldNotHaveWorkTimeColumn()
+    {
+        // Arrange
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        var request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.LessThanOnePerShift,
+            ShiftId = shift.Id,
+            Operation = new OperationContextDto
+            {
+                OperationId = 4 // Подсборка
+            }
+        };
+
+        var result = await FormsService.CreateAsync(request, user.Id);
+        result.IsSuccess.Should().BeTrue();
+
+        // Assert
+        var form = await UnitOfWork.Forms.FindAsync(result.Value.Id);
+        form.Should().NotBeNull();
+
+        var workRows = form.Rows
+            .Where(r => !r.IsAuxiliaryOperation)
+            .ToList();
+
+        workRows.Should().NotBeEmpty();
+
+        // Проверяем, что нет колонки "Время работы" (16)
+        foreach (var row in workRows)
+        {
+            row.Values.Should().NotContainKey("16",
+                $"строка {row.Order} не должна содержать колонку 'Время работы'");
+        }
+    }
+
+    [Test]
+    public async Task CreateAsync_ForLessThanOnePerShift_WithBreaks_ShouldHandleBreaksCorrectly()
+    {
+        // Arrange
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        // Создаем перерыв в середине смены
+        var breakOperation = await DataBuilder.CreateAuxiliaryOperationAsync(
+            id: 10,
+            name: "Перерыв 15 мин",
+            durationInSeconds: 900);
+
+        await DataBuilder.CreateShiftScheduleAsync(
+            shiftId: shift.Id,
+            auxiliaryOperationId: breakOperation.Id,
+            startTime: new TimeOnly(12, 0));
+
+        var request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.LessThanOnePerShift,
+            ShiftId = shift.Id,
+            Operation = new OperationContextDto
+            {
+                OperationId = 4 // Подсборка
+            }
+        };
+
+        var result = await FormsService.CreateAsync(request, user.Id);
+        result.IsSuccess.Should().BeTrue();
+
+        // Assert
+        var form = await UnitOfWork.Forms.FindAsync(result.Value.Id);
+        form.Should().NotBeNull();
+
+        var allRows = form.Rows.OrderBy(r => r.Order).ToList();
+        allRows.Should().NotBeEmpty();
+
+        // Проверяем, что есть строки перерывов
+        var breakRows = allRows.Where(r => r.IsAuxiliaryOperation).ToList();
+        breakRows.Should().NotBeEmpty("должны быть строки перерывов");
+
+        // Проверяем, что рабочие строки не имеют GroupKey
+        var workRows = allRows.Where(r => !r.IsAuxiliaryOperation).ToList();
+        workRows.Should().NotBeEmpty("должны быть рабочие строки");
+        workRows.Should().OnlyContain(r => r.GroupKey == null,
+            "рабочие строки не должны иметь GroupKey");
+    }
+
+    [Test]
+    public async Task GetByIdAsync_ForLessThanOnePerShift_ShouldNotHaveShouldMergeInGroup()
+    {
+        // Arrange
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        var request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.LessThanOnePerShift,
+            ShiftId = shift.Id,
+            Operation = new OperationContextDto
+            {
+                OperationId = 4 // Подсборка
+            }
+        };
+
+        var createResult = await FormsService.CreateAsync(request, user.Id);
+        createResult.IsSuccess.Should().BeTrue();
+
+        // Act
+        var result = await FormsService.GetByIdAsync(createResult.Value.Id);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Should().NotBeNull();
+        result.Value.PaType.Should().Be(PaTypeDto.LessThanOnePerShift);
+        result.Value.Template.Should().NotBeNull();
+
+        // Проверяем, что для типа LessThanOnePerShift ShouldMergeInGroup = false для всех колонок
+        result.Value.Template.TableColumns.Should().OnlyContain(c => !c.ShouldMergeInGroup,
+            "для типа LessThanOnePerShift ShouldMergeInGroup должен быть false для всех колонок");
+    }
+
+    [Test]
+    public async Task CreateAsync_ForLessThanOnePerShift_ShouldHaveCorrectOperationSequence()
+    {
+        // Arrange
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        var request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.LessThanOnePerShift,
+            ShiftId = shift.Id,
+            Operation = new OperationContextDto
+            {
+                OperationId = 4 // Подсборка
+            }
+        };
+
+        var result = await FormsService.CreateAsync(request, user.Id);
+        result.IsSuccess.Should().BeTrue();
+
+        // Assert
+        var form = await UnitOfWork.Forms.FindAsync(result.Value.Id);
+        form.Should().NotBeNull();
+
+        var workRows = form.Rows
+            .Where(r => !r.IsAuxiliaryOperation)
+            .OrderBy(r => r.Order)
+            .ToList();
+
+        workRows.Should().HaveCountGreaterThanOrEqualTo(3,
+            "должны быть строки для всех связанных операций");
+
+        // Проверяем, что время окончания предыдущей операции равно времени начала следующей
+        for (var i = 0; i < workRows.Count - 1; i++)
+        {
+            var currentRow = workRows[i];
+            var nextRow = workRows[i + 1];
+
+            if (currentRow.Values.TryGetValue("13", out var currentEndTime) &&
+                nextRow.Values.TryGetValue("11", out var nextStartTime))
+            {
+                var currentEnd = Convert.ToInt32(currentEndTime.Value);
+                var nextStart = Convert.ToInt32(nextStartTime.Value);
+
+                // Время начала следующей операции должно быть >= времени окончания предыдущей
+                // (могут быть перерывы между операциями)
+                nextStart.Should().BeGreaterThanOrEqualTo(currentEnd,
+                    $"время начала операции {i + 2} должно быть >= времени окончания операции {i + 1}");
+            }
+        }
+    }
+
+    [Test]
+    public async Task CreateAsync_ForLessThanOnePerShift_WithoutOperation_ShouldReturnError()
+    {
+        // Arrange
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        var request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.LessThanOnePerShift,
+            ShiftId = shift.Id,
+            Operation = null // Операция не указана
+        };
+
+        // Act
+        var result = await FormsService.CreateAsync(request, user.Id);
+
+        // Assert
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNull();
+        result.Error.Message.Should().Contain("Operation");
+    }
 }
