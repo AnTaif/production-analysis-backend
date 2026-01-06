@@ -64,9 +64,7 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         if (planIndicator is not null)
         {
             if (productContext is null)
-            {
                 throw new ArgumentNullException(nameof(productContext), "ProductContext cannot be null");
-            }
 
             var planValue = planCalculator.Calculate(startTime, endTime, productContext);
             values.Add(CreateFormRowValueData(planIndicator, planValue.ToString()));
@@ -92,10 +90,8 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         var values = new List<FormRowValueData>();
 
         if (workTimeIndicator is not null)
-        {
             values.Add(CreateFormRowValueData(workTimeIndicator,
                 FormatTimeRange(startTime, endTime) + " " + operationName));
-        }
 
         return new FormRowData
         {
@@ -104,11 +100,6 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
             AuxiliaryOperationId = auxiliaryOperationId,
             Values = values
         };
-    }
-
-    private static string FormatTimeRange(TimeOnly startTime, TimeOnly endTime)
-    {
-        return $"{startTime:HH:mm}-{endTime:HH:mm}";
     }
 
     public ICollection<FormRowData> CreateOperationCycleRows(
@@ -139,10 +130,7 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
             };
 
             // План одинаковый для всех строк цикла
-            if (planIndicator is not null)
-            {
-                values.Add(CreateFormRowValueData(planIndicator, planValue));
-            }
+            if (planIndicator is not null) values.Add(CreateFormRowValueData(planIndicator, planValue));
 
             // Наименование операции - только для текущей операции
             if (operationNameIndicator is not null)
@@ -187,21 +175,19 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
 
         // Наименование операции
         if (operationNameIndicator is not null)
-        {
             values.Add(CreateFormRowValueData(operationNameIndicator, operation.Name));
-        }
 
         // Время начала план (в минутах от начала смены)
         if (startTimePlanIndicator is not null)
         {
-            var startMinutes = (startTime.Hour * 60 + startTime.Minute) - shiftStartMinutes;
+            var startMinutes = startTime.Hour * 60 + startTime.Minute - shiftStartMinutes;
             values.Add(CreateFormRowValueData(startTimePlanIndicator, startMinutes.ToString()));
         }
 
         // Время окончания план (в минутах от начала смены)
         if (endTimePlanIndicator is not null)
         {
-            var endMinutes = (endTime.Hour * 60 + endTime.Minute) - shiftStartMinutes;
+            var endMinutes = endTime.Hour * 60 + endTime.Minute - shiftStartMinutes;
             values.Add(CreateFormRowValueData(endTimePlanIndicator, endMinutes.ToString()));
         }
 
@@ -222,10 +208,17 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         };
     }
 
-    private static FormRowValueData CreateFormRowValueData(Indicator indicator, string value) =>
-        new()
+    private static string FormatTimeRange(TimeOnly startTime, TimeOnly endTime)
+    {
+        return $"{startTime:HH:mm}-{endTime:HH:mm}";
+    }
+
+    private static FormRowValueData CreateFormRowValueData(Indicator indicator, string value)
+    {
+        return new FormRowValueData
         {
             IndicatorId = indicator.Id,
             Value = value
         };
+    }
 }

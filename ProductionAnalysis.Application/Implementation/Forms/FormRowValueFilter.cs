@@ -31,17 +31,13 @@ public class FormRowValueFilter : IFormRowValueFilter
 
         var filteredValues = new List<FormRowValueData>();
         foreach (var (indicatorId, value) in requestValues)
-        {
             if (indicatorsDict.TryGetValue(indicatorId, out var inputType)
                 && UpdatableInputTypes.Contains(inputType))
-            {
                 filteredValues.Add(new FormRowValueData
                 {
                     IndicatorId = indicatorId,
                     Value = value
                 });
-            }
-        }
 
         return filteredValues;
     }

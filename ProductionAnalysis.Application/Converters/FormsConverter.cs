@@ -1,4 +1,5 @@
 using ProductionAnalysis.Application.Domain.Forms;
+using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Application.Domain.Templates;
 using ProductionAnalysis.Application.Implementation.Forms;
 using ProductionAnalysis.Client.Models.Forms;
@@ -29,9 +30,9 @@ public static class FormsConverter
             .Select(r => r.ToRowDto())
             .ToList();
 
-        var productDto = form.GetProductContext()?.ToDto();
-        var productsDto = form.GetMultiProductContext()?.Products.Select(p => p.ToDto()).ToList();
-        var operationDto = form.GetOperationContext()?.ToDto();
+        var productDto = form.Context.GetProductContext()?.ToDto();
+        var productsDto = form.Context.GetMultiProductContext()?.Products.Select(p => p.ToDto()).ToList();
+        var operationDto = form.Context.GetOperationContext()?.ToDto();
 
         return new FormDto
         {

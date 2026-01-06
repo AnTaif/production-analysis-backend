@@ -9,7 +9,7 @@ public interface IFormTotalsUpdater
 }
 
 /// <summary>
-/// Сервис для обновления итоговых значений формы
+///     Сервис для обновления итоговых значений формы
 /// </summary>
 [RegisterScoped]
 public class FormTotalsUpdater(
@@ -25,8 +25,6 @@ public class FormTotalsUpdater(
                           || !ValueComparer.AreDictionariesEqual(form.TotalValues, calculatedTotals);
 
         if (needsUpdate && calculatedTotals.Count > 0)
-        {
             await unitOfWork.Forms.UpdateTotalValuesAsync(form.Id, calculatedTotals, userId);
-        }
     }
 }

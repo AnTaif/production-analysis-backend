@@ -3,12 +3,12 @@ using ProductionAnalysis.Application.Domain.Forms;
 namespace ProductionAnalysis.Application.Implementation.Forms;
 
 /// <summary>
-/// Вспомогательный класс для работы с типами форм
+///     Вспомогательный класс для работы с типами форм
 /// </summary>
 public static class PaTypeHelper
 {
     /// <summary>
-    /// Преобразует int в FormType
+    ///     Преобразует int в FormType
     /// </summary>
     public static PaType? TryParse(int paTypeId)
     {
@@ -16,7 +16,7 @@ public static class PaTypeHelper
     }
 
     /// <summary>
-    /// Проверяет, является ли тип формы типом с одним продуктом
+    ///     Проверяет, является ли тип формы типом с одним продуктом
     /// </summary>
     public static bool IsSingleProductType(PaType paType)
     {
@@ -25,7 +25,7 @@ public static class PaTypeHelper
     }
 
     /// <summary>
-    /// Проверяет, является ли тип формы типом с несколькими продуктами
+    ///     Проверяет, является ли тип формы типом с несколькими продуктами
     /// </summary>
     public static bool IsMultipleProductsType(PaType paType)
     {
@@ -33,7 +33,7 @@ public static class PaTypeHelper
     }
 
     /// <summary>
-    /// Проверяет, является ли тип формы типом с операциями (менее 1 шт. в час)
+    ///     Проверяет, является ли тип формы типом с операциями (менее 1 шт. в час)
     /// </summary>
     public static bool IsOperationType(PaType paType)
     {
@@ -41,7 +41,7 @@ public static class PaTypeHelper
     }
 
     /// <summary>
-    /// Проверяет, использует ли тип формы время цикла
+    ///     Проверяет, использует ли тип формы время цикла
     /// </summary>
     public static bool UsesCycleTime(PaType paType)
     {
@@ -50,7 +50,7 @@ public static class PaTypeHelper
     }
 
     /// <summary>
-    /// Проверяет, использует ли тип формы мощность рабочего места
+    ///     Проверяет, использует ли тип формы мощность рабочего места
     /// </summary>
     public static bool UsesWorkstationCapacity(PaType paType)
     {

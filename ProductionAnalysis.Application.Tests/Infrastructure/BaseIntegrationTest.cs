@@ -10,6 +10,7 @@ using ProductionAnalysis.Application.Implementation.Auth;
 using ProductionAnalysis.Application.Implementation.Dictionaries;
 using ProductionAnalysis.Application.Implementation.Forms;
 using ProductionAnalysis.Application.Implementation.Forms.Context;
+using ProductionAnalysis.Application.Implementation.Forms.Initialization;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Data.Context;
 using ProductionAnalysis.Data.Models;
@@ -104,8 +105,6 @@ public abstract class BaseIntegrationTest
         services.AddScoped<IFormRowFormulaCalculator, FormRowFormulaCalculator>();
         services.AddScoped<ICumulativeValueCalculator, CumulativeValueCalculator>();
         services.AddScoped<IFormulaCalculator, FormulaCalculator>();
-        services.AddScoped<IProductContextExtractor, ProductContextExtractor>();
-        services.AddScoped<IMultiProductContextExtractor, MultiProductContextExtractor>();
         services.AddScoped<IFormContextFactory, FormContextFactory>();
         services.AddScoped<IFormRowDataFactory, FormRowDataFactory>();
         services.AddScoped<ITokenProvider, JwtTokenProvider>();

@@ -25,22 +25,13 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
     {
         var paTypeId = (int)request.PaType;
         var template = await unitOfWork.Templates.FindLatestVerAsync(paTypeId);
-        if (template is null)
-        {
-            return ServiceError.NotFound($"Template for PaType {request.PaType} not found");
-        }
+        if (template is null) return ServiceError.NotFound($"Template for PaType {request.PaType} not found");
 
         var employee = await unitOfWork.Dictionaries.FindEmployeeByUserIdAsync(creatorId);
-        if (employee is null)
-        {
-            return ServiceError.NotFound($"Employee for user {creatorId} not found");
-        }
+        if (employee is null) return ServiceError.NotFound($"Employee for user {creatorId} not found");
 
         var shift = await unitOfWork.Dictionaries.SelectShiftByIdAsync(request.ShiftId);
-        if (shift == null)
-        {
-            return ServiceError.NotFound($"Shift not found by id {request.ShiftId}");
-        }
+        if (shift == null) return ServiceError.NotFound($"Shift not found by id {request.ShiftId}");
 
         var paType = request.PaType.ToDomain();
         var validationResult = paType switch
@@ -53,10 +44,7 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
             _ => throw ExhaustiveMatch.Failed(typeof(PaType))
         };
 
-        if (validationResult.IsFailure)
-        {
-            return validationResult.Error;
-        }
+        if (validationResult.IsFailure) return validationResult.Error;
 
         return (template, employee, shift);
     }
@@ -64,16 +52,12 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
     private static Result ValidateSingleProductWithCycleTime(CreateFormRequest request)
     {
         if (request.Product == null)
-        {
             return ServiceError.BadRequest(
                 $"Product is required for {PaType.SingleProductWithCycleTime}");
-        }
 
         if (request.Product.CycleTime is not > 0)
-        {
             return ServiceError.BadRequest(
                 $"CycleTime is required and must be greater than 0 for {PaType.SingleProductWithCycleTime}");
-        }
 
         return Result.Success;
     }
@@ -81,16 +65,12 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
     private static Result ValidateSingleProductWithWorkstationCapacity(CreateFormRequest request)
     {
         if (request.Product == null)
-        {
             return ServiceError.BadRequest(
                 $"Product is required for {PaType.SingleProductWithWorkstationCapacity}");
-        }
 
         if (request.Product.WorkstationCapacity is not > 0)
-        {
             return ServiceError.BadRequest(
                 $"WorkstationCapacity is required and must be greater than 0 for {PaType.SingleProductWithWorkstationCapacity}");
-        }
 
         return Result.Success;
     }
@@ -98,16 +78,12 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
     private static Result ValidateMultipleProductsWithCycleTime(CreateFormRequest request)
     {
         if (request.Products == null || request.Products.Count == 0)
-        {
             return ServiceError.BadRequest(
                 $"Products are required for {PaType.MultipleProductsWithCycleTime}");
-        }
 
         if (request.Products.Any(product => product.CycleTime is not > 0))
-        {
             return ServiceError.BadRequest(
                 $"CycleTime is required and must be greater than 0 for all products in {PaType.MultipleProductsWithCycleTime}");
-        }
 
         return Result.Success;
     }
@@ -115,16 +91,12 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
     private static Result ValidateLessThanOnePerHour(CreateFormRequest request)
     {
         if (request.Operation == null)
-        {
             return ServiceError.BadRequest(
                 $"Operation is required for {PaType.LessThanOnePerHour}");
-        }
 
         if (request.Operation.OperationId <= 0)
-        {
             return ServiceError.BadRequest(
                 $"OperationId must be greater than 0 for {PaType.LessThanOnePerHour}");
-        }
 
         return Result.Success;
     }
@@ -132,16 +104,12 @@ public class FormValidator(IPaUnitOfWork unitOfWork) : IFormValidator
     private static Result ValidateLessThanOnePerShift(CreateFormRequest request)
     {
         if (request.Operation == null)
-        {
             return ServiceError.BadRequest(
                 $"Operation is required for {PaType.LessThanOnePerShift}");
-        }
 
         if (request.Operation.OperationId <= 0)
-        {
             return ServiceError.BadRequest(
                 $"OperationId must be greater than 0 for {PaType.LessThanOnePerShift}");
-        }
 
         return Result.Success;
     }

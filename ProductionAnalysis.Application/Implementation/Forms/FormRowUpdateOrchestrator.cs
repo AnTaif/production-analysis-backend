@@ -17,7 +17,7 @@ public interface IFormRowUpdateOrchestrator
 }
 
 /// <summary>
-/// Оркестратор для координации обновления строки формы
+///     Оркестратор для координации обновления строки формы
 /// </summary>
 [RegisterScoped]
 public class FormRowUpdateOrchestrator(
@@ -35,25 +35,16 @@ public class FormRowUpdateOrchestrator(
         Guid userId)
     {
         var form = await unitOfWork.Forms.FindAsync(formId);
-        if (form is null)
-        {
-            return ServiceError.NotFound($"Form {formId} not found");
-        }
+        if (form is null) return ServiceError.NotFound($"Form {formId} not found");
 
         var row = form.Rows.SingleOrDefault(r => r.Order == rowOrder);
-        if (row is null)
-        {
-            return ServiceError.NotFound($"Row {rowOrder} not found in form {formId}");
-        }
+        if (row is null) return ServiceError.NotFound($"Row {rowOrder} not found in form {formId}");
 
         var filteredValues = formRowValueFilter.FilterUpdatableValues(
             request.Values,
             form.TemplateSnapshot);
 
-        if (filteredValues.Count == 0)
-        {
-            return row.ToRowDto();
-        }
+        if (filteredValues.Count == 0) return row.ToRowDto();
 
         await unitOfWork.FormRows.UpdateRowValuesAsync(formId, rowOrder, filteredValues, userId);
         await unitOfWork.SaveChangesAsync();
@@ -73,16 +64,10 @@ public class FormRowUpdateOrchestrator(
         Guid userId)
     {
         var form = await unitOfWork.Forms.FindAsync(formId);
-        if (form == null)
-        {
-            return;
-        }
+        if (form == null) return;
 
         var updatedRow = form.Rows.SingleOrDefault(r => r.Order == rowOrder);
-        if (updatedRow == null)
-        {
-            return;
-        }
+        if (updatedRow == null) return;
 
         var updatedIndicatorIds = filteredValues.Select(v => v.IndicatorId).ToList();
         var formulaValuesToUpdate = await formRowFormulaCalculator.CalculateFormulaValuesAsync(
@@ -105,10 +90,7 @@ public class FormRowUpdateOrchestrator(
     private async Task RecalculateCumulativeValuesAsync(int formId, short rowOrder, Guid userId)
     {
         var form = await unitOfWork.Forms.FindAsync(formId);
-        if (form == null)
-        {
-            return;
-        }
+        if (form == null) return;
 
         var cumulativeValuesToUpdate = cumulativeValueCalculator.CalculateCumulativeValues(
             form,
@@ -127,10 +109,7 @@ public class FormRowUpdateOrchestrator(
     private async Task UpdateTotalsAsync(int formId, Guid userId)
     {
         var form = await unitOfWork.Forms.FindAsync(formId);
-        if (form != null)
-        {
-            await formTotalsUpdater.UpdateTotalsIfNeededAsync(form, userId);
-        }
+        if (form != null) await formTotalsUpdater.UpdateTotalsIfNeededAsync(form, userId);
     }
 
     private async Task<Result<FormRowDto>> GetUpdatedRowAsync(int formId, short rowOrder)
@@ -138,10 +117,7 @@ public class FormRowUpdateOrchestrator(
         var form = await unitOfWork.Forms.FindAsync(formId);
         var row = form?.Rows.SingleOrDefault(r => r.Order == rowOrder);
 
-        if (row == null)
-        {
-            return ServiceError.NotFound($"Form row with Order={rowOrder} not found after update");
-        }
+        if (row == null) return ServiceError.NotFound($"Form row with Order={rowOrder} not found after update");
 
         return row.ToRowDto();
     }

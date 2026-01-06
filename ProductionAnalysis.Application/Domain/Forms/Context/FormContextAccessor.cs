@@ -5,9 +5,17 @@ namespace ProductionAnalysis.Application.Domain.Forms.Context;
 /// </summary>
 public static class FormContextAccessor
 {
-    private const string ProductContextKey = "product";
-    private const string MultiProductContextKey = "multiProduct";
-    private const string OperationContextKey = "operation";
+    public const string ProductContextKey = "product";
+    public const string MultiProductContextKey = "multiProduct";
+    public const string OperationContextKey = "operation";
+
+    public static TContext RequireContext<TContext>(this Dictionary<string, FormContext> context, string contextKey)
+        where TContext : FormContext
+    {
+        return context.TryGetValue(contextKey, out var ctx) && ctx is TContext typedContext
+            ? typedContext
+            : throw new ArgumentException($"Context by key {contextKey} does not exist");
+    }
 
     /// <summary>
     /// Получает контекст одного продукта

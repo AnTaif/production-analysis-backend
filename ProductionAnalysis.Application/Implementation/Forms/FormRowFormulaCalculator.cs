@@ -33,20 +33,16 @@ public class FormRowFormulaCalculator(IFormulaCalculator formulaCalculator) : IF
         var formulaValuesToUpdate = new List<FormRowValueData>();
         foreach (var (indicatorId, calculatedValue) in calculatedValues)
         {
-            if (currentValues.TryGetValue(indicatorId, out var oldValue) && AreValuesEqual(oldValue, calculatedValue))
-            {
-                continue;
-            }
+            if (currentValues.TryGetValue(indicatorId, out var oldValue) &&
+                AreValuesEqual(oldValue, calculatedValue)) continue;
 
             var formulaIndicator = template.Indicators.FirstOrDefault(i => i.Id == indicatorId);
             if (formulaIndicator is { InputType: FieldInputTypes.Formula })
-            {
                 formulaValuesToUpdate.Add(new FormRowValueData
                 {
                     IndicatorId = indicatorId,
                     Value = calculatedValue
                 });
-            }
         }
 
         return Task.FromResult<ICollection<FormRowValueData>>(formulaValuesToUpdate);
@@ -56,12 +52,8 @@ public class FormRowFormulaCalculator(IFormulaCalculator formulaCalculator) : IF
     {
         var result = new Dictionary<int, object>();
         foreach (var (key, rowValue) in rowValues)
-        {
             if (int.TryParse(key, out var indicatorId))
-            {
                 result[indicatorId] = rowValue.Value;
-            }
-        }
 
         return result;
     }

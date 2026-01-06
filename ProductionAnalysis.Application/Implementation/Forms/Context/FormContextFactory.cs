@@ -12,7 +12,7 @@ public interface IFormContextFactory
 }
 
 /// <summary>
-/// Фабрика для создания контекста формы на основе типа формы
+///     Фабрика для создания контекста формы на основе типа формы
 /// </summary>
 [RegisterScoped]
 public class FormContextFactory : IFormContextFactory
@@ -35,9 +35,7 @@ public class FormContextFactory : IFormContextFactory
     private static Dictionary<string, FormContext> CreateSingleProductContextWithCycleTime(CreateFormRequest request)
     {
         if (request.Product == null)
-        {
             throw new ArgumentException("Product is required for SingleProductWithCycleTime", nameof(request));
-        }
 
         return new Dictionary<string, FormContext>
         {
@@ -53,10 +51,8 @@ public class FormContextFactory : IFormContextFactory
         CreateFormRequest request)
     {
         if (request.Product == null)
-        {
             throw new ArgumentException("Product is required for SingleProductWithWorkstationCapacity",
                 nameof(request));
-        }
 
         return new Dictionary<string, FormContext>
         {
@@ -71,9 +67,7 @@ public class FormContextFactory : IFormContextFactory
     private static Dictionary<string, FormContext> CreateMultipleProductsContextWithCycleTime(CreateFormRequest request)
     {
         if (request.Products == null || request.Products.Count == 0)
-        {
             throw new ArgumentException("Products are required for MultipleProductsWithCycleTime", nameof(request));
-        }
 
         var productContexts = request.Products.Select(p => new ProductContext(
             p.ProductId,
@@ -90,9 +84,7 @@ public class FormContextFactory : IFormContextFactory
     private static Dictionary<string, FormContext> CreateOperationContext(CreateFormRequest request)
     {
         if (request.Operation == null)
-        {
             throw new ArgumentException("Operation is required for LessThanOnePerHour", nameof(request));
-        }
 
         return new Dictionary<string, FormContext>
         {

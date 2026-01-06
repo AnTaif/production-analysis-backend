@@ -20,10 +20,7 @@ public class TotalValueCalculator : ITotalValueCalculator
             .Where(i => i.HasSummation)
             .ToList();
 
-        if (summationIndicators.Count == 0)
-        {
-            return totals;
-        }
+        if (summationIndicators.Count == 0) return totals;
 
         // Получаем только рабочие строки (не дополнительные операции)
         var workRows = form.Rows
@@ -39,16 +36,10 @@ public class TotalValueCalculator : ITotalValueCalculator
 
             foreach (var row in workRows)
             {
-                if (!row.Values.TryGetValue(indicatorKey, out var rowValue))
-                {
-                    continue;
-                }
+                if (!row.Values.TryGetValue(indicatorKey, out var rowValue)) continue;
 
                 // Пытаемся преобразовать значение в число
-                if (TryParseNumericValue(rowValue.Value, out var numericValue))
-                {
-                    total += numericValue;
-                }
+                if (TryParseNumericValue(rowValue.Value, out var numericValue)) total += numericValue;
             }
 
             // Сохраняем итог как int, если это целое число, иначе как double
@@ -62,10 +53,7 @@ public class TotalValueCalculator : ITotalValueCalculator
     {
         result = 0;
 
-        if (value == null)
-        {
-            return false;
-        }
+        if (value == null) return false;
 
         switch (value)
         {

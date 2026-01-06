@@ -48,10 +48,8 @@ public class FormulaCalculator : IFormulaCalculator
                 .FirstOrDefault(f => CanCalculateFormula(f, calculatedValues, processedIndicators));
 
             if (formulaToCalculate == null)
-            {
                 // Если не можем вычислить формулу (циклическая зависимость или отсутствующие значения), пропускаем
                 break;
-            }
 
             var calculatedValue = EvaluateFormula(formulaToCalculate.Formula!, calculatedValues, formContext);
             if (calculatedValue != null)
@@ -66,12 +64,8 @@ public class FormulaCalculator : IFormulaCalculator
                     processedIndicators);
 
                 foreach (var nextFormula in nextDependentFormulas)
-                {
                     if (!dependentFormulas.Contains(nextFormula))
-                    {
                         dependentFormulas.Add(nextFormula);
-                    }
-                }
             }
 
             dependentFormulas.Remove(formulaToCalculate);
@@ -89,22 +83,14 @@ public class FormulaCalculator : IFormulaCalculator
 
         foreach (var formulaIndicator in formulaIndicators)
         {
-            if (processedIndicators.Contains(formulaIndicator.Id))
-            {
-                continue;
-            }
+            if (processedIndicators.Contains(formulaIndicator.Id)) continue;
 
-            if (string.IsNullOrEmpty(formulaIndicator.Formula))
-            {
-                continue;
-            }
+            if (string.IsNullOrEmpty(formulaIndicator.Formula)) continue;
 
             // Проверяем, зависит ли формула от указанных индикаторов
             var referencedIndicators = ExtractIndicatorReferences(formulaIndicator.Formula);
             if (referencedIndicators.Any(id => sourceIndicatorIds.Contains(id)))
-            {
                 dependentFormulas.Add(formulaIndicator);
-            }
         }
 
         return dependentFormulas;
@@ -113,10 +99,7 @@ public class FormulaCalculator : IFormulaCalculator
     private bool CanCalculateFormula(Indicator formulaIndicator, Dictionary<int, object> currentValues,
         HashSet<int> processedIndicators)
     {
-        if (string.IsNullOrEmpty(formulaIndicator.Formula))
-        {
-            return false;
-        }
+        if (string.IsNullOrEmpty(formulaIndicator.Formula)) return false;
 
         var referencedIndicators = ExtractIndicatorReferences(formulaIndicator.Formula);
 
@@ -149,10 +132,7 @@ public class FormulaCalculator : IFormulaCalculator
             expression = IndicatorReferenceRegex.Replace(expression, match =>
             {
                 var indicatorId = int.Parse(match.Groups[1].Value);
-                if (currentValues.TryGetValue(indicatorId, out var value))
-                {
-                    return ConvertToNumericString(value);
-                }
+                if (currentValues.TryGetValue(indicatorId, out var value)) return ConvertToNumericString(value);
 
                 return "0";
             });
@@ -198,10 +178,7 @@ public class FormulaCalculator : IFormulaCalculator
             var dataTable = new DataTable();
             var result = dataTable.Compute(expression, null);
 
-            if (result == DBNull.Value)
-            {
-                return null;
-            }
+            if (result == DBNull.Value) return null;
 
             return result;
         }
@@ -213,32 +190,21 @@ public class FormulaCalculator : IFormulaCalculator
 
     private object? GetContextValue(string contextKey, Dictionary<string, FormContext>? formContext)
     {
-        if (formContext == null)
-        {
-            return 0;
-        }
+        if (formContext == null) return 0;
 
         // Поддержка вложенных ключей через точку (например, product.cycleTime)
         var keys = contextKey.Split('.');
-        if (keys.Length == 0)
-        {
-            return 0;
-        }
+        if (keys.Length == 0) return 0;
 
         // Первый ключ - это ключ контекста в словаре
-        if (!formContext.TryGetValue(keys[0], out var context))
-        {
-            return 0;
-        }
+        if (!formContext.TryGetValue(keys[0], out var context)) return 0;
 
         // Если это ProductContext и запрашивается свойство
         if (context is ProductContext productContext)
         {
             if (keys.Length == 1)
-            {
                 // Запрошен сам контекст, возвращаем 0 или можно вернуть объект
                 return 0;
-            }
 
             // Второй ключ - это свойство контекста
             // Примечание: логика работы с paTypeId реализована в FormContextFactory,
@@ -265,10 +231,7 @@ public class FormulaCalculator : IFormulaCalculator
         try
         {
             var parts = timeRange.Split('-');
-            if (parts.Length != 2)
-            {
-                return 0;
-            }
+            if (parts.Length != 2) return 0;
 
             if (TimeOnly.TryParse(parts[0], out var startTime) &&
                 TimeOnly.TryParse(parts[1], out var endTime))
@@ -277,10 +240,7 @@ public class FormulaCalculator : IFormulaCalculator
                 var endMinutes = endTime.Hour * 60 + endTime.Minute;
 
                 // Обработка случая, когда время переходит через полночь
-                if (endMinutes < startMinutes)
-                {
-                    endMinutes += 24 * 60;
-                }
+                if (endMinutes < startMinutes) endMinutes += 24 * 60;
 
                 return endMinutes - startMinutes;
             }

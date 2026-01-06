@@ -2,6 +2,7 @@
 using ProductionAnalysis.Application.Converters;
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Implementation.Forms.Context;
+using ProductionAnalysis.Application.Implementation.Forms.Initialization;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Client.Models.Forms;
 using FormStatus = ProductionAnalysis.Application.Domain.Forms.FormStatus;
@@ -48,10 +49,7 @@ public class FormsService(
     public async Task<Result<FormShortDto>> CreateAsync(CreateFormRequest request, Guid creatorId)
     {
         var validationResult = await formValidator.ValidateCreateRequestAsync(request, creatorId);
-        if (!validationResult.IsSuccess)
-        {
-            return validationResult.Error;
-        }
+        if (!validationResult.IsSuccess) return validationResult.Error;
 
         var (template, employee, shift) = validationResult.Value;
         var context = formContextFactory.CreateContext(request);
@@ -94,10 +92,7 @@ public class FormsService(
     {
         var form = await unitOfWork.Forms.FindAsync(formId);
 
-        if (form == null)
-        {
-            return ServiceError.NotFound($"Form with id {formId} not found");
-        }
+        if (form == null) return ServiceError.NotFound($"Form with id {formId} not found");
 
         return form.ToDto();
     }
@@ -106,10 +101,7 @@ public class FormsService(
     {
         var form = await unitOfWork.Forms.FindAsync(formId);
 
-        if (form == null)
-        {
-            return ServiceError.NotFound($"Form with id {formId} not found");
-        }
+        if (form == null) return ServiceError.NotFound($"Form with id {formId} not found");
 
         return form.Rows.ToRowDtos();
     }
