@@ -8,6 +8,7 @@ using ProductionAnalysis.Application;
 using ProductionAnalysis.Data;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using Swashbuckle.AspNetCore.Filters;
+using DependencyInjection = ProductionAnalysis.Application.DependencyInjection;
 
 namespace ProductionAnalysis.Api;
 
@@ -34,6 +35,7 @@ public static class ServiceConfiguration
     {
         services
             .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly())
+            .AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly)
             .AddFluentValidationAutoValidation();
     }
 
