@@ -2,13 +2,14 @@ using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Application.Domain.Templates;
 using ProductionAnalysis.Application.Implementation.Forms;
+using ProductionAnalysis.Client.Models.Dictionaries;
 using ProductionAnalysis.Client.Models.Forms;
 
 namespace ProductionAnalysis.Application.Converters;
 
 public static class FormsConverter
 {
-    public static FormShortDto ToShortDto(this Form form)
+    public static FormShortDto ToShortDto(this Form form, EmployeeDto creator, EmployeeDto executor)
     {
         return new FormShortDto
         {
@@ -18,6 +19,8 @@ public static class FormsConverter
             CreationDate = form.CreationDate,
             UpdateDate = form.UpdateDate,
             DepartmentId = form.DepartmentId,
+            Creator = creator,
+            Executor = executor,
         };
     }
 

@@ -87,7 +87,20 @@ public class FormsService(
 
         var (forms, totalCount) = await unitOfWork.Forms.SearchFormsAsync(domainFilter);
 
-        var dtos = forms.Select(f => f.ToShortDto()).ToList();
+        var dtos = new List<FormShortDto>();
+        foreach (var form in forms)
+        {
+            var creator = await unitOfWork.Dictionaries.FindEmployeeByUserIdAsync(form.CreatorId);
+            var executor = await unitOfWork.Dictionaries.FindEmployeeByIdAsync(form.ExecutorId);
+
+            if (creator == null || executor == null)
+            {
+                // Пропускаем форму, если не удалось загрузить данные о создателе или исполнителе
+                continue;
+            }
+
+            dtos.Add(form.ToShortDto(creator, executor));
+        }
 
         var response = new PaginatedResponse<FormShortDto>(
             dtos,
@@ -104,7 +117,7 @@ public class FormsService(
         var validationResult = await formValidator.ValidateCreateRequestAsync(request, creatorId);
         if (!validationResult.IsSuccess) return validationResult.Error;
 
-        var (template, employee, executor, shift) = validationResult.Value;
+        var (template, creator, executor, shift) = validationResult.Value;
         var context = formContextFactory.CreateContext(request);
 
         var newForm = new Form(
@@ -118,7 +131,7 @@ public class FormsService(
             new List<FormRow>(),
             creatorId,
             shift.Id,
-            employee.DepartmentId,
+            creator.DepartmentId,
             executor.Id
         );
 
@@ -139,7 +152,7 @@ public class FormsService(
         await formTotalsUpdater.UpdateTotalsIfNeededAsync(createdForm, createdForm.CreatorId);
         await unitOfWork.SaveChangesAsync();
 
-        return form.ToShortDto();
+        return createdForm.ToShortDto(creator, executor);
     }
 
     public async Task<Result<FormDto>> GetByIdAsync(int formId)

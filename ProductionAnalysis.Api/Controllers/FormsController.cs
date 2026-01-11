@@ -17,6 +17,7 @@ namespace ProductionAnalysis.Api.Controllers;
 public class FormsController(IFormsService formsService) : ControllerBase
 {
     [HttpPost("search")]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(PaginatedFormShortDtoExample))]
     [ProducesResponseType<PaginatedResponse<FormShortDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<PaginatedResponse<FormShortDto>>> SearchForms(SearchFormsFilterDto searchFormsFilter)
@@ -34,6 +35,7 @@ public class FormsController(IFormsService formsService) : ControllerBase
     [HttpPost]
     [Authorize(Roles = Roles.DepartmentHead)]
     [SwaggerRequestExample(typeof(CreateFormRequest), typeof(CreateFormRequestExample))]
+    [SwaggerResponseExample(StatusCodes.Status201Created, typeof(FormShortDtoExample))]
     [ProducesResponseType<FormShortDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<string>(StatusCodes.Status401Unauthorized)]

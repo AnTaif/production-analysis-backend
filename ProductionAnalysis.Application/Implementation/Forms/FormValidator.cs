@@ -9,7 +9,7 @@ namespace ProductionAnalysis.Application.Implementation.Forms;
 
 public interface IFormValidator
 {
-    Task<Result<(Template template, EmployeeDto employee, EmployeeDto executor, ShiftDto shift)>>
+    Task<Result<(Template template, EmployeeDto creator, EmployeeDto executor, ShiftDto shift)>>
         ValidateCreateRequestAsync(
             CreateFormRequest request,
             Guid creatorId);
@@ -22,7 +22,7 @@ public class FormValidator(
 )
     : IFormValidator
 {
-    public async Task<Result<(Template template, EmployeeDto employee, EmployeeDto executor, ShiftDto shift)>>
+    public async Task<Result<(Template template, EmployeeDto creator, EmployeeDto executor, ShiftDto shift)>>
         ValidateCreateRequestAsync(
             CreateFormRequest request,
             Guid creatorId)
