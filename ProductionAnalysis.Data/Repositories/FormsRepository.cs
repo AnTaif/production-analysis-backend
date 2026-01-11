@@ -26,9 +26,9 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
             query = query.Where(f => f.DepartmentId == filter.DepartmentId.Value);
         }
 
-        if (filter.ExecutorId.HasValue)
+        if (filter.AssigneeId.HasValue)
         {
-            query = query.Where(f => f.ExecutorId == filter.ExecutorId.Value);
+            query = query.Where(f => f.AssigneeId == filter.AssigneeId.Value);
         }
 
         var totalCount = await query.CountAsync();
@@ -74,7 +74,7 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
             LastEditorId = newForm.CreatorId,
             ShiftId = newForm.ShiftId,
             DepartmentId = newForm.DepartmentId,
-            ExecutorId = newForm.ExecutorId
+            AssigneeId = newForm.AssigneeId
         };
 
         dbContext.Forms.Add(formDbo);

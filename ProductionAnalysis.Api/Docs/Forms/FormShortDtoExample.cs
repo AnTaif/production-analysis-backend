@@ -25,7 +25,7 @@ public class FormShortDtoExample : IExamplesProvider<FormShortDto>
                 DepartmentId = 2,
                 UserId = Guid.Parse("12345678-1234-1234-1234-123456789012")
             },
-            Executor = new EmployeeDto
+            Assignee = new EmployeeDto
             {
                 Id = 20,
                 FullName = "Петров Пётр Петрович",
@@ -59,7 +59,7 @@ public class PaginatedFormShortDtoExample : IExamplesProvider<PaginatedResponse<
                         DepartmentId = 2,
                         UserId = Guid.Parse("12345678-1234-1234-1234-123456789012")
                     },
-                    Executor = new EmployeeDto
+                    Assignee = new EmployeeDto
                     {
                         Id = 20,
                         FullName = "Петров Пётр Петрович",
@@ -85,7 +85,7 @@ public class PaginatedFormShortDtoExample : IExamplesProvider<PaginatedResponse<
                         DepartmentId = 2,
                         UserId = Guid.Parse("12345678-1234-1234-1234-123456789012")
                     },
-                    Executor = new EmployeeDto
+                    Assignee = new EmployeeDto
                     {
                         Id = 21,
                         FullName = "Сидоров Алексей Алексеевич",

@@ -19,9 +19,9 @@ public class CreateFormRequestValidator : AbstractValidator<CreateFormRequest>
             .GreaterThan(0)
             .WithMessage("ShiftId must be greater than 0");
 
-        RuleFor(x => x.ExecutorId)
+        RuleFor(x => x.AssigneeId)
             .GreaterThan(0)
-            .WithMessage("ExecutorId must be greater than 0");
+            .WithMessage("AssigneeId must be greater than 0");
 
         // Валидация для SingleProductWithCycleTime
         When(x => x.PaType == PaTypeDto.SingleProductWithCycleTime, () =>

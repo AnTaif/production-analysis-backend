@@ -38,8 +38,11 @@ public class FormDboConfiguration : IEntityTypeConfiguration<FormDbo>
             .WithMany()
             .HasForeignKey(x => x.DepartmentId);
 
+        builder.Property(x => x.AssigneeId)
+            .HasColumnName("ExecutorId");
+
         builder.HasOne<EmployeeDbo>()
             .WithMany()
-            .HasForeignKey(x => x.ExecutorId);
+            .HasForeignKey(x => x.AssigneeId);
     }
 }

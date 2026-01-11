@@ -9,7 +9,7 @@ namespace ProductionAnalysis.Application.Converters;
 
 public static class FormsConverter
 {
-    public static FormShortDto ToShortDto(this Form form, EmployeeDto creator, EmployeeDto executor)
+    public static FormShortDto ToShortDto(this Form form, EmployeeDto creator, EmployeeDto assignee)
     {
         return new FormShortDto
         {
@@ -20,7 +20,7 @@ public static class FormsConverter
             UpdateDate = form.UpdateDate,
             DepartmentId = form.DepartmentId,
             Creator = creator,
-            Executor = executor,
+            Assignee = assignee,
         };
     }
 

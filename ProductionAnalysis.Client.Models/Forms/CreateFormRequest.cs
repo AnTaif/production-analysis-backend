@@ -10,7 +10,7 @@ public record CreateFormRequest
     public int ShiftId { get; init; }
 
     [Range(1, int.MaxValue)]
-    public int ExecutorId { get; init; }
+    public int AssigneeId { get; init; }
 
     public ProductContextDto? Product { get; init; }
 

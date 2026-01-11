@@ -11,5 +11,5 @@ public record FormShortDto
     public DateTime UpdateDate { get; init; }
     public int DepartmentId { get; init; }
     public required EmployeeDto Creator { get; init; }
-    public required EmployeeDto Executor { get; init; }
+    public required EmployeeDto Assignee { get; init; }
 }

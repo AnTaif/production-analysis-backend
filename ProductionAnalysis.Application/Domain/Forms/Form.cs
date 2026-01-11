@@ -17,7 +17,7 @@ public class Form
         Guid creatorId,
         int shiftId,
         int departmentId,
-        int executorId,
+        int assigneeId,
         Dictionary<int, object>? totalValues = null)
     {
         Id = id;
@@ -31,7 +31,7 @@ public class Form
         CreatorId = creatorId;
         ShiftId = shiftId;
         DepartmentId = departmentId;
-        ExecutorId = executorId;
+        AssigneeId = assigneeId;
         TotalValues = totalValues;
     }
 
@@ -46,6 +46,6 @@ public class Form
     public Guid CreatorId { get; }
     public int ShiftId { get; }
     public int DepartmentId { get; }
-    public int ExecutorId { get; }
+    public int AssigneeId { get; }
     public Dictionary<int, object>? TotalValues { get; }
 }

@@ -9,7 +9,7 @@ namespace ProductionAnalysis.Application.Implementation.Forms;
 
 public interface IFormValidator
 {
-    Task<Result<(Template template, EmployeeDto creator, EmployeeDto executor, ShiftDto shift)>>
+    Task<Result<(Template template, EmployeeDto creator, EmployeeDto assignee, ShiftDto shift)>>
         ValidateCreateRequestAsync(
             CreateFormRequest request,
             Guid creatorId);
@@ -22,7 +22,7 @@ public class FormValidator(
 )
     : IFormValidator
 {
-    public async Task<Result<(Template template, EmployeeDto creator, EmployeeDto executor, ShiftDto shift)>>
+    public async Task<Result<(Template template, EmployeeDto creator, EmployeeDto assignee, ShiftDto shift)>>
         ValidateCreateRequestAsync(
             CreateFormRequest request,
             Guid creatorId)
@@ -53,16 +53,16 @@ public class FormValidator(
             return ServiceError.NotFound($"Employee for user {creatorId} not found");
         }
 
-        var executor = await unitOfWork.Dictionaries.FindEmployeeByIdAsync(request.ExecutorId);
-        if (executor is null)
+        var assignee = await unitOfWork.Dictionaries.FindEmployeeByIdAsync(request.AssigneeId);
+        if (assignee is null)
         {
-            return ServiceError.NotFound($"Executor with id {request.ExecutorId} not found");
+            return ServiceError.NotFound($"Assignee with id {request.AssigneeId} not found");
         }
 
-        if (executor.DepartmentId != creator.DepartmentId)
+        if (assignee.DepartmentId != creator.DepartmentId)
         {
             return ServiceError.BadRequest(
-                $"Executor and creator must be from the same department. Executor department: {executor.DepartmentId}, Creator department: {creator.DepartmentId}");
+                $"Assignee and creator must be from the same department. Assignee department: {assignee.DepartmentId}, Creator department: {creator.DepartmentId}");
         }
 
         var shift = await unitOfWork.Dictionaries.SelectShiftByIdAsync(request.ShiftId);
@@ -71,6 +71,6 @@ public class FormValidator(
             return ServiceError.NotFound($"Shift not found by id {request.ShiftId}");
         }
 
-        return (template, creator, executor, shift);
+        return (template, creator, assignee, shift);
     }
 }
