@@ -31,6 +31,14 @@ public class DictionariesRepository(
         return dbos.Select(e => e.ToDto()).ToList();
     }
 
+    public async Task<ICollection<EmployeeDto>> SelectEmployeesByDepartmentIdAsync(int departmentId)
+    {
+        var dbos = await dbContext.Employees
+            .Where(e => e.DepartmentId == departmentId)
+            .ToListAsync();
+        return dbos.Select(e => e.ToDto()).ToList();
+    }
+
     public async Task<EmployeeDto?> FindEmployeeByUserIdAsync(Guid userId)
     {
         var employee = await dbContext.Employees

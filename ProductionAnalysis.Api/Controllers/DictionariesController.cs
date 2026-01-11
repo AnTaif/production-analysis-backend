@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Core.Auth;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ProductionAnalysis.Api.Docs.Dictionaries;
 using ProductionAnalysis.Application.Implementation.Dictionaries;
 using ProductionAnalysis.Client.Models.Dictionaries;
@@ -29,11 +31,13 @@ public class DictionariesController(IDictionariesService dictionariesService) : 
     }
 
     [HttpGet("employees")]
+    [Authorize]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerableEmployeeDtoExample))]
     [ProducesResponseType<IEnumerable<EmployeeDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetEmployees()
     {
-        var dtos = await dictionariesService.GetEmployeesAsync();
+        var user = User.ReadContextUser();
+        var dtos = await dictionariesService.GetEmployeesAsync(user);
         return Ok(dtos);
     }
 

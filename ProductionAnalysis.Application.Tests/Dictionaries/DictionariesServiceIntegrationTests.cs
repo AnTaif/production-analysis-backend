@@ -1,6 +1,8 @@
+using Core.Auth;
 using FluentAssertions;
 using NUnit.Framework;
 using ProductionAnalysis.Application.Tests.Infrastructure;
+using Shared.Constants;
 
 namespace ProductionAnalysis.Application.Tests.Dictionaries;
 
@@ -30,7 +32,11 @@ public class DictionariesServiceIntegrationTests : BaseIntegrationTest
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id);
 
-        var result = await DictionariesService.GetEmployeesAsync();
+        var result = await DictionariesService.GetEmployeesAsync(new ContextUser
+        {
+            Id = user.Id,
+            Roles = [Roles.DepartmentHead]
+        });
 
         result.Should().NotBeNull();
         result.Should().Contain(e => e.UserId == user.Id);
