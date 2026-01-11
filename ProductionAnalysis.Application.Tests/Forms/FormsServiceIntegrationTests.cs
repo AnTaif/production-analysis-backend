@@ -1,3 +1,4 @@
+using Core.Auth;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
@@ -5,6 +6,7 @@ using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Implementation.Forms;
 using ProductionAnalysis.Application.Tests.Infrastructure;
 using ProductionAnalysis.Client.Models.Forms;
+using Shared.Constants;
 
 namespace ProductionAnalysis.Application.Tests.Forms;
 
@@ -243,7 +245,13 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PageSize = 10
         };
 
-        var result = await FormsService.SearchFormsAsync(searchFilter);
+        var contextUser = new ContextUser
+        {
+            Id = user.Id,
+            Roles = [Roles.DepartmentHead]
+        };
+
+        var result = await FormsService.SearchFormsAsync(searchFilter, contextUser);
 
         result.Should().NotBeNull();
         result.Value.Items.Should().NotBeEmpty();
@@ -283,11 +291,269 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PageSize = 10
         };
 
-        var result = await FormsService.SearchFormsAsync(searchFilter);
+        var contextUser = new ContextUser
+        {
+            Id = user.Id,
+            Roles = [Roles.DepartmentHead]
+        };
+
+        var result = await FormsService.SearchFormsAsync(searchFilter, contextUser);
 
         result.Should().NotBeNull();
         result.Value.Items.Should().NotBeEmpty();
         result.Value.Items.Should().OnlyContain(f => f.DepartmentId == 1);
+    }
+
+    [Test]
+    public async Task SearchFormsAsync_ForAdmin_ShouldReturnAllForms()
+    {
+        // Arrange
+        var adminUser = await DataBuilder.CreateUserAsync("admin@test.com");
+        await DataBuilder.CreateEmployeeAsync(adminUser.Id, departmentId: 1);
+
+        var user1 = await DataBuilder.CreateUserAsync("user1@test.com");
+        await DataBuilder.CreateEmployeeAsync(user1.Id, departmentId: 1);
+        var executor1 = await CreateExecutorAsync(departmentId: 1);
+
+        var user2 = await DataBuilder.CreateUserAsync("user2@test.com");
+        await DataBuilder.CreateEmployeeAsync(user2.Id, departmentId: 2);
+        var executor2 = await CreateExecutorAsync(departmentId: 2);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        // Создаем формы в разных департаментах
+        var form1Request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.SingleProductWithCycleTime,
+            ShiftId = shift.Id,
+            ExecutorId = executor1,
+            Product = new ProductContextDto
+            {
+                ProductId = 1,
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+        await FormsService.CreateAsync(form1Request, user1.Id);
+
+        var form2Request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.SingleProductWithCycleTime,
+            ShiftId = shift.Id,
+            ExecutorId = executor2,
+            Product = new ProductContextDto
+            {
+                ProductId = 1,
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+        await FormsService.CreateAsync(form2Request, user2.Id);
+
+        var searchFilter = new SearchFormsFilterDto
+        {
+            PageNumber = 1,
+            PageSize = 10
+        };
+
+        var adminContextUser = new ContextUser
+        {
+            Id = adminUser.Id,
+            Roles = [Roles.Admin]
+        };
+
+        // Act
+        var result = await FormsService.SearchFormsAsync(searchFilter, adminContextUser);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Value.Items.Should().NotBeEmpty();
+        result.Value.TotalCount.Should().BeGreaterThanOrEqualTo(2);
+        // Админ должен видеть формы из всех департаментов
+        result.Value.Items.Should().Contain(f => f.DepartmentId == 1);
+        result.Value.Items.Should().Contain(f => f.DepartmentId == 2);
+    }
+
+    [Test]
+    public async Task SearchFormsAsync_ForDepartmentHead_ShouldReturnOnlyFormsFromHisDepartment()
+    {
+        // Arrange
+        var deptHeadUser = await DataBuilder.CreateUserAsync("depthead@test.com");
+        await DataBuilder.CreateEmployeeAsync(deptHeadUser.Id, departmentId: 1);
+        var executor1 = await CreateExecutorAsync(departmentId: 1);
+
+        var user2 = await DataBuilder.CreateUserAsync("user2@test.com");
+        await DataBuilder.CreateEmployeeAsync(user2.Id, departmentId: 2);
+        var executor2 = await CreateExecutorAsync(departmentId: 2);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        // Создаем форму в департаменте 1
+        var form1Request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.SingleProductWithCycleTime,
+            ShiftId = shift.Id,
+            ExecutorId = executor1,
+            Product = new ProductContextDto
+            {
+                ProductId = 1,
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+        await FormsService.CreateAsync(form1Request, deptHeadUser.Id);
+
+        // Создаем форму в департаменте 2
+        var form2Request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.SingleProductWithCycleTime,
+            ShiftId = shift.Id,
+            ExecutorId = executor2,
+            Product = new ProductContextDto
+            {
+                ProductId = 1,
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+        await FormsService.CreateAsync(form2Request, user2.Id);
+
+        var searchFilter = new SearchFormsFilterDto
+        {
+            PageNumber = 1,
+            PageSize = 10
+        };
+
+        var deptHeadContextUser = new ContextUser
+        {
+            Id = deptHeadUser.Id,
+            Roles = [Roles.DepartmentHead]
+        };
+
+        // Act
+        var result = await FormsService.SearchFormsAsync(searchFilter, deptHeadContextUser);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Value.Items.Should().NotBeEmpty();
+        // Начальник участка должен видеть только формы из своего департамента
+        result.Value.Items.Should().OnlyContain(f => f.DepartmentId == 1);
+        result.Value.Items.Should().NotContain(f => f.DepartmentId == 2);
+    }
+
+    [Test]
+    public async Task SearchFormsAsync_ForOperator_ShouldReturnOnlyFormsWhereHeIsExecutor()
+    {
+        // Arrange
+        var operatorUser = await DataBuilder.CreateUserAsync("operator@test.com");
+        var operatorEmployee = await DataBuilder.CreateEmployeeAsync(operatorUser.Id, departmentId: 1);
+
+        var user2 = await DataBuilder.CreateUserAsync("user2@test.com");
+        await DataBuilder.CreateEmployeeAsync(user2.Id, departmentId: 1);
+        var executor2 = await CreateExecutorAsync(departmentId: 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        // Создаем форму, где оператор является исполнителем
+        var form1Request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.SingleProductWithCycleTime,
+            ShiftId = shift.Id,
+            ExecutorId = operatorEmployee.Id,
+            Product = new ProductContextDto
+            {
+                ProductId = 1,
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+        var form1Result = await FormsService.CreateAsync(form1Request, user2.Id);
+        form1Result.IsSuccess.Should().BeTrue();
+        var form1Id = form1Result.Value.Id;
+
+        // Создаем форму, где оператор НЕ является исполнителем
+        var form2Request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.SingleProductWithCycleTime,
+            ShiftId = shift.Id,
+            ExecutorId = executor2,
+            Product = new ProductContextDto
+            {
+                ProductId = 1,
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+        var form2Result = await FormsService.CreateAsync(form2Request, user2.Id);
+        form2Result.IsSuccess.Should().BeTrue();
+        var form2Id = form2Result.Value.Id;
+
+        var searchFilter = new SearchFormsFilterDto
+        {
+            PageNumber = 1,
+            PageSize = 10
+        };
+
+        var operatorContextUser = new ContextUser
+        {
+            Id = operatorUser.Id,
+            Roles = [Roles.Operator]
+        };
+
+        // Act
+        var result = await FormsService.SearchFormsAsync(searchFilter, operatorContextUser);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Value.Items.Should().NotBeEmpty();
+        // Оператор должен видеть только форму, где он является исполнителем
+        result.Value.Items.Should().Contain(f => f.Id == form1Id);
+        result.Value.Items.Should().NotContain(f => f.Id == form2Id);
+    }
+
+    [Test]
+    public async Task SearchFormsAsync_ForUserWithoutRole_ShouldReturnEmptyResult()
+    {
+        // Arrange
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        var createRequest = new CreateFormRequest
+        {
+            PaType = PaTypeDto.SingleProductWithCycleTime,
+            ShiftId = shift.Id,
+            ExecutorId = executorId,
+            Product = new ProductContextDto
+            {
+                ProductId = 1,
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+        await FormsService.CreateAsync(createRequest, user.Id);
+
+        var searchFilter = new SearchFormsFilterDto
+        {
+            PageNumber = 1,
+            PageSize = 10
+        };
+
+        var contextUser = new ContextUser
+        {
+            Id = user.Id,
+            Roles = [] // Пользователь без роли
+        };
+
+        // Act
+        var result = await FormsService.SearchFormsAsync(searchFilter, contextUser);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Value.Items.Should().BeEmpty();
+        result.Value.TotalCount.Should().Be(0);
     }
 
     [Test]
@@ -1435,7 +1701,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
 
     private async Task<int> CreateExecutorAsync(int departmentId = 1)
     {
-        var executorUser = await DataBuilder.CreateUserAsync("executor@test.com");
+        var executorUser = await DataBuilder.CreateUserAsync($"executor{Guid.NewGuid()}@test.com");
         var executor = await DataBuilder.CreateEmployeeAsync(executorUser.Id, departmentId);
         return executor.Id;
     }

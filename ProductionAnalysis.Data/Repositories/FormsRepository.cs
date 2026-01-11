@@ -12,7 +12,7 @@ namespace ProductionAnalysis.Data.Repositories;
 [RegisterScoped]
 public class FormsRepository(PaDbContext dbContext) : IFormsRepository
 {
-    public Task<(ICollection<Form> Forms, int TotalCount)> SearchFormsAsync(SearchFormsFilter filter)
+    public async Task<(ICollection<Form> Forms, int TotalCount)> SearchFormsAsync(SearchFormsFilter filter)
     {
         var query = dbContext.Forms.AsQueryable();
 
@@ -26,22 +26,22 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
             query = query.Where(f => f.DepartmentId == filter.DepartmentId.Value);
         }
 
-        var totalCountTask = query.CountAsync();
+        if (filter.ExecutorId.HasValue)
+        {
+            query = query.Where(f => f.ExecutorId == filter.ExecutorId.Value);
+        }
 
-        var formsDboTask = query
+        var totalCount = await query.CountAsync();
+
+        var formsDbo = await query
             .OrderByDescending(f => f.UpdateDate)
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
             .ToListAsync();
 
-        Task.WaitAll(totalCountTask, formsDboTask);
-
-        var totalCount = totalCountTask.Result;
-        var formsDbo = formsDboTask.Result;
-
         var forms = formsDbo.Select(f => f.ToDomain()).ToList();
 
-        return Task.FromResult<(ICollection<Form> Forms, int TotalCount)>((forms, totalCount));
+        return (forms, totalCount);
     }
 
     public async Task<Form> CreateAsync(Form newForm)

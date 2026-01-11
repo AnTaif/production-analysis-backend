@@ -21,7 +21,8 @@ public class FormsController(IFormsService formsService) : ControllerBase
     [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<PaginatedResponse<FormShortDto>>> SearchForms(SearchFormsFilterDto searchFormsFilter)
     {
-        var result = await formsService.SearchFormsAsync(searchFormsFilter);
+        var user = User.ReadContextUser();
+        var result = await formsService.SearchFormsAsync(searchFormsFilter, user);
         return result.ToActionResult(this);
     }
 
