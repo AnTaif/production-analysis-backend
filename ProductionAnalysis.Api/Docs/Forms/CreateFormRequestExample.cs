@@ -10,6 +10,7 @@ public class CreateFormRequestExample : IExamplesProvider<CreateFormRequest>
         {
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = 1,
+            ExecutorId = 1,
             Product = new ProductContextDto
             {
                 ProductId = 1,

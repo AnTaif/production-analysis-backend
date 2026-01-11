@@ -8,6 +8,7 @@ public interface IDictionariesRepository
     Task<ICollection<DowntimeReasonGroupDto>> SelectDowntimeReasonGroupsAsync();
     Task<ICollection<EmployeeDto>> SelectEmployeesAsync();
     Task<EmployeeDto?> FindEmployeeByUserIdAsync(Guid userId);
+    Task<EmployeeDto?> FindEmployeeByIdAsync(int employeeId);
     Task<ICollection<EnterpriseDto>> SelectEnterprisesAsync();
     Task<ICollection<AuxiliaryOperationDto>> SelectAuxiliaryOperationsAsync();
     Task<ICollection<OperationDto>> SelectOperationsAsync();

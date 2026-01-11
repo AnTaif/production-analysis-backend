@@ -9,9 +9,10 @@ namespace ProductionAnalysis.Application.Implementation.Forms;
 
 public interface IFormValidator
 {
-    Task<Result<(Template template, EmployeeDto employee, ShiftDto shift)>> ValidateCreateRequestAsync(
-        CreateFormRequest request,
-        Guid creatorId);
+    Task<Result<(Template template, EmployeeDto employee, EmployeeDto executor, ShiftDto shift)>>
+        ValidateCreateRequestAsync(
+            CreateFormRequest request,
+            Guid creatorId);
 }
 
 [RegisterScoped]
@@ -21,9 +22,10 @@ public class FormValidator(
 )
     : IFormValidator
 {
-    public async Task<Result<(Template template, EmployeeDto employee, ShiftDto shift)>> ValidateCreateRequestAsync(
-        CreateFormRequest request,
-        Guid creatorId)
+    public async Task<Result<(Template template, EmployeeDto employee, EmployeeDto executor, ShiftDto shift)>>
+        ValidateCreateRequestAsync(
+            CreateFormRequest request,
+            Guid creatorId)
     {
         // Валидация запроса с помощью FluentValidation
         var validationResult = await requestValidator.ValidateAsync(request);
@@ -45,10 +47,22 @@ public class FormValidator(
             return ServiceError.NotFound($"Template for PaType {request.PaType} not found");
         }
 
-        var employee = await unitOfWork.Dictionaries.FindEmployeeByUserIdAsync(creatorId);
-        if (employee is null)
+        var creator = await unitOfWork.Dictionaries.FindEmployeeByUserIdAsync(creatorId);
+        if (creator is null)
         {
             return ServiceError.NotFound($"Employee for user {creatorId} not found");
+        }
+
+        var executor = await unitOfWork.Dictionaries.FindEmployeeByIdAsync(request.ExecutorId);
+        if (executor is null)
+        {
+            return ServiceError.NotFound($"Executor with id {request.ExecutorId} not found");
+        }
+
+        if (executor.DepartmentId != creator.DepartmentId)
+        {
+            return ServiceError.BadRequest(
+                $"Executor and creator must be from the same department. Executor department: {executor.DepartmentId}, Creator department: {creator.DepartmentId}");
         }
 
         var shift = await unitOfWork.Dictionaries.SelectShiftByIdAsync(request.ShiftId);
@@ -57,6 +71,6 @@ public class FormValidator(
             return ServiceError.NotFound($"Shift not found by id {request.ShiftId}");
         }
 
-        return (template, employee, shift);
+        return (template, creator, executor, shift);
     }
 }

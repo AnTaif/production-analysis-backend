@@ -55,6 +55,7 @@ public static class FormsConverter
             dbo.CreatorId,
             dbo.ShiftId,
             dbo.DepartmentId,
+            dbo.ExecutorId,
             totalValues);
     }
 

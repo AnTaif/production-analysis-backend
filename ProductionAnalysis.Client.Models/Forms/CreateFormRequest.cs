@@ -9,6 +9,9 @@ public record CreateFormRequest
     [Range(1, int.MaxValue)]
     public int ShiftId { get; init; }
 
+    [Range(1, int.MaxValue)]
+    public int ExecutorId { get; init; }
+
     public ProductContextDto? Product { get; init; }
 
     public ICollection<ProductContextDto>? Products { get; init; }

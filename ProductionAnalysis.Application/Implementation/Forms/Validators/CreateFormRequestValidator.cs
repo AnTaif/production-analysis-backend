@@ -1,6 +1,4 @@
 using FluentValidation;
-using ProductionAnalysis.Application.Converters;
-using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Client.Models.Forms;
 
 namespace ProductionAnalysis.Application.Implementation.Forms.Validators;
@@ -21,48 +19,52 @@ public class CreateFormRequestValidator : AbstractValidator<CreateFormRequest>
             .GreaterThan(0)
             .WithMessage("ShiftId must be greater than 0");
 
+        RuleFor(x => x.ExecutorId)
+            .GreaterThan(0)
+            .WithMessage("ExecutorId must be greater than 0");
+
         // Валидация для SingleProductWithCycleTime
-        When(x => x.PaType.ToDomain() == PaType.SingleProductWithCycleTime, () =>
+        When(x => x.PaType == PaTypeDto.SingleProductWithCycleTime, () =>
         {
             RuleFor(x => x.Product)
                 .NotNull()
-                .WithMessage($"Product is required for {PaType.SingleProductWithCycleTime}")
+                .WithMessage($"Product is required for {PaTypeDto.SingleProductWithCycleTime}")
                 .SetValidator(productWithCycleTimeValidator);
 
             RuleFor(x => x.Products)
                 .Null()
-                .WithMessage($"Products must be null for {PaType.SingleProductWithCycleTime}");
+                .WithMessage($"Products must be null for {PaTypeDto.SingleProductWithCycleTime}");
 
             RuleFor(x => x.Operation)
                 .Null()
-                .WithMessage($"Operation must be null for {PaType.SingleProductWithCycleTime}");
+                .WithMessage($"Operation must be null for {PaTypeDto.SingleProductWithCycleTime}");
         });
 
         // Валидация для SingleProductWithWorkstationCapacity
-        When(x => x.PaType.ToDomain() == PaType.SingleProductWithWorkstationCapacity, () =>
+        When(x => x.PaType == PaTypeDto.SingleProductWithWorkstationCapacity, () =>
         {
             RuleFor(x => x.Product)
                 .NotNull()
-                .WithMessage($"Product is required for {PaType.SingleProductWithWorkstationCapacity}")
+                .WithMessage($"Product is required for {PaTypeDto.SingleProductWithWorkstationCapacity}")
                 .SetValidator(productWithWorkstationCapacityValidator);
 
             RuleFor(x => x.Products)
                 .Null()
-                .WithMessage($"Products must be null for {PaType.SingleProductWithWorkstationCapacity}");
+                .WithMessage($"Products must be null for {PaTypeDto.SingleProductWithWorkstationCapacity}");
 
             RuleFor(x => x.Operation)
                 .Null()
-                .WithMessage($"Operation must be null for {PaType.SingleProductWithWorkstationCapacity}");
+                .WithMessage($"Operation must be null for {PaTypeDto.SingleProductWithWorkstationCapacity}");
         });
 
         // Валидация для MultipleProductsWithCycleTime
-        When(x => x.PaType.ToDomain() == PaType.MultipleProductsWithCycleTime, () =>
+        When(x => x.PaType == PaTypeDto.MultipleProductsWithCycleTime, () =>
         {
             RuleFor(x => x.Products)
                 .NotNull()
-                .WithMessage($"Products are required for {PaType.MultipleProductsWithCycleTime}")
+                .WithMessage($"Products are required for {PaTypeDto.MultipleProductsWithCycleTime}")
                 .NotEmpty()
-                .WithMessage($"Products collection must not be empty for {PaType.MultipleProductsWithCycleTime}");
+                .WithMessage($"Products collection must not be empty for {PaTypeDto.MultipleProductsWithCycleTime}");
 
             RuleForEach(x => x.Products!)
                 .SetValidator(productWithCycleTimeValidator)
@@ -70,45 +72,45 @@ public class CreateFormRequestValidator : AbstractValidator<CreateFormRequest>
 
             RuleFor(x => x.Product)
                 .Null()
-                .WithMessage($"Product must be null for {PaType.MultipleProductsWithCycleTime}");
+                .WithMessage($"Product must be null for {PaTypeDto.MultipleProductsWithCycleTime}");
 
             RuleFor(x => x.Operation)
                 .Null()
-                .WithMessage($"Operation must be null for {PaType.MultipleProductsWithCycleTime}");
+                .WithMessage($"Operation must be null for {PaTypeDto.MultipleProductsWithCycleTime}");
         });
 
         // Валидация для LessThanOnePerHour
-        When(x => x.PaType.ToDomain() == PaType.LessThanOnePerHour, () =>
+        When(x => x.PaType == PaTypeDto.LessThanOnePerHour, () =>
         {
             RuleFor(x => x.Operation)
                 .NotNull()
-                .WithMessage($"Operation is required for {PaType.LessThanOnePerHour}")
+                .WithMessage($"Operation is required for {PaTypeDto.LessThanOnePerHour}")
                 .SetValidator(operationValidator);
 
             RuleFor(x => x.Product)
                 .Null()
-                .WithMessage($"Product must be null for {PaType.LessThanOnePerHour}");
+                .WithMessage($"Product must be null for {PaTypeDto.LessThanOnePerHour}");
 
             RuleFor(x => x.Products)
                 .Null()
-                .WithMessage($"Products must be null for {PaType.LessThanOnePerHour}");
+                .WithMessage($"Products must be null for {PaTypeDto.LessThanOnePerHour}");
         });
 
         // Валидация для LessThanOnePerShift
-        When(x => x.PaType.ToDomain() == PaType.LessThanOnePerShift, () =>
+        When(x => x.PaType == PaTypeDto.LessThanOnePerShift, () =>
         {
             RuleFor(x => x.Operation)
                 .NotNull()
-                .WithMessage($"Operation is required for {PaType.LessThanOnePerShift}")
+                .WithMessage($"Operation is required for {PaTypeDto.LessThanOnePerShift}")
                 .SetValidator(operationValidator);
 
             RuleFor(x => x.Product)
                 .Null()
-                .WithMessage($"Product must be null for {PaType.LessThanOnePerShift}");
+                .WithMessage($"Product must be null for {PaTypeDto.LessThanOnePerShift}");
 
             RuleFor(x => x.Products)
                 .Null()
-                .WithMessage($"Products must be null for {PaType.LessThanOnePerShift}");
+                .WithMessage($"Products must be null for {PaTypeDto.LessThanOnePerShift}");
         });
     }
 }

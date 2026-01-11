@@ -16,6 +16,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var template = await DbContext.Templates
             .Include(t => t.Indicators)
@@ -28,8 +29,10 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = (PaTypeDto)template.PaTypeId,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Product = new ProductContextDto
             {
+                ProductId = 1,
                 DailyRate = 400,
                 CycleTime = 72
             }
@@ -68,6 +71,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -75,8 +79,10 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Product = new ProductContextDto
             {
+                ProductId = 1,
                 DailyRate = 400,
                 CycleTime = 72
             }
@@ -112,14 +118,17 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
         var request = new CreateFormRequest
         {
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Product = new ProductContextDto
             {
+                ProductId = 1,
                 DailyRate = 400,
                 CycleTime = 72
             }
@@ -209,6 +218,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
     {
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -216,8 +226,10 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Product = new ProductContextDto
             {
+                ProductId = 1,
                 DailyRate = 400,
                 CycleTime = 72
             }
@@ -245,6 +257,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
     {
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -252,8 +265,10 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Product = new ProductContextDto
             {
+                ProductId = 1,
                 DailyRate = 400,
                 CycleTime = 72
             }
@@ -280,6 +295,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
     {
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -287,8 +303,10 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Product = new ProductContextDto
             {
+                ProductId = 1,
                 DailyRate = 400,
                 CycleTime = 72
             }
@@ -320,6 +338,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
     {
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -327,8 +346,10 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Product = new ProductContextDto
             {
+                ProductId = 1,
                 DailyRate = 400,
                 CycleTime = 72
             }
@@ -359,15 +380,18 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
     {
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
         var request = new CreateFormRequest
         {
-            PaType = (PaTypeDto)99999,
+            PaType = (PaTypeDto)9999,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Product = new ProductContextDto
             {
+                ProductId = 1,
                 DailyRate = 400,
                 CycleTime = 72
             }
@@ -377,14 +401,15 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
 
         result.IsSuccess.Should().BeFalse();
         result.Error.Should().NotBeNull();
-        result.Error.Message.Should().Contain("Template");
-        result.Error.Message.Should().Contain("not found");
+        result.Error.Message.Should().Contain("PaType:");
+        result.Error.Message.Should().Contain("must be a valid value");
     }
 
     [Test]
     public async Task CreateAsync_WithNonExistentEmployee_ShouldReturnNotFound()
     {
         var user = await DataBuilder.CreateUserAsync();
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -392,8 +417,10 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Product = new ProductContextDto
             {
+                ProductId = 1,
                 DailyRate = 400,
                 CycleTime = 72
             }
@@ -412,13 +439,16 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
     {
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var request = new CreateFormRequest
         {
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = 99999,
+            ExecutorId = executorId,
             Product = new ProductContextDto
             {
+                ProductId = 1,
                 DailyRate = 400,
                 CycleTime = 72
             }
@@ -430,6 +460,35 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         result.Error.Should().NotBeNull();
         result.Error.Message.Should().Contain("Shift");
         result.Error.Message.Should().Contain("not found");
+    }
+
+    [Test]
+    public async Task CreateAsync_WithExecutorFromDifferentDepartment_ShouldReturnError()
+    {
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 2);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        var request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.SingleProductWithCycleTime,
+            ShiftId = shift.Id,
+            ExecutorId = executorId,
+            Product = new ProductContextDto
+            {
+                ProductId = 1,
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+
+        var result = await FormsService.CreateAsync(request, user.Id);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().NotBeNull();
+        result.Error.Message.Should().Contain("same department");
     }
 
     [Test]
@@ -451,6 +510,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
+            ExecutorId = 1,
             Operation = new OperationContextDto
             {
                 OperationId = 4 // Подсборка - операция для продукта Id: 1
@@ -511,6 +571,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -519,6 +580,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Operation = new OperationContextDto
             {
                 OperationId = 4 // Подсборка
@@ -567,6 +629,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -575,6 +638,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Operation = new OperationContextDto
             {
                 OperationId = 4 // Подсборка
@@ -630,6 +694,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -640,6 +705,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Operation = new OperationContextDto
             {
                 OperationId = 4 // Подсборка
@@ -682,6 +748,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -701,6 +768,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Operation = new OperationContextDto
             {
                 OperationId = 4 // Подсборка
@@ -732,6 +800,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -741,6 +810,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Operation = new OperationContextDto
             {
                 OperationId = 1 // Подготовка
@@ -780,6 +850,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -788,6 +859,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Operation = new OperationContextDto
             {
                 OperationId = 4 // Подсборка
@@ -825,6 +897,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -834,6 +907,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Operation = new OperationContextDto
             {
                 OperationId = 4 // Подсборка
@@ -882,6 +956,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -889,8 +964,10 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Product = new ProductContextDto
             {
+                ProductId = 1,
                 DailyRate = 400,
                 CycleTime = 72
             }
@@ -921,6 +998,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -928,8 +1006,10 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Product = new ProductContextDto
             {
+                ProductId = 1,
                 DailyRate = 400,
                 CycleTime = 72
             }
@@ -957,6 +1037,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -964,6 +1045,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Operation = null // Операция не указана
         };
 
@@ -994,6 +1076,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
+            ExecutorId = 1,
             Operation = new OperationContextDto
             {
                 OperationId = 4 // Подсборка - операция для продукта Id: 1
@@ -1030,6 +1113,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
         var shiftStartMinutes = shift.StartTime.Hour * 60 + shift.StartTime.Minute;
@@ -1038,6 +1122,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Operation = new OperationContextDto
             {
                 OperationId = 4 // Подсборка
@@ -1091,6 +1176,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -1098,6 +1184,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Operation = new OperationContextDto
             {
                 OperationId = 4 // Подсборка
@@ -1136,6 +1223,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -1143,6 +1231,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Operation = new OperationContextDto
             {
                 OperationId = 4 // Подсборка
@@ -1176,6 +1265,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -1194,6 +1284,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Operation = new OperationContextDto
             {
                 OperationId = 4 // Подсборка
@@ -1227,6 +1318,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -1234,6 +1326,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Operation = new OperationContextDto
             {
                 OperationId = 4 // Подсборка
@@ -1263,6 +1356,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -1270,6 +1364,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Operation = new OperationContextDto
             {
                 OperationId = 4 // Подсборка
@@ -1317,6 +1412,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Arrange
         var user = await DataBuilder.CreateUserAsync();
         await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var executorId = await CreateExecutorAsync(departmentId: 1);
 
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
@@ -1324,6 +1420,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
+            ExecutorId = executorId,
             Operation = null // Операция не указана
         };
 
@@ -1334,5 +1431,12 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         result.IsSuccess.Should().BeFalse();
         result.Error.Should().NotBeNull();
         result.Error.Message.Should().Contain("Operation");
+    }
+
+    private async Task<int> CreateExecutorAsync(int departmentId = 1)
+    {
+        var executorUser = await DataBuilder.CreateUserAsync("executor@test.com");
+        var executor = await DataBuilder.CreateEmployeeAsync(executorUser.Id, departmentId);
+        return executor.Id;
     }
 }

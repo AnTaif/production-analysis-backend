@@ -51,7 +51,7 @@ public class FormsService(
         var validationResult = await formValidator.ValidateCreateRequestAsync(request, creatorId);
         if (!validationResult.IsSuccess) return validationResult.Error;
 
-        var (template, employee, shift) = validationResult.Value;
+        var (template, employee, executor, shift) = validationResult.Value;
         var context = formContextFactory.CreateContext(request);
 
         var newForm = new Form(
@@ -65,7 +65,8 @@ public class FormsService(
             new List<FormRow>(),
             creatorId,
             shift.Id,
-            employee.DepartmentId
+            employee.DepartmentId,
+            executor.Id
         );
 
         var form = await unitOfWork.Forms.CreateAsync(newForm);

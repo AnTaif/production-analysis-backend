@@ -90,7 +90,7 @@ public abstract class BaseIntegrationTest
             options.ExpiryMinutes = 60;
         });
 
-        services.AddProductionAnalysisApplication();
+        services.AddApplicationLayer();
 
         serviceProvider = services.BuildServiceProvider();
         scope = serviceProvider.CreateScope();

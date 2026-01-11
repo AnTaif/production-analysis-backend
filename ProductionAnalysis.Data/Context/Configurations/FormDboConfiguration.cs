@@ -37,5 +37,9 @@ public class FormDboConfiguration : IEntityTypeConfiguration<FormDbo>
         builder.HasOne<DepartmentDbo>()
             .WithMany()
             .HasForeignKey(x => x.DepartmentId);
+
+        builder.HasOne<EmployeeDbo>()
+            .WithMany()
+            .HasForeignKey(x => x.ExecutorId);
     }
 }
