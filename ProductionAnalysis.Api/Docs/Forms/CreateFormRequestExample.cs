@@ -14,10 +14,11 @@ public class CreateFormRequestExample : IExamplesProvider<CreateFormRequest>
             Product = new ProductContextDto
             {
                 ProductId = 1,
-                CycleTime = 60,
+                CycleTime = 72,
                 WorkstationCapacity = null,
                 DailyRate = 400
             },
+            Products = null,
             OperationOrProduct = null
         };
 }
