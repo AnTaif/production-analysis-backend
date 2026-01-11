@@ -9,12 +9,9 @@ using NUnit.Framework;
 using ProductionAnalysis.Application.Implementation.Auth;
 using ProductionAnalysis.Application.Implementation.Dictionaries;
 using ProductionAnalysis.Application.Implementation.Forms;
-using ProductionAnalysis.Application.Implementation.Forms.Context;
-using ProductionAnalysis.Application.Implementation.Forms.Initialization;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Data.Context;
 using ProductionAnalysis.Data.Models;
-using ProductionAnalysis.Data.Repositories;
 
 namespace ProductionAnalysis.Application.Tests.Infrastructure;
 
@@ -83,13 +80,7 @@ public abstract class BaseIntegrationTest
             .AddEntityFrameworkStores<PaDbContext>()
             .AddDefaultTokenProviders();
 
-        // Регистрация репозиториев
-        services.AddScoped<IDictionariesRepository, DictionariesRepository>();
-        services.AddScoped<IFormsRepository, FormsRepository>();
-        services.AddScoped<IFormRowsRepository, FormRowsRepository>();
-        services.AddScoped<ITemplatesRepository, TemplatesRepository>();
-        services.AddScoped<UserRepository>();
-        services.AddScoped<IPaUnitOfWork, PaUnitOfWork>();
+        services.AddProductionAnalysisData();
 
         services.Configure<JwtOptions>(options =>
         {
@@ -99,22 +90,7 @@ public abstract class BaseIntegrationTest
             options.ExpiryMinutes = 60;
         });
 
-        services.AddScoped<IPlanCalculator, PlanCalculator>();
-        services.AddScoped<IFormRowInitializer, FormRowInitializer>();
-        services.AddScoped<IFormRowValueFilter, FormRowValueFilter>();
-        services.AddScoped<IFormRowFormulaCalculator, FormRowFormulaCalculator>();
-        services.AddScoped<ICumulativeValueCalculator, CumulativeValueCalculator>();
-        services.AddScoped<IFormulaCalculator, FormulaCalculator>();
-        services.AddScoped<IFormContextFactory, FormContextFactory>();
-        services.AddScoped<IFormRowDataFactory, FormRowDataFactory>();
-        services.AddScoped<ITokenProvider, JwtTokenProvider>();
-        services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<IDictionariesService, DictionariesService>();
-        services.AddScoped<IFormsService, FormsService>();
-        services.AddScoped<ITotalValueCalculator, TotalValueCalculator>();
-        services.AddScoped<IFormValidator, FormValidator>();
-        services.AddScoped<IFormRowUpdateOrchestrator, FormRowUpdateOrchestrator>();
-        services.AddScoped<IFormTotalsUpdater, FormTotalsUpdater>();
+        services.AddProductionAnalysisApplication();
 
         serviceProvider = services.BuildServiceProvider();
         scope = serviceProvider.CreateScope();
