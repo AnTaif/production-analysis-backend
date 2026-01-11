@@ -714,15 +714,29 @@ public class PaDataSeeder(
             PaTypeId = (int)PaType.SingleProductWithCycleTime,
             Version = 1
         };
-        template1.Indicators.Add(worktime);
-        template1.Indicators.Add(plan);
-        template1.Indicators.Add(fact);
-        template1.Indicators.Add(deviation);
-        template1.Indicators.Add(downtime);
-        template1.Indicators.Add(downtimeResponsible);
-        template1.Indicators.Add(downtimeReason);
-        template1.Indicators.Add(downTimeReasonsGroup);
-        template1.Indicators.Add(actionsTaken);
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template1.Id, IndicatorId = worktime.Id, Indicator = worktime, Order = 0 });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template1.Id, IndicatorId = plan.Id, Indicator = plan, Order = 1 });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template1.Id, IndicatorId = fact.Id, Indicator = fact, Order = 2 });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template1.Id, IndicatorId = deviation.Id, Indicator = deviation, Order = 3 });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template1.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 4 });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template1.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 5
+        });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template1.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 6 });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template1.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
+            Order = 7
+        });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template1.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 8 });
 
         dbContext.Templates.Add(template1);
 
@@ -735,15 +749,29 @@ public class PaDataSeeder(
             Version = 0,
         };
 
-        template2.Indicators.Add(worktime);
-        template2.Indicators.Add(plan);
-        template2.Indicators.Add(fact);
-        template2.Indicators.Add(deviation);
-        template2.Indicators.Add(downtime);
-        template2.Indicators.Add(downtimeResponsible);
-        template2.Indicators.Add(downTimeReasonsGroup);
-        template2.Indicators.Add(downtimeReason);
-        template2.Indicators.Add(actionsTaken);
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template2.Id, IndicatorId = worktime.Id, Indicator = worktime, Order = 0 });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template2.Id, IndicatorId = plan.Id, Indicator = plan, Order = 1 });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template2.Id, IndicatorId = fact.Id, Indicator = fact, Order = 2 });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template2.Id, IndicatorId = deviation.Id, Indicator = deviation, Order = 3 });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template2.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 4 });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template2.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 5
+        });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template2.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
+            Order = 6
+        });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template2.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 7 });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template2.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 8 });
 
         dbContext.Templates.Add(template2);
 
@@ -756,15 +784,29 @@ public class PaDataSeeder(
             Version = 0,
         };
 
-        template3.Indicators.Add(worktime);
-        template3.Indicators.Add(plan);
-        template3.Indicators.Add(fact);
-        template3.Indicators.Add(deviation);
-        template3.Indicators.Add(downtime);
-        template3.Indicators.Add(downtimeResponsible);
-        template3.Indicators.Add(downTimeReasonsGroup);
-        template3.Indicators.Add(downtimeReason);
-        template3.Indicators.Add(actionsTaken);
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template3.Id, IndicatorId = worktime.Id, Indicator = worktime, Order = 0 });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template3.Id, IndicatorId = plan.Id, Indicator = plan, Order = 1 });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template3.Id, IndicatorId = fact.Id, Indicator = fact, Order = 2 });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template3.Id, IndicatorId = deviation.Id, Indicator = deviation, Order = 3 });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template3.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 4 });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template3.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 5
+        });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template3.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
+            Order = 6
+        });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template3.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 7 });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template3.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 8 });
 
         dbContext.Templates.Add(template3);
 
@@ -776,17 +818,33 @@ public class PaDataSeeder(
             PaTypeId = (int)PaType.LessThanOnePerHour,
             Version = 0
         };
-        template4.Indicators.Add(worktime);
-        template4.Indicators.Add(plan);
-        template4.Indicators.Add(operationName);
-        template4.Indicators.Add(operationTime);
-        template4.Indicators.Add(fact);
-        template4.Indicators.Add(deviation);
-        template4.Indicators.Add(downtime);
-        template4.Indicators.Add(downtimeResponsible);
-        template4.Indicators.Add(downtimeReason);
-        template4.Indicators.Add(downTimeReasonsGroup);
-        template4.Indicators.Add(actionsTaken);
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = worktime.Id, Indicator = worktime, Order = 0 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = plan.Id, Indicator = plan, Order = 1 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = operationName.Id, Indicator = operationName, Order = 2 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = operationTime.Id, Indicator = operationTime, Order = 3 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = fact.Id, Indicator = fact, Order = 4 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = deviation.Id, Indicator = deviation, Order = 5 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 6 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template4.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 7
+        });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 8 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template4.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
+            Order = 9
+        });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 10 });
 
         dbContext.Templates.Add(template4);
 
@@ -798,19 +856,37 @@ public class PaDataSeeder(
             PaTypeId = (int)PaType.LessThanOnePerShift,
             Version = 0
         };
-        template5.Indicators.Add(operationName);
-        template5.Indicators.Add(startTimePlan);
-        template5.Indicators.Add(startTimeFact);
-        template5.Indicators.Add(endTimePlan);
-        template5.Indicators.Add(endTimeFact);
-        template5.Indicators.Add(planMinutes);
-        template5.Indicators.Add(factMinutes);
-        template5.Indicators.Add(deviationMinutes);
-        template5.Indicators.Add(downtime);
-        template5.Indicators.Add(downtimeResponsible);
-        template5.Indicators.Add(downtimeReason);
-        template5.Indicators.Add(downTimeReasonsGroup);
-        template5.Indicators.Add(actionsTaken);
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = operationName.Id, Indicator = operationName, Order = 0 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = startTimePlan.Id, Indicator = startTimePlan, Order = 1 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = startTimeFact.Id, Indicator = startTimeFact, Order = 2 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = endTimePlan.Id, Indicator = endTimePlan, Order = 3 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = endTimeFact.Id, Indicator = endTimeFact, Order = 4 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = planMinutes.Id, Indicator = planMinutes, Order = 5 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = factMinutes.Id, Indicator = factMinutes, Order = 6 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = deviationMinutes.Id, Indicator = deviationMinutes, Order = 7 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 8 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template5.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 9
+        });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 10 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template5.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
+            Order = 11
+        });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 12 });
 
         dbContext.Templates.Add(template5);
         await dbContext.SaveChangesAsync();

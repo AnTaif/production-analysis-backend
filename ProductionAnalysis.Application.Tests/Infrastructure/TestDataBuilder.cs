@@ -141,9 +141,11 @@ public class TestDataBuilder(PaDbContext dbContext, UserManager<UserDbo> userMan
             Version = version
         };
 
+        var order = 0;
         foreach (var indicator in indicators)
         {
-            template.Indicators.Add(indicator);
+            template.TemplateIndicators.Add(new TemplateIndicatorDbo
+                { TemplateId = template.Id, IndicatorId = indicator.Id, Indicator = indicator, Order = order++ });
         }
 
         dbContext.Templates.Add(template);

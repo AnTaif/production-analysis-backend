@@ -105,7 +105,7 @@ public static class FormsConverter
         return new FormTemplateDto
         {
             TableColumns = template.Indicators
-                .OrderBy(i => i.Id)
+                .OrderBy(i => i.Order)
                 .Select(indicator => new FormFieldDto
                 {
                     Id = indicator.Id,
@@ -122,33 +122,28 @@ public static class FormsConverter
 
     private static HashSet<int> GetMergedIndicatorIds(PaType paType, Template template)
     {
-        // Для форм типа "Менее 1 шт. в час" объединяем следующие колонки для строк группы:
-        // - Время работы (16)
-        // - План, шт. (1)
-        // - Факт, шт. (2) - если есть в шаблоне
-        // - Отклонение, шт. (3) - если есть в шаблоне
-        // - Простой, мин. (4) - если есть в шаблоне
+        // Для форм типа "Менее 1 шт. в час" объединяем следующие колонки для строк группы
         if (paType == PaType.LessThanOnePerHour)
         {
             var mergedIds = new HashSet<int>
             {
-                ShiftConstants.WorktimeIndicatorId, // 16 - Время работы
-                ShiftConstants.PlanIndicatorId // 1 - План, шт.
+                ShiftConstants.WorktimeIndicatorId,
+                ShiftConstants.PlanIndicatorId
             };
 
             // Добавляем дополнительные индикаторы, если они есть в шаблоне
             var indicatorIds = template.Indicators.Select(i => i.Id).ToHashSet();
 
-            if (indicatorIds.Contains(2)) // Факт, шт.
-                mergedIds.Add(2);
-            if (indicatorIds.Contains(3)) // Отклонение, шт.
+            if (indicatorIds.Contains(3)) // Факт, шт.
                 mergedIds.Add(3);
-            if (indicatorIds.Contains(4)) // Простой, мин.
+            if (indicatorIds.Contains(4)) // Отклонение, шт.
                 mergedIds.Add(4);
+            if (indicatorIds.Contains(5)) // Простой, мин.
+                mergedIds.Add(5);
 
             return mergedIds;
         }
 
-        return new HashSet<int>();
+        return [];
     }
 }

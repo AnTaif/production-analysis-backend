@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ProductionAnalysis.Application.Domain;
+using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Data.Context;
 using ProductionAnalysis.Data.Models;
 using ProductionAnalysis.Data.Models.Dictionaries;
@@ -207,6 +208,17 @@ public class TestDataSeeder
             new IndicatorDbo
             {
                 Id = 1,
+                Name = "Время работы, час.",
+                ValueType = FieldValueTypes.Text,
+                InputType = FieldInputTypes.Initialization,
+                ValueSelector = null,
+                Formula = null,
+                IsCumulative = false,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 2,
                 Name = "План, шт.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Initialization,
@@ -217,7 +229,7 @@ public class TestDataSeeder
             },
             new IndicatorDbo
             {
-                Id = 2,
+                Id = 3,
                 Name = "Факт, шт.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
@@ -228,7 +240,7 @@ public class TestDataSeeder
             },
             new IndicatorDbo
             {
-                Id = 3,
+                Id = 4,
                 Name = "Отклонение, шт.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Formula,
@@ -239,7 +251,7 @@ public class TestDataSeeder
             },
             new IndicatorDbo
             {
-                Id = 4,
+                Id = 5,
                 Name = "Простой, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
@@ -250,22 +262,11 @@ public class TestDataSeeder
             },
             new IndicatorDbo
             {
-                Id = 5,
+                Id = 6,
                 Name = "Ответственный за простой",
                 ValueType = FieldValueTypes.Text,
-                InputType = FieldInputTypes.Manual,
-                ValueSelector = null,
-                Formula = null,
-                IsCumulative = false,
-                HasSummation = false
-            },
-            new IndicatorDbo
-            {
-                Id = 6,
-                Name = "Причины простоя",
-                ValueType = FieldValueTypes.Text,
-                InputType = FieldInputTypes.Manual,
-                ValueSelector = null,
+                InputType = FieldInputTypes.Dictionary,
+                ValueSelector = "employees",
                 Formula = null,
                 IsCumulative = false,
                 HasSummation = false
@@ -284,7 +285,7 @@ public class TestDataSeeder
             new IndicatorDbo
             {
                 Id = 8,
-                Name = "Принятые меры",
+                Name = "Причины отклонения/комментарий",
                 ValueType = FieldValueTypes.Text,
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
@@ -295,6 +296,17 @@ public class TestDataSeeder
             new IndicatorDbo
             {
                 Id = 9,
+                Name = "Принятые меры",
+                ValueType = FieldValueTypes.Text,
+                InputType = FieldInputTypes.Manual,
+                ValueSelector = null,
+                Formula = null,
+                IsCumulative = false,
+                HasSummation = false
+            },
+            new IndicatorDbo
+            {
+                Id = 10,
                 Name = "Наименование операции",
                 ValueType = FieldValueTypes.Text,
                 InputType = FieldInputTypes.Dictionary,
@@ -305,7 +317,7 @@ public class TestDataSeeder
             },
             new IndicatorDbo
             {
-                Id = 10,
+                Id = 11,
                 Name = "Время операции/элемента, мин.",
                 ValueType = FieldValueTypes.Text,
                 InputType = FieldInputTypes.Context,
@@ -316,7 +328,7 @@ public class TestDataSeeder
             },
             new IndicatorDbo
             {
-                Id = 11,
+                Id = 12,
                 Name = "Время начала план, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Initialization,
@@ -327,7 +339,7 @@ public class TestDataSeeder
             },
             new IndicatorDbo
             {
-                Id = 12,
+                Id = 13,
                 Name = "Время начала факт, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
@@ -338,7 +350,7 @@ public class TestDataSeeder
             },
             new IndicatorDbo
             {
-                Id = 13,
+                Id = 14,
                 Name = "Время окончания план, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Initialization,
@@ -349,7 +361,7 @@ public class TestDataSeeder
             },
             new IndicatorDbo
             {
-                Id = 14,
+                Id = 15,
                 Name = "Время окончания факт, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
@@ -361,17 +373,6 @@ public class TestDataSeeder
             new IndicatorDbo
             {
                 Id = 16,
-                Name = "Время работы, час.",
-                ValueType = FieldValueTypes.Text,
-                InputType = FieldInputTypes.Initialization,
-                ValueSelector = null,
-                Formula = null,
-                IsCumulative = false,
-                HasSummation = true
-            },
-            new IndicatorDbo
-            {
-                Id = 17,
                 Name = "План, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Initialization,
@@ -382,12 +383,23 @@ public class TestDataSeeder
             },
             new IndicatorDbo
             {
-                Id = 18,
+                Id = 17,
                 Name = "Факт, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
                 Formula = null,
+                IsCumulative = true,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 18,
+                Name = "Отклонение, мин.",
+                ValueType = FieldValueTypes.Text,
+                InputType = FieldInputTypes.Formula,
+                ValueSelector = null,
+                Formula = "indicator_17 - indicator_16",
                 IsCumulative = true,
                 HasSummation = true
             }
@@ -401,79 +413,207 @@ public class TestDataSeeder
         if (await dbContext.Templates.AnyAsync())
             return;
 
-        var worktime = await dbContext.Indicators.FirstAsync(i => i.Id == 16);
-        var plan = await dbContext.Indicators.FirstAsync(i => i.Id == 1);
-        var fact = await dbContext.Indicators.FirstAsync(i => i.Id == 2);
-        var deviation = await dbContext.Indicators.FirstAsync(i => i.Id == 3);
-        var downtime = await dbContext.Indicators.FirstAsync(i => i.Id == 4);
-        var downtimeResponsible = await dbContext.Indicators.FirstAsync(i => i.Id == 5);
-        var downtimeReason = await dbContext.Indicators.FirstAsync(i => i.Id == 6);
+        var worktime = await dbContext.Indicators.FirstAsync(i => i.Id == 1);
+        var plan = await dbContext.Indicators.FirstAsync(i => i.Id == 2);
+        var fact = await dbContext.Indicators.FirstAsync(i => i.Id == 3);
+        var deviation = await dbContext.Indicators.FirstAsync(i => i.Id == 4);
+        var downtime = await dbContext.Indicators.FirstAsync(i => i.Id == 5);
+        var downtimeResponsible = await dbContext.Indicators.FirstAsync(i => i.Id == 6);
         var downTimeReasonsGroup = await dbContext.Indicators.FirstAsync(i => i.Id == 7);
-        var actionsTaken = await dbContext.Indicators.FirstAsync(i => i.Id == 8);
-        var operationName = await dbContext.Indicators.FirstAsync(i => i.Id == 9);
-        var operationTime = await dbContext.Indicators.FirstAsync(i => i.Id == 10);
-        var startTimePlan = await dbContext.Indicators.FirstAsync(i => i.Id == 11);
-        var startTimeFact = await dbContext.Indicators.FirstAsync(i => i.Id == 12);
-        var endTimePlan = await dbContext.Indicators.FirstAsync(i => i.Id == 13);
-        var endTimeFact = await dbContext.Indicators.FirstAsync(i => i.Id == 14);
-        var planMinutes = await dbContext.Indicators.FirstAsync(i => i.Id == 17);
-        var factMinutes = await dbContext.Indicators.FirstAsync(i => i.Id == 18);
+        var downtimeReason = await dbContext.Indicators.FirstAsync(i => i.Id == 8);
+        var actionsTaken = await dbContext.Indicators.FirstAsync(i => i.Id == 9);
+        var operationName = await dbContext.Indicators.FirstAsync(i => i.Id == 10);
+        var operationTime = await dbContext.Indicators.FirstAsync(i => i.Id == 11);
+        var startTimePlan = await dbContext.Indicators.FirstAsync(i => i.Id == 12);
+        var startTimeFact = await dbContext.Indicators.FirstAsync(i => i.Id == 13);
+        var endTimePlan = await dbContext.Indicators.FirstAsync(i => i.Id == 14);
+        var endTimeFact = await dbContext.Indicators.FirstAsync(i => i.Id == 15);
+        var planMinutes = await dbContext.Indicators.FirstAsync(i => i.Id == 16);
+        var factMinutes = await dbContext.Indicators.FirstAsync(i => i.Id == 17);
+        var deviationMinutes = await dbContext.Indicators.FirstAsync(i => i.Id == 18);
 
         var template1 = new TemplateDbo
         {
             Id = 1,
-            Name = "Шаблон для изготовления продукции  более 1 шт. в час (по времени такта)",
-            PaTypeId = 1,
+            Name = "Почасовой по времени такта",
+            PaTypeId = (int)PaType.SingleProductWithCycleTime,
             Version = 1
         };
-        template1.Indicators.Add(worktime);
-        template1.Indicators.Add(plan);
-        template1.Indicators.Add(fact);
-        template1.Indicators.Add(deviation);
-        template1.Indicators.Add(downtime);
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template1.Id, IndicatorId = worktime.Id, Indicator = worktime, Order = 0 });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template1.Id, IndicatorId = plan.Id, Indicator = plan, Order = 1 });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template1.Id, IndicatorId = fact.Id, Indicator = fact, Order = 2 });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template1.Id, IndicatorId = deviation.Id, Indicator = deviation, Order = 3 });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template1.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 4 });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template1.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 5
+        });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template1.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 6 });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template1.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
+            Order = 7
+        });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template1.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 8 });
 
         dbContext.Templates.Add(template1);
 
-        // Шаблон для типа "Менее 1 шт. в час"
+        // Шаблон для типа 2
+        var template2 = new TemplateDbo
+        {
+            Id = 2,
+            Name = "Почасовой по мощности рабочего места",
+            PaTypeId = (int)PaType.SingleProductWithWorkstationCapacity,
+            Version = 0,
+        };
+
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template2.Id, IndicatorId = worktime.Id, Indicator = worktime, Order = 0 });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template2.Id, IndicatorId = plan.Id, Indicator = plan, Order = 1 });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template2.Id, IndicatorId = fact.Id, Indicator = fact, Order = 2 });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template2.Id, IndicatorId = deviation.Id, Indicator = deviation, Order = 3 });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template2.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 4 });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template2.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 5
+        });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template2.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
+            Order = 6
+        });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template2.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 7 });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template2.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 8 });
+
+        dbContext.Templates.Add(template2);
+
+        // Шаблон для типа 3
+        var template3 = new TemplateDbo
+        {
+            Id = 3,
+            Name = "Почасовой по мощности рабочего места",
+            PaTypeId = (int)PaType.MultipleProductsWithCycleTime,
+            Version = 0,
+        };
+
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template3.Id, IndicatorId = worktime.Id, Indicator = worktime, Order = 0 });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template3.Id, IndicatorId = plan.Id, Indicator = plan, Order = 1 });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template3.Id, IndicatorId = fact.Id, Indicator = fact, Order = 2 });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template3.Id, IndicatorId = deviation.Id, Indicator = deviation, Order = 3 });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template3.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 4 });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template3.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 5
+        });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template3.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
+            Order = 6
+        });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template3.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 7 });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template3.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 8 });
+
+        dbContext.Templates.Add(template3);
+
+        // Шаблон для типа 4
         var template4 = new TemplateDbo
         {
             Id = 4,
-            Name = "Шаблон для изготовления продукции менее 1 шт. в час",
-            PaTypeId = 4,
-            Version = 1
+            Name = "Менее 1 изделия в час",
+            PaTypeId = (int)PaType.LessThanOnePerHour,
+            Version = 0
         };
-        template4.Indicators.Add(worktime);
-        template4.Indicators.Add(plan);
-        template4.Indicators.Add(operationName);
-        template4.Indicators.Add(operationTime);
-        template4.Indicators.Add(fact);
-        template4.Indicators.Add(deviation);
-        template4.Indicators.Add(downtime);
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = worktime.Id, Indicator = worktime, Order = 0 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = plan.Id, Indicator = plan, Order = 1 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = operationName.Id, Indicator = operationName, Order = 2 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = operationTime.Id, Indicator = operationTime, Order = 3 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = fact.Id, Indicator = fact, Order = 4 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = deviation.Id, Indicator = deviation, Order = 5 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 6 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template4.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 7
+        });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 8 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template4.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
+            Order = 9
+        });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 10 });
 
         dbContext.Templates.Add(template4);
 
-        // Шаблон для типа "Менее 1 шт. в смену"
+        // Шаблон для типа 5
         var template5 = new TemplateDbo
         {
             Id = 5,
-            Name = "Шаблон для изготовления продукции менее 1 шт. в смену",
-            PaTypeId = 5,
-            Version = 1
+            Name = "Менее 1 изделия в смену",
+            PaTypeId = (int)PaType.LessThanOnePerShift,
+            Version = 0
         };
-        template5.Indicators.Add(operationName);
-        template5.Indicators.Add(startTimePlan);
-        template5.Indicators.Add(startTimeFact);
-        template5.Indicators.Add(endTimePlan);
-        template5.Indicators.Add(endTimeFact);
-        template5.Indicators.Add(planMinutes);
-        template5.Indicators.Add(factMinutes);
-        template5.Indicators.Add(deviation);
-        template5.Indicators.Add(downtime);
-        template5.Indicators.Add(downtimeResponsible);
-        template5.Indicators.Add(downtimeReason);
-        template5.Indicators.Add(downTimeReasonsGroup);
-        template5.Indicators.Add(actionsTaken);
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = operationName.Id, Indicator = operationName, Order = 0 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = startTimePlan.Id, Indicator = startTimePlan, Order = 1 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = startTimeFact.Id, Indicator = startTimeFact, Order = 2 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = endTimePlan.Id, Indicator = endTimePlan, Order = 3 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = endTimeFact.Id, Indicator = endTimeFact, Order = 4 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = planMinutes.Id, Indicator = planMinutes, Order = 5 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = factMinutes.Id, Indicator = factMinutes, Order = 6 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = deviationMinutes.Id, Indicator = deviationMinutes, Order = 7 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 8 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template5.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 9
+        });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 10 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template5.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
+            Order = 11
+        });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 12 });
 
+        dbContext.Templates.Add(template5);
         dbContext.Templates.Add(template5);
         await dbContext.SaveChangesAsync();
     }

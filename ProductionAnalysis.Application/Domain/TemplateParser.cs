@@ -101,6 +101,10 @@ public static class TemplateParser
                 var hasSummation = fieldElement.TryGetProperty("hasSummation", out var hasSummationElement)
                                    && hasSummationElement.GetBoolean();
 
+                var order = fieldElement.TryGetProperty("order", out var orderElement)
+                    ? orderElement.GetInt32()
+                    : indicators.Count;
+
                 indicators.Add(new Indicator(
                     id,
                     name,
@@ -109,7 +113,8 @@ public static class TemplateParser
                     inputSelector,
                     formula,
                     isCumulative,
-                    hasSummation
+                    hasSummation,
+                    order
                 ));
             }
         }

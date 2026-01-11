@@ -12,7 +12,8 @@ public class TemplatesRepository(PaDbContext dbContext) : ITemplatesRepository
     public async Task<Template?> FindLatestVerAsync(int paTypeId)
     {
         var templateDbo = await dbContext.Templates
-            .Include(t => t.Indicators)
+            .Include(t => t.TemplateIndicators)
+            .ThenInclude(ti => ti.Indicator)
             .Where(t => t.PaTypeId == paTypeId)
             .OrderByDescending(t => t.Version)
             .FirstOrDefaultAsync();

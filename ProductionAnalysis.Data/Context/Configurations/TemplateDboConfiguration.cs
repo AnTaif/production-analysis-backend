@@ -14,6 +14,19 @@ public class TemplateDboConfiguration : IEntityTypeConfiguration<TemplateDbo>
 
         builder.HasMany(e => e.Indicators)
             .WithMany(e => e.Templates)
-            .UsingEntity(j => j.ToTable("templates_indicators"));
+            .UsingEntity<TemplateIndicatorDbo>(
+                j => j
+                    .HasOne(ti => ti.Indicator)
+                    .WithMany()
+                    .HasForeignKey(ti => ti.IndicatorId),
+                j => j
+                    .HasOne(ti => ti.Template)
+                    .WithMany()
+                    .HasForeignKey(ti => ti.TemplateId),
+                j =>
+                {
+                    j.ToTable("templates_indicators");
+                    j.HasKey(ti => new { ti.TemplateId, ti.IndicatorId });
+                });
     }
 }

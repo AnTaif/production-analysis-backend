@@ -20,7 +20,7 @@ public static class TemplateSerializer
         }
 
         var tableColumns = template.Indicators
-            .OrderBy(i => i.Id)
+            .OrderBy(i => i.Order)
             .Select(indicator => new
             {
                 id = indicator.Id,
@@ -30,7 +30,8 @@ public static class TemplateSerializer
                 valueType = indicator.ValueType,
                 formula = indicator.Formula,
                 isCumulative = indicator.IsCumulative,
-                hasSummation = indicator.HasSummation
+                hasSummation = indicator.HasSummation,
+                order = indicator.Order
             }).ToList();
 
         return JsonSerializer.Serialize(new

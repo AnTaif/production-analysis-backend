@@ -10,15 +10,20 @@ public static class TemplatesConverter
     {
         var paType = (PaType)dbo.PaTypeId;
 
+        var indicators = dbo.TemplateIndicators
+            .OrderBy(ti => ti.Order)
+            .Select(ti => ti.Indicator.ToDomain(ti.Order))
+            .ToList();
+
         return new Template(
             dbo.Id,
             dbo.Name,
             paType,
             dbo.Version,
-            dbo.Indicators.Select(i => i.ToDomain()).ToList());
+            indicators);
     }
 
-    public static Indicator ToDomain(this IndicatorDbo dbo)
+    public static Indicator ToDomain(this IndicatorDbo dbo, int order)
     {
         return new Indicator(
             dbo.Id,
@@ -28,6 +33,7 @@ public static class TemplatesConverter
             dbo.ValueSelector,
             dbo.Formula,
             dbo.IsCumulative,
-            dbo.HasSummation);
+            dbo.HasSummation,
+            order);
     }
 }

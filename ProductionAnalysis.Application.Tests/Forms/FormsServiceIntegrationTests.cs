@@ -54,7 +54,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
 
         workRows.Should().HaveCount(ShiftConstants.ShiftDurationHours);
 
-        const int planIndicatorId = 1;
+        const int planIndicatorId = 2;
         var firstValue = GetValue(workRows[0], planIndicatorId);
 
         var secondCumulative = GetCumulativeValue(workRows[1], planIndicatorId);
@@ -146,9 +146,9 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             .OrderBy(r => r.Order)
             .First();
 
-        const int planIndicatorId = 1;
-        const int factIndicatorId = 2;
-        const int deviationIndicatorId = 3;
+        const int planIndicatorId = 2;
+        const int factIndicatorId = 3;
+        const int deviationIndicatorId = 4;
         const int planValue = 50;
         const int factValue = 80;
 
@@ -867,22 +867,22 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         result.Value.Template.TableColumns.Should().NotBeEmpty();
 
         // Проверяем, что для колонок установлен ShouldMergeInGroup
-        var workTimeColumn = result.Value.Template.TableColumns.FirstOrDefault(c => c.Id == 16);
+        var workTimeColumn = result.Value.Template.TableColumns.FirstOrDefault(c => c.Id == 1);
         workTimeColumn.Should().NotBeNull();
         workTimeColumn!.ShouldMergeInGroup.Should().BeTrue("время работы должно объединяться");
 
-        var planColumn = result.Value.Template.TableColumns.FirstOrDefault(c => c.Id == 1);
+        var planColumn = result.Value.Template.TableColumns.FirstOrDefault(c => c.Id == 2);
         planColumn.Should().NotBeNull();
         planColumn!.ShouldMergeInGroup.Should().BeTrue("план должен объединяться");
 
         // Проверяем, что для колонок операций ShouldMergeInGroup = false
-        var operationNameColumn = result.Value.Template.TableColumns.FirstOrDefault(c => c.Id == 9);
+        var operationNameColumn = result.Value.Template.TableColumns.FirstOrDefault(c => c.Id == 10);
         if (operationNameColumn != null)
         {
             operationNameColumn.ShouldMergeInGroup.Should().BeFalse("наименование операции не должно объединяться");
         }
 
-        var operationTimeColumn = result.Value.Template.TableColumns.FirstOrDefault(c => c.Id == 10);
+        var operationTimeColumn = result.Value.Template.TableColumns.FirstOrDefault(c => c.Id == 11);
         if (operationTimeColumn != null)
         {
             operationTimeColumn.ShouldMergeInGroup.Should().BeFalse("время операции не должно объединяться");
@@ -941,13 +941,13 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         {
             var groupRows = group.ToList();
             var workTimeValues = groupRows
-                .Select(r => r.Values.TryGetValue("16", out var v) ? v.Value : null)
+                .Select(r => r.Values.TryGetValue("1", out var v) ? v.Value : null)
                 .Distinct()
                 .ToList();
             workTimeValues.Should().HaveCount(1, $"время работы должно быть одинаковым для группы {group.Key}");
 
             var planValues = groupRows
-                .Select(r => r.Values.TryGetValue("1", out var v) ? v.Value : null)
+                .Select(r => r.Values.TryGetValue("2", out var v) ? v.Value : null)
                 .Distinct()
                 .ToList();
             planValues.Should().HaveCount(1, $"план должен быть одинаковым для группы {group.Key}");
@@ -1000,11 +1000,11 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         firstGroup.Should().HaveCountGreaterThanOrEqualTo(1);
 
         // Проверяем, что есть колонка с наименованием операций
-        var hasOperationName = firstGroup.Any(r => r.Values.ContainsKey("9"));
+        var hasOperationName = firstGroup.Any(r => r.Values.ContainsKey("10"));
         hasOperationName.Should().BeTrue("должна быть колонка с наименованием операций");
 
         // Проверяем, что есть колонка со временем операций
-        var hasOperationTime = firstGroup.Any(r => r.Values.ContainsKey("10"));
+        var hasOperationTime = firstGroup.Any(r => r.Values.ContainsKey("11"));
         hasOperationTime.Should().BeTrue("должна быть колонка со временем операций");
     }
 
@@ -1106,7 +1106,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
 
         // Проверяем, что есть информация о наименовании операций
         var hasOperationNames = firstGroup.Any(r =>
-            r.Values.TryGetValue("9", out var opName) && opName.Value != null);
+            r.Values.TryGetValue("10", out var opName) && opName.Value != null);
         hasOperationNames.Should().BeTrue("должна быть информация о наименовании операций");
     }
 
@@ -1149,7 +1149,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Проверяем, что план равен 1 для всех строк
         foreach (var row in workRows)
         {
-            if (row.Values.TryGetValue("1", out var planValue))
+            if (row.Values.TryGetValue("2", out var planValue))
             {
                 var plan = Convert.ToInt32(planValue.Value);
                 plan.Should().Be(1, $"план должен быть равен 1 для строки {row.Order}");
@@ -1206,8 +1206,8 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
 
         // Проверяем, что каждая строка имеет уникальное наименование операции
         var operationNames = firstGroup
-            .Where(r => r.Values.TryGetValue("9", out var opName))
-            .Select(r => r.Values["9"].Value?.ToString())
+            .Where(r => r.Values.TryGetValue("10", out var opName))
+            .Select(r => r.Values["10"].Value?.ToString())
             .Where(name => !string.IsNullOrEmpty(name))
             .Distinct()
             .ToList();
@@ -1412,21 +1412,21 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Проверяем, что время начала и окончания заполнены в минутах от начала смены
         foreach (var row in workRows)
         {
-            if (row.Values.TryGetValue("11", out var startTimePlan))
+            if (row.Values.TryGetValue("12", out var startTimePlan))
             {
                 var startMinutes = Convert.ToInt32(startTimePlan.Value);
                 startMinutes.Should().BeGreaterThanOrEqualTo(0,
                     $"время начала должно быть >= 0 для строки {row.Order}");
             }
 
-            if (row.Values.TryGetValue("13", out var endTimePlan))
+            if (row.Values.TryGetValue("14", out var endTimePlan))
             {
                 var endMinutes = Convert.ToInt32(endTimePlan.Value);
                 endMinutes.Should().BeGreaterThan(0,
                     $"время окончания должно быть > 0 для строки {row.Order}");
 
                 // Время окончания должно быть больше времени начала
-                if (row.Values.TryGetValue("11", out var startTime))
+                if (row.Values.TryGetValue("12", out var startTime))
                 {
                     var start = Convert.ToInt32(startTime.Value);
                     endMinutes.Should().BeGreaterThan(start,
@@ -1474,7 +1474,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Проверяем, что план во времени заполнен для каждой операции
         foreach (var row in workRows)
         {
-            if (row.Values.TryGetValue("17", out var planMinutes))
+            if (row.Values.TryGetValue("16", out var planMinutes))
             {
                 var plan = Convert.ToInt32(planMinutes.Value);
                 plan.Should().BeGreaterThan(0,
@@ -1520,7 +1520,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Проверяем, что нет колонки "Время работы" (16)
         foreach (var row in workRows)
         {
-            row.Values.Should().NotContainKey("16",
+            row.Values.Should().NotContainKey("1",
                 $"строка {row.Order} не должна содержать колонку 'Время работы'");
         }
     }
@@ -1658,8 +1658,8 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             var currentRow = workRows[i];
             var nextRow = workRows[i + 1];
 
-            if (currentRow.Values.TryGetValue("13", out var currentEndTime) &&
-                nextRow.Values.TryGetValue("11", out var nextStartTime))
+            if (currentRow.Values.TryGetValue("14", out var currentEndTime) &&
+                nextRow.Values.TryGetValue("12", out var nextStartTime))
             {
                 var currentEnd = Convert.ToInt32(currentEndTime.Value);
                 var nextStart = Convert.ToInt32(nextStartTime.Value);

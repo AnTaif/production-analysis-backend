@@ -10,7 +10,8 @@ public class Indicator
         string? valueSelector,
         string? formula,
         bool isCumulative,
-        bool hasSummation)
+        bool hasSummation,
+        int order)
     {
         Id = id;
         Name = name;
@@ -20,6 +21,7 @@ public class Indicator
         Formula = formula;
         IsCumulative = isCumulative;
         HasSummation = hasSummation;
+        Order = order;
     }
 
     public int Id { get; }
@@ -30,4 +32,5 @@ public class Indicator
     public string? Formula { get; }
     public bool IsCumulative { get; }
     public bool HasSummation { get; }
+    public int Order { get; }
 }
