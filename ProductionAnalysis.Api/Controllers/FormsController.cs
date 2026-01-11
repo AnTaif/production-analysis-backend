@@ -17,6 +17,7 @@ namespace ProductionAnalysis.Api.Controllers;
 public class FormsController(IFormsService formsService) : ControllerBase
 {
     [HttpPost("search")]
+    [SwaggerRequestExample(typeof(SearchFormsFilterDto), typeof(SearchFormsFilterDtoExample))]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(PaginatedFormShortDtoExample))]
     [ProducesResponseType<PaginatedResponse<FormShortDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
