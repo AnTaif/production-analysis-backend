@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ProductionAnalysis.Application.Domain;
+using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Data.Context;
 using ProductionAnalysis.Data.Models;
 using ProductionAnalysis.Data.Models.Dictionaries;
@@ -478,6 +479,17 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 1,
+                Name = "Время работы, час.",
+                ValueType = FieldValueTypes.Text,
+                InputType = FieldInputTypes.Initialization,
+                ValueSelector = null,
+                Formula = null,
+                IsCumulative = false,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 2,
                 Name = "План, шт.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Initialization,
@@ -488,7 +500,7 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 2,
+                Id = 3,
                 Name = "Факт, шт.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
@@ -499,7 +511,7 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 3,
+                Id = 4,
                 Name = "Отклонение, шт.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Formula,
@@ -510,7 +522,7 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 4,
+                Id = 5,
                 Name = "Простой, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
@@ -521,22 +533,11 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 5,
+                Id = 6,
                 Name = "Ответственный за простой",
                 ValueType = FieldValueTypes.Text,
                 InputType = FieldInputTypes.Dictionary,
                 ValueSelector = "employees",
-                Formula = null,
-                IsCumulative = false,
-                HasSummation = false
-            },
-            new IndicatorDbo
-            {
-                Id = 6,
-                Name = "Причина отклонения/комментарий",
-                ValueType = FieldValueTypes.Text,
-                InputType = FieldInputTypes.Manual,
-                ValueSelector = null,
                 Formula = null,
                 IsCumulative = false,
                 HasSummation = false
@@ -555,7 +556,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 8,
-                Name = "Принятые меры",
+                Name = "Причины отклонения/комментарий",
                 ValueType = FieldValueTypes.Text,
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
@@ -566,6 +567,17 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 9,
+                Name = "Принятые меры",
+                ValueType = FieldValueTypes.Text,
+                InputType = FieldInputTypes.Manual,
+                ValueSelector = null,
+                Formula = null,
+                IsCumulative = false,
+                HasSummation = false
+            },
+            new IndicatorDbo
+            {
+                Id = 10,
                 Name = "Наименование операции",
                 ValueType = FieldValueTypes.Text,
                 InputType = FieldInputTypes.Dictionary,
@@ -576,7 +588,7 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 10,
+                Id = 11,
                 Name = "Время операции/элемента, мин.",
                 ValueType = FieldValueTypes.Text,
                 InputType = FieldInputTypes.Context,
@@ -587,7 +599,7 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 11,
+                Id = 12,
                 Name = "Время начала план, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Initialization,
@@ -598,7 +610,7 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 12,
+                Id = 13,
                 Name = "Время начала факт, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
@@ -609,7 +621,7 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 13,
+                Id = 14,
                 Name = "Время окончания план, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Initialization,
@@ -620,7 +632,7 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 14,
+                Id = 15,
                 Name = "Время окончания факт, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
@@ -631,29 +643,7 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 15,
-                Name = "Отклонение, мин.",
-                ValueType = FieldValueTypes.Text,
-                InputType = FieldInputTypes.Formula,
-                ValueSelector = null,
-                Formula = null,
-                IsCumulative = true,
-                HasSummation = true
-            },
-            new IndicatorDbo
-            {
                 Id = 16,
-                Name = "Время работы, час.",
-                ValueType = FieldValueTypes.Text,
-                InputType = FieldInputTypes.Initialization,
-                ValueSelector = null,
-                Formula = null,
-                IsCumulative = false,
-                HasSummation = true
-            },
-            new IndicatorDbo
-            {
-                Id = 17,
                 Name = "План, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Initialization,
@@ -664,12 +654,23 @@ public class PaDataSeeder(
             },
             new IndicatorDbo
             {
-                Id = 18,
+                Id = 17,
                 Name = "Факт, мин.",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
                 Formula = null,
+                IsCumulative = true,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 18,
+                Name = "Отклонение, мин.",
+                ValueType = FieldValueTypes.Text,
+                InputType = FieldInputTypes.Formula,
+                ValueSelector = null,
+                Formula = "indicator_17 - indicator_16",
                 IsCumulative = true,
                 HasSummation = true
             }
@@ -687,23 +688,30 @@ public class PaDataSeeder(
         if (await dbContext.Templates.AnyAsync())
             return;
 
-        var worktime = await dbContext.Indicators.FirstAsync(i => i.Id == 16);
-        var plan = await dbContext.Indicators.FirstAsync(i => i.Id == 1);
-        var fact = await dbContext.Indicators.FirstAsync(i => i.Id == 2);
-        var deviation = await dbContext.Indicators.FirstAsync(i => i.Id == 3);
-        var downtime = await dbContext.Indicators.FirstAsync(i => i.Id == 4);
-        var downtimeResponsible = await dbContext.Indicators.FirstAsync(i => i.Id == 5);
-        var downtimeReason = await dbContext.Indicators.FirstAsync(i => i.Id == 6);
+        var worktime = await dbContext.Indicators.FirstAsync(i => i.Id == 1);
+        var plan = await dbContext.Indicators.FirstAsync(i => i.Id == 2);
+        var fact = await dbContext.Indicators.FirstAsync(i => i.Id == 3);
+        var deviation = await dbContext.Indicators.FirstAsync(i => i.Id == 4);
+        var downtime = await dbContext.Indicators.FirstAsync(i => i.Id == 5);
+        var downtimeResponsible = await dbContext.Indicators.FirstAsync(i => i.Id == 6);
         var downTimeReasonsGroup = await dbContext.Indicators.FirstAsync(i => i.Id == 7);
-        var actionsTaken = await dbContext.Indicators.FirstAsync(i => i.Id == 8);
-        var operationName = await dbContext.Indicators.FirstAsync(i => i.Id == 9);
-        var operationTime = await dbContext.Indicators.FirstAsync(i => i.Id == 10);
+        var downtimeReason = await dbContext.Indicators.FirstAsync(i => i.Id == 8);
+        var actionsTaken = await dbContext.Indicators.FirstAsync(i => i.Id == 9);
+        var operationName = await dbContext.Indicators.FirstAsync(i => i.Id == 10);
+        var operationTime = await dbContext.Indicators.FirstAsync(i => i.Id == 11);
+        var startTimePlan = await dbContext.Indicators.FirstAsync(i => i.Id == 12);
+        var startTimeFact = await dbContext.Indicators.FirstAsync(i => i.Id == 13);
+        var endTimePlan = await dbContext.Indicators.FirstAsync(i => i.Id == 14);
+        var endTimeFact = await dbContext.Indicators.FirstAsync(i => i.Id == 15);
+        var planMinutes = await dbContext.Indicators.FirstAsync(i => i.Id == 16);
+        var factMinutes = await dbContext.Indicators.FirstAsync(i => i.Id == 17);
+        var deviationMinutes = await dbContext.Indicators.FirstAsync(i => i.Id == 18);
 
         var template1 = new TemplateDbo
         {
             Id = 1,
-            Name = "Шаблон для изготовления продукции  более 1 шт. в час (по времени такта)",
-            PaTypeId = 1,
+            Name = "Почасовой по времени такта",
+            PaTypeId = (int)PaType.SingleProductWithCycleTime,
             Version = 1
         };
         template1.Indicators.Add(worktime);
@@ -718,13 +726,55 @@ public class PaDataSeeder(
 
         dbContext.Templates.Add(template1);
 
-        // Шаблон для типа "Менее 1 шт. в час"
+        // Шаблон для типа 2
+        var template2 = new TemplateDbo
+        {
+            Id = 2,
+            Name = "Почасовой по мощности рабочего места",
+            PaTypeId = (int)PaType.SingleProductWithWorkstationCapacity,
+            Version = 0,
+        };
+
+        template2.Indicators.Add(worktime);
+        template2.Indicators.Add(plan);
+        template2.Indicators.Add(fact);
+        template2.Indicators.Add(deviation);
+        template2.Indicators.Add(downtime);
+        template2.Indicators.Add(downtimeResponsible);
+        template2.Indicators.Add(downTimeReasonsGroup);
+        template2.Indicators.Add(downtimeReason);
+        template2.Indicators.Add(actionsTaken);
+
+        dbContext.Templates.Add(template2);
+
+        // Шаблон для типа 3
+        var template3 = new TemplateDbo
+        {
+            Id = 3,
+            Name = "Почасовой по мощности рабочего места",
+            PaTypeId = (int)PaType.MultipleProductsWithCycleTime,
+            Version = 0,
+        };
+
+        template3.Indicators.Add(worktime);
+        template3.Indicators.Add(plan);
+        template3.Indicators.Add(fact);
+        template3.Indicators.Add(deviation);
+        template3.Indicators.Add(downtime);
+        template3.Indicators.Add(downtimeResponsible);
+        template3.Indicators.Add(downTimeReasonsGroup);
+        template3.Indicators.Add(downtimeReason);
+        template3.Indicators.Add(actionsTaken);
+
+        dbContext.Templates.Add(template3);
+
+        // Шаблон для типа 4
         var template4 = new TemplateDbo
         {
             Id = 4,
-            Name = "Шаблон для изготовления продукции менее 1 шт. в час",
-            PaTypeId = 4,
-            Version = 1
+            Name = "Менее 1 изделия в час",
+            PaTypeId = (int)PaType.LessThanOnePerHour,
+            Version = 0
         };
         template4.Indicators.Add(worktime);
         template4.Indicators.Add(plan);
@@ -740,20 +790,13 @@ public class PaDataSeeder(
 
         dbContext.Templates.Add(template4);
 
-        // Шаблон для типа "Менее 1 шт. в смену"
-        var startTimePlan = await dbContext.Indicators.FirstAsync(i => i.Id == 11);
-        var startTimeFact = await dbContext.Indicators.FirstAsync(i => i.Id == 12);
-        var endTimePlan = await dbContext.Indicators.FirstAsync(i => i.Id == 13);
-        var endTimeFact = await dbContext.Indicators.FirstAsync(i => i.Id == 14);
-        var planMinutes = await dbContext.Indicators.FirstAsync(i => i.Id == 17);
-        var factMinutes = await dbContext.Indicators.FirstAsync(i => i.Id == 18);
-
+        // Шаблон для типа 5
         var template5 = new TemplateDbo
         {
             Id = 5,
-            Name = "Шаблон для изготовления продукции менее 1 шт. в смену",
-            PaTypeId = 5,
-            Version = 1
+            Name = "Менее 1 изделия в смену",
+            PaTypeId = (int)PaType.LessThanOnePerShift,
+            Version = 0
         };
         template5.Indicators.Add(operationName);
         template5.Indicators.Add(startTimePlan);
@@ -762,7 +805,7 @@ public class PaDataSeeder(
         template5.Indicators.Add(endTimeFact);
         template5.Indicators.Add(planMinutes);
         template5.Indicators.Add(factMinutes);
-        template5.Indicators.Add(deviation);
+        template5.Indicators.Add(deviationMinutes);
         template5.Indicators.Add(downtime);
         template5.Indicators.Add(downtimeResponsible);
         template5.Indicators.Add(downtimeReason);
