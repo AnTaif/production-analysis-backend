@@ -7,6 +7,7 @@ public interface IOperationService
 {
     Task<ICollection<OperationDto>> LoadOperationsAsync();
     Task<ICollection<OperationDto>> GetRelatedOperationsAsync(int operationId);
+    Task<ICollection<OperationDto>> GetRelatedOperationsByProductIdAsync(int productId);
     double CalculateCycleDuration(ICollection<OperationDto> operations);
 }
 
@@ -36,6 +37,59 @@ public class OperationService(IPaUnitOfWork unitOfWork) : IOperationService
         CollectRelatedOperations(mainOperation, operationsById, result, visited);
 
         return result;
+    }
+
+    public async Task<ICollection<OperationDto>> GetRelatedOperationsByProductIdAsync(int productId)
+    {
+        var allOperations = await LoadOperationsAsync();
+        var result = new List<OperationDto>();
+        var visited = new HashSet<int>();
+
+        // Находим все операции, связанные с продуктом через BasedProductId
+        var productOperations = allOperations
+            .Where(op => op.BasedOnType == OperationBasedOnType.Product &&
+                         op.BasedProductId == productId)
+            .ToList();
+
+        if (productOperations.Count == 0) return result;
+
+        // Добавляем все операции, связанные с продуктом
+        // Для продуктов используем только BasedProductId, не BasedOperationId
+        foreach (var productOp in productOperations)
+        {
+            if (!visited.Contains(productOp.Id))
+            {
+                visited.Add(productOp.Id);
+                result.Add(productOp);
+                // Собираем только операции, связанные через BasedProductId
+                CollectRelatedOperationsByProduct(productOp, allOperations.ToDictionary(op => op.Id), result, visited,
+                    productId);
+            }
+        }
+
+        return result;
+    }
+
+    private static void CollectRelatedOperationsByProduct(
+        OperationDto operation,
+        Dictionary<int, OperationDto> operationsById,
+        List<OperationDto> result,
+        HashSet<int> visited,
+        int productId)
+    {
+        // Для продуктов собираем только операции, связанные через BasedProductId
+        // НЕ используем BasedOperationId для связывания
+        var productRelatedOperations = operationsById.Values
+            .Where(op => !visited.Contains(op.Id) &&
+                         op.BasedOnType == OperationBasedOnType.Product &&
+                         op.BasedProductId == productId);
+
+        foreach (var productOp in productRelatedOperations)
+        {
+            visited.Add(productOp.Id);
+            result.Add(productOp);
+            CollectRelatedOperationsByProduct(productOp, operationsById, result, visited, productId);
+        }
     }
 
     public double CalculateCycleDuration(ICollection<OperationDto> operations)

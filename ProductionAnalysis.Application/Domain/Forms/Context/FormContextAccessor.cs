@@ -7,7 +7,7 @@ public static class FormContextAccessor
 {
     public const string ProductContextKey = "product";
     public const string MultiProductContextKey = "multiProduct";
-    public const string OperationContextKey = "operation";
+    public const string OperationOrProductContextKey = "operationOrProduct";
 
     public static TContext RequireContext<TContext>(this Dictionary<string, FormContext> context, string contextKey)
         where TContext : FormContext
@@ -89,11 +89,12 @@ public static class FormContextAccessor
     }
 
     /// <summary>
-    /// Получает контекст операций
+    /// Получает контекст операций или продуктов
     /// </summary>
-    public static OperationContext? GetOperationContext(this Dictionary<string, FormContext> context)
+    public static OperationOrProductContext? GetOperationOrProductContext(this Dictionary<string, FormContext> context)
     {
-        return context.TryGetValue(OperationContextKey, out var ctx) && ctx is OperationContext operationContext
+        return context.TryGetValue(OperationOrProductContextKey, out var ctx) &&
+               ctx is OperationOrProductContext operationContext
             ? operationContext
             : null;
     }

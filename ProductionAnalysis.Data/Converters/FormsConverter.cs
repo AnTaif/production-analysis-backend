@@ -132,8 +132,9 @@ public static class FormsConverter
                         p.CycleTime,
                         p.WorkstationCapacity,
                         p.DailyRate)).ToList()),
-                OperationFormContextDbo operationDbo => new OperationContext(
-                    operationDbo.OperationId),
+                OperationOrProductFormContextDbo operationDbo => new OperationOrProductContext(
+                    operationDbo.OperationId,
+                    operationDbo.ProductId),
                 _ => null
             };
 
@@ -166,8 +167,11 @@ public static class FormsConverter
                         p.CycleTime,
                         p.WorkstationCapacity,
                         p.DailyRate)).ToList()),
-                OperationContext operationContext => new OperationFormContextDbo(
-                    operationContext.OperationId),
+                OperationOrProductContext operationContext => new OperationOrProductFormContextDbo
+                {
+                    OperationId = operationContext.OperationId,
+                    ProductId = operationContext.ProductId
+                },
                 _ => null
             };
 

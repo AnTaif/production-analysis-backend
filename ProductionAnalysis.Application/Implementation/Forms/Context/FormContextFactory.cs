@@ -26,8 +26,8 @@ public class FormContextFactory : IFormContextFactory
             PaType.SingleProductWithCycleTime => CreateSingleProductContextWithCycleTime(request),
             PaType.SingleProductWithWorkstationCapacity => CreateSingleProductContextWithWorkstationCapacity(request),
             PaType.MultipleProductsWithCycleTime => CreateMultipleProductsContextWithCycleTime(request),
-            PaType.LessThanOnePerHour => CreateOperationContext(request),
-            PaType.LessThanOnePerShift => CreateOperationContext(request),
+            PaType.LessThanOnePerHour => CreateOperationOrProductContext(request),
+            PaType.LessThanOnePerShift => CreateOperationOrProductContext(request),
             _ => throw ExhaustiveMatch.Failed(typeof(PaType))
         };
     }
@@ -81,14 +81,25 @@ public class FormContextFactory : IFormContextFactory
         };
     }
 
-    private static Dictionary<string, FormContext> CreateOperationContext(CreateFormRequest request)
+    private static Dictionary<string, FormContext> CreateOperationOrProductContext(CreateFormRequest request)
     {
-        if (request.Operation == null)
-            throw new ArgumentException("Operation is required for LessThanOnePerHour", nameof(request));
+        if (request.OperationOrProduct == null)
+            throw new ArgumentException("OperationOrProduct is required for LessThanOnePerHour/LessThanOnePerShift",
+                nameof(request));
+
+        if (!request.OperationOrProduct.OperationId.HasValue && !request.OperationOrProduct.ProductId.HasValue)
+            throw new ArgumentException("Either OperationId or ProductId must be set in OperationOrProduct",
+                nameof(request));
+
+        if (request.OperationOrProduct.OperationId.HasValue && request.OperationOrProduct.ProductId.HasValue)
+            throw new ArgumentException("OperationId and ProductId cannot both be set in OperationOrProduct",
+                nameof(request));
 
         return new Dictionary<string, FormContext>
         {
-            ["operation"] = new OperationContext(request.Operation.OperationId)
+            ["operationOrProduct"] = new OperationOrProductContext(
+                request.OperationOrProduct.OperationId,
+                request.OperationOrProduct.ProductId)
         };
     }
 }

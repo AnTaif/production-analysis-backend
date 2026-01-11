@@ -9,7 +9,7 @@ public class CreateFormRequestValidator : AbstractValidator<CreateFormRequest>
     public CreateFormRequestValidator(
         ProductContextDtoWithCycleTimeValidator productWithCycleTimeValidator,
         ProductContextDtoWithWorkstationCapacityValidator productWithWorkstationCapacityValidator,
-        OperationContextDtoValidator operationValidator)
+        OperationOrProductContextDtoValidator operationOrProductValidator)
     {
         RuleFor(x => x.PaType)
             .IsInEnum()
@@ -35,9 +35,9 @@ public class CreateFormRequestValidator : AbstractValidator<CreateFormRequest>
                 .Null()
                 .WithMessage($"Products must be null for {PaTypeDto.SingleProductWithCycleTime}");
 
-            RuleFor(x => x.Operation)
+            RuleFor(x => x.OperationOrProduct)
                 .Null()
-                .WithMessage($"Operation must be null for {PaTypeDto.SingleProductWithCycleTime}");
+                .WithMessage($"OperationOrProduct must be null for {PaTypeDto.SingleProductWithCycleTime}");
         });
 
         // Валидация для SingleProductWithWorkstationCapacity
@@ -52,9 +52,9 @@ public class CreateFormRequestValidator : AbstractValidator<CreateFormRequest>
                 .Null()
                 .WithMessage($"Products must be null for {PaTypeDto.SingleProductWithWorkstationCapacity}");
 
-            RuleFor(x => x.Operation)
+            RuleFor(x => x.OperationOrProduct)
                 .Null()
-                .WithMessage($"Operation must be null for {PaTypeDto.SingleProductWithWorkstationCapacity}");
+                .WithMessage($"OperationOrProduct must be null for {PaTypeDto.SingleProductWithWorkstationCapacity}");
         });
 
         // Валидация для MultipleProductsWithCycleTime
@@ -74,18 +74,18 @@ public class CreateFormRequestValidator : AbstractValidator<CreateFormRequest>
                 .Null()
                 .WithMessage($"Product must be null for {PaTypeDto.MultipleProductsWithCycleTime}");
 
-            RuleFor(x => x.Operation)
+            RuleFor(x => x.OperationOrProduct)
                 .Null()
-                .WithMessage($"Operation must be null for {PaTypeDto.MultipleProductsWithCycleTime}");
+                .WithMessage($"OperationOrProduct must be null for {PaTypeDto.MultipleProductsWithCycleTime}");
         });
 
         // Валидация для LessThanOnePerHour
         When(x => x.PaType == PaTypeDto.LessThanOnePerHour, () =>
         {
-            RuleFor(x => x.Operation)
+            RuleFor(x => x.OperationOrProduct)
                 .NotNull()
-                .WithMessage($"Operation is required for {PaTypeDto.LessThanOnePerHour}")
-                .SetValidator(operationValidator);
+                .WithMessage($"OperationOrProduct is required for {PaTypeDto.LessThanOnePerHour}")
+                .SetValidator(operationOrProductValidator);
 
             RuleFor(x => x.Product)
                 .Null()
@@ -99,10 +99,10 @@ public class CreateFormRequestValidator : AbstractValidator<CreateFormRequest>
         // Валидация для LessThanOnePerShift
         When(x => x.PaType == PaTypeDto.LessThanOnePerShift, () =>
         {
-            RuleFor(x => x.Operation)
+            RuleFor(x => x.OperationOrProduct)
                 .NotNull()
-                .WithMessage($"Operation is required for {PaTypeDto.LessThanOnePerShift}")
-                .SetValidator(operationValidator);
+                .WithMessage($"OperationOrProduct is required for {PaTypeDto.LessThanOnePerShift}")
+                .SetValidator(operationOrProductValidator);
 
             RuleFor(x => x.Product)
                 .Null()

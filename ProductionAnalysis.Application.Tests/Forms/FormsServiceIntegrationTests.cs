@@ -777,7 +777,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = 1,
-            Operation = new OperationContextDto
+            OperationOrProduct = new OperationOrProductContextDto
             {
                 OperationId = 4 // Подсборка - операция для продукта Id: 1
             }
@@ -847,7 +847,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Operation = new OperationContextDto
+            OperationOrProduct = new OperationOrProductContextDto
             {
                 OperationId = 4 // Подсборка
             }
@@ -905,7 +905,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Operation = new OperationContextDto
+            OperationOrProduct = new OperationOrProductContextDto
             {
                 OperationId = 4 // Подсборка
             }
@@ -972,7 +972,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Operation = new OperationContextDto
+            OperationOrProduct = new OperationOrProductContextDto
             {
                 OperationId = 4 // Подсборка
             }
@@ -1035,7 +1035,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Operation = new OperationContextDto
+            OperationOrProduct = new OperationOrProductContextDto
             {
                 OperationId = 4 // Подсборка
             }
@@ -1077,7 +1077,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Operation = new OperationContextDto
+            OperationOrProduct = new OperationOrProductContextDto
             {
                 OperationId = 1 // Подготовка
             }
@@ -1126,7 +1126,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Operation = new OperationContextDto
+            OperationOrProduct = new OperationOrProductContextDto
             {
                 OperationId = 4 // Подсборка
             }
@@ -1174,7 +1174,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Operation = new OperationContextDto
+            OperationOrProduct = new OperationOrProductContextDto
             {
                 OperationId = 4 // Подсборка
             }
@@ -1312,7 +1312,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Operation = null // Операция не указана
+            OperationOrProduct = null // Операция не указана
         };
 
         // Act
@@ -1321,7 +1321,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         // Assert
         result.IsSuccess.Should().BeFalse();
         result.Error.Should().NotBeNull();
-        result.Error.Message.Should().Contain("Operation");
+        result.Error.Message.Should().Contain("OperationOrProduct");
     }
 
     [Test]
@@ -1343,7 +1343,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
             AssigneeId = 1,
-            Operation = new OperationContextDto
+            OperationOrProduct = new OperationOrProductContextDto
             {
                 OperationId = 4 // Подсборка - операция для продукта Id: 1
             }
@@ -1389,7 +1389,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Operation = new OperationContextDto
+            OperationOrProduct = new OperationOrProductContextDto
             {
                 OperationId = 4 // Подсборка
             }
@@ -1451,7 +1451,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Operation = new OperationContextDto
+            OperationOrProduct = new OperationOrProductContextDto
             {
                 OperationId = 4 // Подсборка
             }
@@ -1498,7 +1498,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Operation = new OperationContextDto
+            OperationOrProduct = new OperationOrProductContextDto
             {
                 OperationId = 4 // Подсборка
             }
@@ -1551,7 +1551,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Operation = new OperationContextDto
+            OperationOrProduct = new OperationOrProductContextDto
             {
                 OperationId = 4 // Подсборка
             }
@@ -1593,7 +1593,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Operation = new OperationContextDto
+            OperationOrProduct = new OperationOrProductContextDto
             {
                 OperationId = 4 // Подсборка
             }
@@ -1631,7 +1631,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Operation = new OperationContextDto
+            OperationOrProduct = new OperationOrProductContextDto
             {
                 OperationId = 4 // Подсборка
             }
@@ -1687,7 +1687,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Operation = null // Операция не указана
+            OperationOrProduct = null // Операция не указана
         };
 
         // Act

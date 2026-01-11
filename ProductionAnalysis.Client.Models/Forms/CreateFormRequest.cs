@@ -16,5 +16,5 @@ public record CreateFormRequest
 
     public ICollection<ProductContextDto>? Products { get; init; }
 
-    public OperationContextDto? Operation { get; init; }
+    public OperationOrProductContextDto? OperationOrProduct { get; init; }
 }

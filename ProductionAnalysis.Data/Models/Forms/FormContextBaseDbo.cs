@@ -9,7 +9,7 @@ namespace ProductionAnalysis.Data.Models.Forms;
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 [JsonDerivedType(typeof(ProductFormContextDbo), typeDiscriminator: "product")]
 [JsonDerivedType(typeof(MultiProductFormContextDbo), typeDiscriminator: "multiProduct")]
-[JsonDerivedType(typeof(OperationFormContextDbo), typeDiscriminator: "operation")]
+[JsonDerivedType(typeof(OperationOrProductFormContextDbo), typeDiscriminator: "operation")]
 public abstract class FormContextBaseDbo
 {
 }

@@ -14,7 +14,7 @@ public class LessThanOnePerShiftInitializationStrategy(
     IBreakProcessor breakProcessor,
     IOperationService operationService
 )
-    : OperationInitializationStrategyBase(operationService), IRowInitializationStrategy
+    : OperationOrProductInitializationStrategyBase(operationService), IRowInitializationStrategy
 {
     public override bool CanHandle(PaType paType)
     {
@@ -24,7 +24,8 @@ public class LessThanOnePerShiftInitializationStrategy(
     public override async Task<ICollection<FormRowData>> InitializeAsync(RowInitializationContext context)
     {
         var operationContext =
-            context.FormContext.RequireContext<OperationContext>(FormContextAccessor.OperationContextKey);
+            context.FormContext.RequireContext<OperationOrProductContext>(FormContextAccessor
+                .OperationOrProductContextKey);
         var relatedOperations = await GetRelatedOperationsAsync(operationContext);
 
         var shiftStartMinutes = context.ShiftStartTime.TotalMinutes();

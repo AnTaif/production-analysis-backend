@@ -23,7 +23,7 @@ public class FormDtoExample : IExamplesProvider<FormDto>
                     WorkstationCapacity = null,
                     DailyRate = 400
                 },
-                Operation = null
+                OperationOrProduct = null
             },
             Rows = new List<FormRowDto>
             {

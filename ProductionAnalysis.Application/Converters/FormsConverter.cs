@@ -35,7 +35,7 @@ public static class FormsConverter
 
         var productDto = form.Context.GetProductContext()?.ToDto();
         var productsDto = form.Context.GetMultiProductContext()?.Products.Select(p => p.ToDto()).ToList();
-        var operationDto = form.Context.GetOperationContext()?.ToDto();
+        var operationOrProductDto = form.Context.GetOperationOrProductContext()?.ToDto();
 
         return new FormDto
         {
@@ -48,7 +48,7 @@ public static class FormsConverter
             {
                 Product = productDto,
                 Products = productsDto,
-                Operation = operationDto
+                OperationOrProduct = operationOrProductDto
             },
             Rows = rows,
             Template = template,

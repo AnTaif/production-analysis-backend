@@ -18,6 +18,6 @@ public class CreateFormRequestExample : IExamplesProvider<CreateFormRequest>
                 WorkstationCapacity = null,
                 DailyRate = 400
             },
-            Operation = null
+            OperationOrProduct = null
         };
 }
