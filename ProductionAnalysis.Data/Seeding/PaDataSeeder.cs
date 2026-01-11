@@ -370,6 +370,135 @@ public class PaDataSeeder(
                 DurationInSeconds = 600, // 10 мин
                 BasedOnType = 3,
                 BasedProductId = 1
+            },
+            // Операция "Установка прибора" с под-операциями
+            new OperationDbo
+            {
+                Id = 7,
+                Name = "Установка прибора",
+                DurationInSeconds = 2100, // 35 мин (общий цикл)
+                BasedOnType = 1,
+                BasedOperationId = null,
+                BasedProductId = null
+            },
+            // Под-операции для "Установка прибора"
+            new OperationDbo
+            {
+                Id = 8,
+                Name = "Подсборка",
+                DurationInSeconds = 900, // 15 мин
+                BasedOnType = 2,
+                BasedOperationId = 7,
+                BasedProductId = null
+            },
+            new OperationDbo
+            {
+                Id = 9,
+                Name = "Установка",
+                DurationInSeconds = 600, // 10 мин
+                BasedOnType = 2,
+                BasedOperationId = 7,
+                BasedProductId = null
+            },
+            new OperationDbo
+            {
+                Id = 10,
+                Name = "Настройка",
+                DurationInSeconds = 600, // 10 мин
+                BasedOnType = 2,
+                BasedOperationId = 7,
+                BasedProductId = null
+            },
+            // Операции для сборки (могут быть связаны с продуктом)
+            new OperationDbo
+            {
+                Id = 11,
+                Name = "Установка рамы",
+                DurationInSeconds = 3300, // 55 мин
+                BasedOnType = 3,
+                BasedOperationId = null,
+                BasedProductId = 1
+            },
+            new OperationDbo
+            {
+                Id = 12,
+                Name = "Установка гидросистемы",
+                DurationInSeconds = 2100, // 35 мин
+                BasedOnType = 3,
+                BasedOperationId = null,
+                BasedProductId = 1
+            },
+            new OperationDbo
+            {
+                Id = 13,
+                Name = "Установка двигателя",
+                DurationInSeconds = 1800, // 30 мин
+                BasedOnType = 3,
+                BasedOperationId = null,
+                BasedProductId = 1
+            },
+            new OperationDbo
+            {
+                Id = 14,
+                Name = "Установка переднего моста",
+                DurationInSeconds = 1800, // 30 мин
+                BasedOnType = 3,
+                BasedOperationId = null,
+                BasedProductId = 1
+            },
+            new OperationDbo
+            {
+                Id = 15,
+                Name = "Установка кабины",
+                DurationInSeconds = 2400, // 40 мин
+                BasedOnType = 3,
+                BasedOperationId = null,
+                BasedProductId = 1
+            },
+            new OperationDbo
+            {
+                Id = 16,
+                Name = "Подключение аппаратуры",
+                DurationInSeconds = 2400, // 40 мин
+                BasedOnType = 3,
+                BasedOperationId = null,
+                BasedProductId = 1
+            },
+            new OperationDbo
+            {
+                Id = 17,
+                Name = "Соединение шарнира",
+                DurationInSeconds = 2700, // 45 мин
+                BasedOnType = 3,
+                BasedOperationId = null,
+                BasedProductId = 1
+            },
+            new OperationDbo
+            {
+                Id = 18,
+                Name = "Установка гидроцилиндров",
+                DurationInSeconds = 5100, // 85 мин
+                BasedOnType = 3,
+                BasedOperationId = null,
+                BasedProductId = 1
+            },
+            new OperationDbo
+            {
+                Id = 19,
+                Name = "Разводка электрики",
+                DurationInSeconds = 3000, // 50 мин
+                BasedOnType = 3,
+                BasedOperationId = null,
+                BasedProductId = 1
+            },
+            new OperationDbo
+            {
+                Id = 20,
+                Name = "Подключение электрики",
+                DurationInSeconds = 2400, // 40 мин
+                BasedOnType = 3,
+                BasedOperationId = null,
+                BasedProductId = 1
             }
         );
 
@@ -398,6 +527,20 @@ public class PaDataSeeder(
                 Id = 2,
                 Name = "Вал привода",
                 TactTimeInSeconds = 450,
+                EnterpriseId = 1
+            },
+            new ProductDbo
+            {
+                Id = 3,
+                Name = "Втулка",
+                TactTimeInSeconds = 60,
+                EnterpriseId = 1
+            },
+            new ProductDbo
+            {
+                Id = 4,
+                Name = "Шайба",
+                TactTimeInSeconds = 30,
                 EnterpriseId = 1
             }
         );
