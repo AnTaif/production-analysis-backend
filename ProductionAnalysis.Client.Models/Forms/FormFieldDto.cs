@@ -7,7 +7,6 @@ public record FormFieldDto
     public string InputType { get; init; } = string.Empty;
     public string? InputSelector { get; init; }
     public string? ValueType { get; init; }
-    public bool IsCumulative { get; init; }
 
     /// <summary>
     /// Указывает, должна ли колонка объединяться для строк с одинаковым GroupKey.

@@ -29,7 +29,6 @@ public static class TemplateSerializer
                 inputSelector = indicator.ValueSelector,
                 valueType = indicator.ValueType,
                 formula = indicator.Formula,
-                isCumulative = indicator.IsCumulative,
                 hasSummation = indicator.HasSummation,
                 order = indicator.Order
             }).ToList();

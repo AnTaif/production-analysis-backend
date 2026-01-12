@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using ProductionAnalysis.Application.Domain;
 using ProductionAnalysis.Data.Context;
 using ProductionAnalysis.Data.Models;
 using ProductionAnalysis.Data.Models.Dictionaries;
@@ -87,71 +86,6 @@ public class TestDataBuilder(PaDbContext dbContext, UserManager<UserDbo> userMan
         await dbContext.SaveChangesAsync();
 
         return shift;
-    }
-
-    public async Task<IndicatorDbo> CreateIndicatorAsync(
-        int id,
-        string name,
-        string valueType = FieldValueTypes.Number,
-        string inputType = FieldInputTypes.Manual,
-        string? formula = null,
-        bool isCumulative = false)
-    {
-        var indicator = new IndicatorDbo
-        {
-            Id = id,
-            Name = name,
-            ValueType = valueType,
-            InputType = inputType,
-            Formula = formula,
-            IsCumulative = isCumulative,
-            HasSummation = false
-        };
-
-        dbContext.Indicators.Add(indicator);
-        await dbContext.SaveChangesAsync();
-
-        return indicator;
-    }
-
-    public async Task<TemplateDbo> CreateTemplateAsync(
-        int id = 1,
-        int paTypeId = 1,
-        int version = 1,
-        string name = "Test Template",
-        ICollection<IndicatorDbo>? indicators = null)
-    {
-        if (indicators == null)
-        {
-            var workTimeIndicator = await CreateIndicatorAsync(
-                16, "WorkTime", FieldValueTypes.Text, FieldInputTypes.Initialization);
-            var planIndicator = await CreateIndicatorAsync(
-                1, "Plan", FieldValueTypes.Number, FieldInputTypes.Formula, "indicator_16 * 60", false);
-            var cumulativeIndicator = await CreateIndicatorAsync(
-                2, "Cumulative", FieldValueTypes.Number, FieldInputTypes.Manual, null, true);
-
-            indicators = new List<IndicatorDbo> { workTimeIndicator, planIndicator, cumulativeIndicator };
-        }
-
-        var template = new TemplateDbo
-        {
-            Id = id,
-            Name = name,
-            PaTypeId = paTypeId,
-            Version = version
-        };
-
-        var order = 0;
-        foreach (var indicator in indicators)
-        {
-            template.TemplateIndicators.Add(new TemplateIndicatorDbo
-                { TemplateId = template.Id, IndicatorId = indicator.Id, Indicator = indicator, Order = order++ });
-        }
-
-        dbContext.Templates.Add(template);
-        await dbContext.SaveChangesAsync();
-
-        return template;
     }
 
     public async Task<EnterpriseDbo> CreateEnterpriseAsync(int id = 1, string name = "Test Enterprise")

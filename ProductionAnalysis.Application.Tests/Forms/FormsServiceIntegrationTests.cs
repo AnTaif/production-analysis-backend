@@ -55,12 +55,13 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         workRows.Should().HaveCount(ShiftConstants.ShiftDurationHours);
 
         const int planIndicatorId = 2;
+        const int planCumulativeIndicatorId = 19; // Накопительный индикатор для плана
         var firstValue = GetValue(workRows[0], planIndicatorId);
 
-        var secondCumulative = GetCumulativeValue(workRows[1], planIndicatorId);
+        var secondCumulative = GetCumulativeValue(workRows[1], planCumulativeIndicatorId);
         var secondValue = GetValue(workRows[1], planIndicatorId);
 
-        var thirdCumulative = GetCumulativeValue(workRows[2], planIndicatorId);
+        var thirdCumulative = GetCumulativeValue(workRows[2], planCumulativeIndicatorId);
         var thirdValue = GetValue(workRows[2], planIndicatorId);
 
         secondCumulative.Should().Be(firstValue + secondValue);
@@ -95,7 +96,8 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
 
         var form = await UnitOfWork.Forms.FindAsync(result.Value.Id);
         form.Should().NotBeNull();
-        const int factIndicatorId = 2;
+        const int factIndicatorId = 3;
+        const int factCumulativeIndicatorId = 20; // Накопительный индикатор для факта
         const int factValue = 50;
 
         // Act
@@ -110,7 +112,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             .Skip(1)
             .First();
 
-        var secondCumulative = GetCumulativeValue(secondRow, factIndicatorId);
+        var secondCumulative = GetCumulativeValue(secondRow, factCumulativeIndicatorId);
         secondCumulative.Should().Be(100);
     }
 
@@ -199,20 +201,20 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         return Convert.ToInt32(rowValue.Value);
     }
 
-    private static int GetCumulativeValue(FormRow row, int indicatorId)
+    private static int GetCumulativeValue(FormRow row, int cumulativeIndicatorId)
     {
-        var key = indicatorId.ToString();
+        var key = cumulativeIndicatorId.ToString();
         if (!row.Values.TryGetValue(key, out var rowValue))
         {
             return 0;
         }
 
-        if (rowValue.CumulativeValue == null)
+        if (rowValue.Value == null)
         {
             return 0;
         }
 
-        return Convert.ToInt32(rowValue.CumulativeValue);
+        return Convert.ToInt32(rowValue.Value);
     }
 
     [Test]

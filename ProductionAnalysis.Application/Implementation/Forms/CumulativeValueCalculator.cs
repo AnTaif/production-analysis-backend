@@ -1,3 +1,4 @@
+using ProductionAnalysis.Application.Domain;
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Templates;
 
@@ -14,7 +15,8 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
 {
     public Dictionary<short, ICollection<FormRowValueData>> CalculateCumulativeValues(Form form, short fromRowOrder)
     {
-        var cumulativeIndicators = GetCumulativeIndicators(form.TemplateSnapshot.Indicators);
+        var (cumulativeIndicators, baseIndicatorMap) =
+            GetCumulativeIndicatorsWithBase(form.TemplateSnapshot.Indicators);
         if (cumulativeIndicators.Count == 0) return new Dictionary<short, ICollection<FormRowValueData>>();
 
         var updatedRow = GetWorkRows(form.Rows).FirstOrDefault(r => r.Order == fromRowOrder);
@@ -39,6 +41,7 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
             var rowValues = CalculateRowCumulativeValues(
                 row,
                 cumulativeIndicators,
+                baseIndicatorMap,
                 cumulativeValuesByIndicator);
 
             if (rowValues.Count > 0) valuesToUpdateByRow[row.Order] = rowValues;
@@ -49,7 +52,7 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
 
     public void FillCumulativeValues(ICollection<FormRowData> rows, ICollection<Indicator> indicators)
     {
-        var cumulativeIndicators = GetCumulativeIndicators(indicators);
+        var (cumulativeIndicators, baseIndicatorMap) = GetCumulativeIndicatorsWithBase(indicators);
         if (cumulativeIndicators.Count == 0) return;
 
         // Группируем строки по продуктам для отдельного расчета накопительных значений
@@ -64,27 +67,58 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
             var cumulativeValuesByIndicator = new Dictionary<int, int>();
 
             foreach (var row in workRows)
-            foreach (var indicator in cumulativeIndicators)
+            foreach (var cumulativeIndicator in cumulativeIndicators)
             {
-                var valueData = row.Values.FirstOrDefault(v => v.IndicatorId == indicator.Id);
-                if (valueData == null) continue;
+                if (!baseIndicatorMap.TryGetValue(cumulativeIndicator.Id, out var baseIndicatorId)) continue;
 
-                if (!TryParseIntValue(valueData.Value, out var baseValue)) continue;
+                // Получаем значение базового индикатора
+                var baseValueData = row.Values.FirstOrDefault(v => v.IndicatorId == baseIndicatorId);
+                if (baseValueData == null) continue;
 
-                var previousCumulative = cumulativeValuesByIndicator.GetValueOrDefault(indicator.Id, 0);
+                if (!TryParseIntValue(baseValueData.Value, out var baseValue)) continue;
+
+                // Вычисляем накопительное значение
+                var previousCumulative = cumulativeValuesByIndicator.GetValueOrDefault(cumulativeIndicator.Id, 0);
                 var cumulativeValue = previousCumulative + baseValue;
 
-                valueData.CumulativeValue = cumulativeValue;
-                cumulativeValuesByIndicator[indicator.Id] = cumulativeValue;
+                // Создаем или обновляем значение накопительного индикатора
+                var cumulativeValueData = row.Values.FirstOrDefault(v => v.IndicatorId == cumulativeIndicator.Id);
+                if (cumulativeValueData == null)
+                {
+                    row.Values.Add(new FormRowValueData
+                    {
+                        IndicatorId = cumulativeIndicator.Id,
+                        Value = cumulativeValue
+                    });
+                }
+                else
+                {
+                    cumulativeValueData.Value = cumulativeValue;
+                }
+
+                cumulativeValuesByIndicator[cumulativeIndicator.Id] = cumulativeValue;
             }
         }
     }
 
-    private static IList<Indicator> GetCumulativeIndicators(ICollection<Indicator> indicators)
+    private static (IList<Indicator> cumulativeIndicators, Dictionary<int, int> baseIndicatorMap)
+        GetCumulativeIndicatorsWithBase(ICollection<Indicator> indicators)
     {
-        return indicators
-            .Where(i => i.IsCumulative)
+        var cumulativeIndicators = indicators
+            .Where(i => i.InputType == FieldInputTypes.Cumulative)
             .ToList();
+
+        var baseIndicatorMap = new Dictionary<int, int>();
+        foreach (var cumulativeIndicator in cumulativeIndicators)
+        {
+            // ValueSelector содержит ID базового индикатора
+            if (int.TryParse(cumulativeIndicator.ValueSelector, out var baseIndicatorId))
+            {
+                baseIndicatorMap[cumulativeIndicator.Id] = baseIndicatorId;
+            }
+        }
+
+        return (cumulativeIndicators, baseIndicatorMap);
     }
 
     private static IEnumerable<FormRow> GetWorkRows(ICollection<FormRow> rows)
@@ -115,7 +149,7 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
             var indicatorKey = indicator.Id.ToString();
             if (!previousWorkRow.Values.TryGetValue(indicatorKey, out var previousValue)) continue;
 
-            if (TryParseIntValue(previousValue.CumulativeValue, out var cumulativeValue))
+            if (TryParseIntValue(previousValue.Value, out var cumulativeValue))
                 initialValues[indicator.Id] = cumulativeValue;
         }
 
@@ -125,28 +159,32 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
     private static List<FormRowValueData> CalculateRowCumulativeValues(
         FormRow row,
         IList<Indicator> cumulativeIndicators,
+        Dictionary<int, int> baseIndicatorMap,
         Dictionary<int, int> cumulativeValuesByIndicator)
     {
         var rowValues = new List<FormRowValueData>();
 
-        foreach (var indicator in cumulativeIndicators)
+        foreach (var cumulativeIndicator in cumulativeIndicators)
         {
-            var indicatorKey = indicator.Id.ToString();
-            if (!row.Values.TryGetValue(indicatorKey, out var rowValue)) continue;
+            if (!baseIndicatorMap.TryGetValue(cumulativeIndicator.Id, out var baseIndicatorId)) continue;
 
-            if (!TryParseIntValue(rowValue.Value, out var baseValue)) continue;
+            // Получаем значение базового индикатора
+            var baseIndicatorKey = baseIndicatorId.ToString();
+            if (!row.Values.TryGetValue(baseIndicatorKey, out var baseRowValue)) continue;
 
-            var previousCumulative = cumulativeValuesByIndicator.GetValueOrDefault(indicator.Id, 0);
+            if (!TryParseIntValue(baseRowValue.Value, out var baseValue)) continue;
+
+            // Вычисляем накопительное значение
+            var previousCumulative = cumulativeValuesByIndicator.GetValueOrDefault(cumulativeIndicator.Id, 0);
             var cumulativeValue = previousCumulative + baseValue;
 
             rowValues.Add(new FormRowValueData
             {
-                IndicatorId = indicator.Id,
-                Value = rowValue.Value,
-                CumulativeValue = cumulativeValue
+                IndicatorId = cumulativeIndicator.Id,
+                Value = cumulativeValue
             });
 
-            cumulativeValuesByIndicator[indicator.Id] = cumulativeValue;
+            cumulativeValuesByIndicator[cumulativeIndicator.Id] = cumulativeValue;
         }
 
         return rowValues;

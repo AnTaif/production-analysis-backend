@@ -9,7 +9,6 @@ public class Indicator
         string inputType,
         string? valueSelector,
         string? formula,
-        bool isCumulative,
         bool hasSummation,
         int order)
     {
@@ -19,7 +18,6 @@ public class Indicator
         InputType = inputType;
         ValueSelector = valueSelector;
         Formula = formula;
-        IsCumulative = isCumulative;
         HasSummation = hasSummation;
         Order = order;
     }
@@ -30,7 +28,6 @@ public class Indicator
     public string InputType { get; }
     public string? ValueSelector { get; }
     public string? Formula { get; }
-    public bool IsCumulative { get; }
     public bool HasSummation { get; }
     public int Order { get; }
 }

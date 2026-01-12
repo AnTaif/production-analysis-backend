@@ -68,13 +68,7 @@ public static class FormsConverter
             var value = DeserializeValue(valueDbo.Value);
             if (value != null)
             {
-                var cumulativeValue = valueDbo.CumulativeValue != null
-                    ? DeserializeValue(valueDbo.CumulativeValue)
-                    : null;
-
-                values[valueDbo.IndicatorId.ToString()] = new FormRowValue(
-                    value,
-                    cumulativeValue);
+                values[valueDbo.IndicatorId.ToString()] = new FormRowValue(value);
             }
         }
 

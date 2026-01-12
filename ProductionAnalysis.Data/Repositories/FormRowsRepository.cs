@@ -30,17 +30,13 @@ public class FormRowsRepository(PaDbContext dbContext) : IFormRowsRepository
             foreach (var valueData in row.Values)
             {
                 var valueJson = JsonSerializer.Serialize(valueData.Value);
-                var cumulativeValueJson = valueData.CumulativeValue != null
-                    ? JsonSerializer.Serialize(valueData.CumulativeValue)
-                    : null;
 
                 formRow.Values.Add(new FormRowValueDbo
                 {
                     FormId = formId,
                     FormRowOrder = row.Order,
                     IndicatorId = valueData.IndicatorId,
-                    Value = valueJson,
-                    CumulativeValue = cumulativeValueJson
+                    Value = valueJson
                 });
             }
 
@@ -71,29 +67,19 @@ public class FormRowsRepository(PaDbContext dbContext) : IFormRowsRepository
             if (valueDbo == null)
             {
                 var valueJson = JsonSerializer.Serialize(valueData.Value);
-                var cumulativeValueJson = valueData.CumulativeValue != null
-                    ? JsonSerializer.Serialize(valueData.CumulativeValue)
-                    : null;
 
                 formRow.Values.Add(new FormRowValueDbo
                 {
                     FormId = formId,
                     FormRowOrder = rowOrder,
                     IndicatorId = valueData.IndicatorId,
-                    Value = valueJson,
-                    CumulativeValue = cumulativeValueJson
+                    Value = valueJson
                 });
             }
             else
             {
                 var valueJson = JsonSerializer.Serialize(valueData.Value);
                 valueDbo.Value = valueJson;
-
-                if (valueData.CumulativeValue != null)
-                {
-                    var cumulativeValueJson = JsonSerializer.Serialize(valueData.CumulativeValue);
-                    valueDbo.CumulativeValue = cumulativeValueJson;
-                }
             }
         }
 
@@ -130,29 +116,19 @@ public class FormRowsRepository(PaDbContext dbContext) : IFormRowsRepository
                 if (valueDbo == null)
                 {
                     var valueJson = JsonSerializer.Serialize(valueData.Value);
-                    var cumulativeValueJson = valueData.CumulativeValue != null
-                        ? JsonSerializer.Serialize(valueData.CumulativeValue)
-                        : null;
 
                     formRow.Values.Add(new FormRowValueDbo
                     {
                         FormId = formId,
                         FormRowOrder = formRow.Order,
                         IndicatorId = valueData.IndicatorId,
-                        Value = valueJson,
-                        CumulativeValue = cumulativeValueJson
+                        Value = valueJson
                     });
                 }
                 else
                 {
                     var valueJson = JsonSerializer.Serialize(valueData.Value);
                     valueDbo.Value = valueJson;
-
-                    if (valueData.CumulativeValue != null)
-                    {
-                        var cumulativeValueJson = JsonSerializer.Serialize(valueData.CumulativeValue);
-                        valueDbo.CumulativeValue = cumulativeValueJson;
-                    }
                 }
             }
         }

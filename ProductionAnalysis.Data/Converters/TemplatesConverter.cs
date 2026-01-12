@@ -32,7 +32,6 @@ public static class TemplatesConverter
             dbo.InputType,
             dbo.ValueSelector,
             dbo.Formula,
-            dbo.IsCumulative,
             dbo.HasSummation,
             order);
     }

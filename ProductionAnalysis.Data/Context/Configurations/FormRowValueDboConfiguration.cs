@@ -13,7 +13,6 @@ public class FormRowValueDboConfiguration : IEntityTypeConfiguration<FormRowValu
         builder.HasKey(x => new { x.FormId, x.FormRowOrder, x.IndicatorId });
 
         builder.Property(x => x.Value).HasColumnType("jsonb");
-        builder.Property(x => x.CumulativeValue).HasColumnType("jsonb");
 
         builder.HasOne(x => x.FormRow)
             .WithMany(x => x.Values)

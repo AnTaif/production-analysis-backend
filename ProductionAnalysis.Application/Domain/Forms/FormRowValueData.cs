@@ -4,5 +4,4 @@ public class FormRowValueData
 {
     public int IndicatorId { get; set; }
     public object Value { get; set; } = null!;
-    public object? CumulativeValue { get; set; }
 }

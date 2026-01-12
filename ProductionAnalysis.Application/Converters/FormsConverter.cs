@@ -83,8 +83,7 @@ public static class FormsConverter
         {
             values[key] = new FormRowValueDto
             {
-                Value = rowValue.Value,
-                CumulativeValue = rowValue.CumulativeValue
+                Value = rowValue.Value
             };
         }
 
@@ -113,7 +112,6 @@ public static class FormsConverter
                     InputType = indicator.InputType,
                     InputSelector = indicator.ValueSelector,
                     ValueType = indicator.ValueType,
-                    IsCumulative = indicator.IsCumulative,
                     ShouldMergeInGroup = mergedIndicatorIds.Contains(indicator.Id)
                 })
                 .ToList()

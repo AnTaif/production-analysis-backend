@@ -36,8 +36,7 @@ public class FormDtoExample : IExamplesProvider<FormDto>
                         {
                             "1", new FormRowValueDto
                             {
-                                Value = "60",
-                                CumulativeValue = "60"
+                                Value = "60"
                             }
                         },
                         {
@@ -57,8 +56,7 @@ public class FormDtoExample : IExamplesProvider<FormDto>
                         {
                             "1", new FormRowValueDto
                             {
-                                Value = "60",
-                                CumulativeValue = "120"
+                                Value = "60"
                             }
                         },
                         {
@@ -78,8 +76,7 @@ public class FormDtoExample : IExamplesProvider<FormDto>
                         {
                             "1", new FormRowValueDto
                             {
-                                Value = "60",
-                                CumulativeValue = "180"
+                                Value = "60"
                             }
                         },
                         {
@@ -99,8 +96,7 @@ public class FormDtoExample : IExamplesProvider<FormDto>
                         {
                             "1", new FormRowValueDto
                             {
-                                Value = "45",
-                                CumulativeValue = "225"
+                                Value = "45"
                             }
                         },
                         {

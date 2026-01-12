@@ -627,7 +627,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Initialization,
                 ValueSelector = null,
                 Formula = null,
-                IsCumulative = false,
                 HasSummation = true
             },
             new IndicatorDbo
@@ -638,7 +637,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Initialization,
                 ValueSelector = "",
                 Formula = null,
-                IsCumulative = true,
                 HasSummation = true,
             },
             new IndicatorDbo
@@ -649,7 +647,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = "",
                 Formula = null,
-                IsCumulative = true,
                 HasSummation = true
             },
             new IndicatorDbo
@@ -660,7 +657,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Formula,
                 ValueSelector = "",
                 Formula = "indicator_2 - indicator_1",
-                IsCumulative = true,
                 HasSummation = true
             },
             new IndicatorDbo
@@ -671,7 +667,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
                 Formula = null,
-                IsCumulative = true,
                 HasSummation = true
             },
             new IndicatorDbo
@@ -682,7 +677,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Dictionary,
                 ValueSelector = "employees",
                 Formula = null,
-                IsCumulative = false,
                 HasSummation = false
             },
             new IndicatorDbo
@@ -693,7 +687,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Dictionary,
                 ValueSelector = "downtime-reason-groups",
                 Formula = null,
-                IsCumulative = false,
                 HasSummation = false
             },
             new IndicatorDbo
@@ -704,7 +697,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
                 Formula = null,
-                IsCumulative = false,
                 HasSummation = false
             },
             new IndicatorDbo
@@ -715,7 +707,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
                 Formula = null,
-                IsCumulative = false,
                 HasSummation = false
             },
             new IndicatorDbo
@@ -726,7 +717,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Dictionary,
                 ValueSelector = null,
                 Formula = null,
-                IsCumulative = false,
                 HasSummation = false
             },
             new IndicatorDbo
@@ -737,7 +727,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Context,
                 ValueSelector = null,
                 Formula = null,
-                IsCumulative = false,
                 HasSummation = false
             },
             new IndicatorDbo
@@ -748,7 +737,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Initialization,
                 ValueSelector = null,
                 Formula = null,
-                IsCumulative = true,
                 HasSummation = true
             },
             new IndicatorDbo
@@ -759,7 +747,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
                 Formula = null,
-                IsCumulative = true,
                 HasSummation = true
             },
             new IndicatorDbo
@@ -770,7 +757,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Initialization,
                 ValueSelector = null,
                 Formula = null,
-                IsCumulative = true,
                 HasSummation = true
             },
             new IndicatorDbo
@@ -781,7 +767,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
                 Formula = null,
-                IsCumulative = true,
                 HasSummation = true
             },
             new IndicatorDbo
@@ -792,7 +777,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Initialization,
                 ValueSelector = null,
                 Formula = null,
-                IsCumulative = true,
                 HasSummation = true
             },
             new IndicatorDbo
@@ -803,7 +787,6 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
                 Formula = null,
-                IsCumulative = true,
                 HasSummation = true
             },
             new IndicatorDbo
@@ -814,7 +797,117 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Formula,
                 ValueSelector = null,
                 Formula = "indicator_17 - indicator_16",
-                IsCumulative = true,
+                HasSummation = true
+            },
+            // Накопительные индикаторы
+            new IndicatorDbo
+            {
+                Id = 19,
+                Name = "План, шт. (накопительно)",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Cumulative,
+                ValueSelector = "2", // ID базового индикатора
+                Formula = null,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 20,
+                Name = "Факт, шт. (накопительно)",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Cumulative,
+                ValueSelector = "3", // ID базового индикатора
+                Formula = null,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 21,
+                Name = "Отклонение, шт. (накопительно)",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Cumulative,
+                ValueSelector = "4", // ID базового индикатора
+                Formula = null,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 22,
+                Name = "Простой, мин. (накопительно)",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Cumulative,
+                ValueSelector = "5", // ID базового индикатора
+                Formula = null,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 23,
+                Name = "Время начала план, мин. (накопительно)",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Cumulative,
+                ValueSelector = "12", // ID базового индикатора
+                Formula = null,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 24,
+                Name = "Время начала факт, мин. (накопительно)",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Cumulative,
+                ValueSelector = "13", // ID базового индикатора
+                Formula = null,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 25,
+                Name = "Время окончания план, мин. (накопительно)",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Cumulative,
+                ValueSelector = "14", // ID базового индикатора
+                Formula = null,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 26,
+                Name = "Время окончания факт, мин. (накопительно)",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Cumulative,
+                ValueSelector = "15", // ID базового индикатора
+                Formula = null,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 27,
+                Name = "План, мин. (накопительно)",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Cumulative,
+                ValueSelector = "16", // ID базового индикатора
+                Formula = null,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 28,
+                Name = "Факт, мин. (накопительно)",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Cumulative,
+                ValueSelector = "17", // ID базового индикатора
+                Formula = null,
+                HasSummation = true
+            },
+            new IndicatorDbo
+            {
+                Id = 29,
+                Name = "Отклонение, мин. (накопительно)",
+                ValueType = FieldValueTypes.Number,
+                InputType = FieldInputTypes.Cumulative,
+                ValueSelector = "18", // ID базового индикатора
+                Formula = null,
                 HasSummation = true
             }
         );
@@ -849,6 +942,18 @@ public class PaDataSeeder(
         var planMinutes = await dbContext.Indicators.FirstAsync(i => i.Id == 16);
         var factMinutes = await dbContext.Indicators.FirstAsync(i => i.Id == 17);
         var deviationMinutes = await dbContext.Indicators.FirstAsync(i => i.Id == 18);
+        // Накопительные индикаторы
+        var planCumulative = await dbContext.Indicators.FirstAsync(i => i.Id == 19);
+        var factCumulative = await dbContext.Indicators.FirstAsync(i => i.Id == 20);
+        var deviationCumulative = await dbContext.Indicators.FirstAsync(i => i.Id == 21);
+        var downtimeCumulative = await dbContext.Indicators.FirstAsync(i => i.Id == 22);
+        var startTimePlanCumulative = await dbContext.Indicators.FirstAsync(i => i.Id == 23);
+        var startTimeFactCumulative = await dbContext.Indicators.FirstAsync(i => i.Id == 24);
+        var endTimePlanCumulative = await dbContext.Indicators.FirstAsync(i => i.Id == 25);
+        var endTimeFactCumulative = await dbContext.Indicators.FirstAsync(i => i.Id == 26);
+        var planMinutesCumulative = await dbContext.Indicators.FirstAsync(i => i.Id == 27);
+        var factMinutesCumulative = await dbContext.Indicators.FirstAsync(i => i.Id == 28);
+        var deviationMinutesCumulative = await dbContext.Indicators.FirstAsync(i => i.Id == 29);
 
         var template1 = new TemplateDbo
         {
@@ -862,24 +967,36 @@ public class PaDataSeeder(
         template1.TemplateIndicators.Add(new TemplateIndicatorDbo
             { TemplateId = template1.Id, IndicatorId = plan.Id, Indicator = plan, Order = 1 });
         template1.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template1.Id, IndicatorId = fact.Id, Indicator = fact, Order = 2 });
+            { TemplateId = template1.Id, IndicatorId = planCumulative.Id, Indicator = planCumulative, Order = 2 });
         template1.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template1.Id, IndicatorId = deviation.Id, Indicator = deviation, Order = 3 });
+            { TemplateId = template1.Id, IndicatorId = fact.Id, Indicator = fact, Order = 3 });
         template1.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template1.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 4 });
+            { TemplateId = template1.Id, IndicatorId = factCumulative.Id, Indicator = factCumulative, Order = 4 });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template1.Id, IndicatorId = deviation.Id, Indicator = deviation, Order = 5 });
         template1.TemplateIndicators.Add(new TemplateIndicatorDbo
         {
-            TemplateId = template1.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 5
+            TemplateId = template1.Id, IndicatorId = deviationCumulative.Id, Indicator = deviationCumulative, Order = 6
         });
         template1.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template1.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 6 });
+            { TemplateId = template1.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 7 });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template1.Id, IndicatorId = downtimeCumulative.Id, Indicator = downtimeCumulative, Order = 8
+        });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template1.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 9
+        });
+        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template1.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 10 });
         template1.TemplateIndicators.Add(new TemplateIndicatorDbo
         {
             TemplateId = template1.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
-            Order = 7
+            Order = 11
         });
         template1.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template1.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 8 });
+            { TemplateId = template1.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 12 });
 
         dbContext.Templates.Add(template1);
 
@@ -897,24 +1014,36 @@ public class PaDataSeeder(
         template2.TemplateIndicators.Add(new TemplateIndicatorDbo
             { TemplateId = template2.Id, IndicatorId = plan.Id, Indicator = plan, Order = 1 });
         template2.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template2.Id, IndicatorId = fact.Id, Indicator = fact, Order = 2 });
+            { TemplateId = template2.Id, IndicatorId = planCumulative.Id, Indicator = planCumulative, Order = 2 });
         template2.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template2.Id, IndicatorId = deviation.Id, Indicator = deviation, Order = 3 });
+            { TemplateId = template2.Id, IndicatorId = fact.Id, Indicator = fact, Order = 3 });
         template2.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template2.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 4 });
+            { TemplateId = template2.Id, IndicatorId = factCumulative.Id, Indicator = factCumulative, Order = 4 });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template2.Id, IndicatorId = deviation.Id, Indicator = deviation, Order = 5 });
         template2.TemplateIndicators.Add(new TemplateIndicatorDbo
         {
-            TemplateId = template2.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 5
+            TemplateId = template2.Id, IndicatorId = deviationCumulative.Id, Indicator = deviationCumulative, Order = 6
+        });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template2.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 7 });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template2.Id, IndicatorId = downtimeCumulative.Id, Indicator = downtimeCumulative, Order = 8
+        });
+        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template2.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 9
         });
         template2.TemplateIndicators.Add(new TemplateIndicatorDbo
         {
             TemplateId = template2.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
-            Order = 6
+            Order = 10
         });
         template2.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template2.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 7 });
+            { TemplateId = template2.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 11 });
         template2.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template2.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 8 });
+            { TemplateId = template2.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 12 });
 
         dbContext.Templates.Add(template2);
 
@@ -932,24 +1061,36 @@ public class PaDataSeeder(
         template3.TemplateIndicators.Add(new TemplateIndicatorDbo
             { TemplateId = template3.Id, IndicatorId = plan.Id, Indicator = plan, Order = 1 });
         template3.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template3.Id, IndicatorId = fact.Id, Indicator = fact, Order = 2 });
+            { TemplateId = template3.Id, IndicatorId = planCumulative.Id, Indicator = planCumulative, Order = 2 });
         template3.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template3.Id, IndicatorId = deviation.Id, Indicator = deviation, Order = 3 });
+            { TemplateId = template3.Id, IndicatorId = fact.Id, Indicator = fact, Order = 3 });
         template3.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template3.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 4 });
+            { TemplateId = template3.Id, IndicatorId = factCumulative.Id, Indicator = factCumulative, Order = 4 });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template3.Id, IndicatorId = deviation.Id, Indicator = deviation, Order = 5 });
         template3.TemplateIndicators.Add(new TemplateIndicatorDbo
         {
-            TemplateId = template3.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 5
+            TemplateId = template3.Id, IndicatorId = deviationCumulative.Id, Indicator = deviationCumulative, Order = 6
+        });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template3.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 7 });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template3.Id, IndicatorId = downtimeCumulative.Id, Indicator = downtimeCumulative, Order = 8
+        });
+        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template3.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 9
         });
         template3.TemplateIndicators.Add(new TemplateIndicatorDbo
         {
             TemplateId = template3.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
-            Order = 6
+            Order = 10
         });
         template3.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template3.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 7 });
+            { TemplateId = template3.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 11 });
         template3.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template3.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 8 });
+            { TemplateId = template3.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 12 });
 
         dbContext.Templates.Add(template3);
 
@@ -966,28 +1107,40 @@ public class PaDataSeeder(
         template4.TemplateIndicators.Add(new TemplateIndicatorDbo
             { TemplateId = template4.Id, IndicatorId = plan.Id, Indicator = plan, Order = 1 });
         template4.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template4.Id, IndicatorId = operationName.Id, Indicator = operationName, Order = 2 });
+            { TemplateId = template4.Id, IndicatorId = planCumulative.Id, Indicator = planCumulative, Order = 2 });
         template4.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template4.Id, IndicatorId = operationTime.Id, Indicator = operationTime, Order = 3 });
+            { TemplateId = template4.Id, IndicatorId = operationName.Id, Indicator = operationName, Order = 3 });
         template4.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template4.Id, IndicatorId = fact.Id, Indicator = fact, Order = 4 });
+            { TemplateId = template4.Id, IndicatorId = operationTime.Id, Indicator = operationTime, Order = 4 });
         template4.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template4.Id, IndicatorId = deviation.Id, Indicator = deviation, Order = 5 });
+            { TemplateId = template4.Id, IndicatorId = fact.Id, Indicator = fact, Order = 5 });
         template4.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template4.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 6 });
+            { TemplateId = template4.Id, IndicatorId = factCumulative.Id, Indicator = factCumulative, Order = 6 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = deviation.Id, Indicator = deviation, Order = 7 });
         template4.TemplateIndicators.Add(new TemplateIndicatorDbo
         {
-            TemplateId = template4.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 7
+            TemplateId = template4.Id, IndicatorId = deviationCumulative.Id, Indicator = deviationCumulative, Order = 8
         });
         template4.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template4.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 8 });
+            { TemplateId = template4.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 9 });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template4.Id, IndicatorId = downtimeCumulative.Id, Indicator = downtimeCumulative, Order = 10
+        });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template4.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 11
+        });
+        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template4.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 12 });
         template4.TemplateIndicators.Add(new TemplateIndicatorDbo
         {
             TemplateId = template4.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
-            Order = 9
+            Order = 13
         });
         template4.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template4.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 10 });
+            { TemplateId = template4.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 14 });
 
         dbContext.Templates.Add(template4);
 
@@ -1004,32 +1157,67 @@ public class PaDataSeeder(
         template5.TemplateIndicators.Add(new TemplateIndicatorDbo
             { TemplateId = template5.Id, IndicatorId = startTimePlan.Id, Indicator = startTimePlan, Order = 1 });
         template5.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template5.Id, IndicatorId = startTimeFact.Id, Indicator = startTimeFact, Order = 2 });
-        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template5.Id, IndicatorId = endTimePlan.Id, Indicator = endTimePlan, Order = 3 });
-        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template5.Id, IndicatorId = endTimeFact.Id, Indicator = endTimeFact, Order = 4 });
-        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template5.Id, IndicatorId = planMinutes.Id, Indicator = planMinutes, Order = 5 });
-        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template5.Id, IndicatorId = factMinutes.Id, Indicator = factMinutes, Order = 6 });
-        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template5.Id, IndicatorId = deviationMinutes.Id, Indicator = deviationMinutes, Order = 7 });
-        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template5.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 8 });
-        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
         {
-            TemplateId = template5.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 9
+            TemplateId = template5.Id, IndicatorId = startTimePlanCumulative.Id, Indicator = startTimePlanCumulative,
+            Order = 2
         });
         template5.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template5.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 10 });
+            { TemplateId = template5.Id, IndicatorId = startTimeFact.Id, Indicator = startTimeFact, Order = 3 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template5.Id, IndicatorId = startTimeFactCumulative.Id, Indicator = startTimeFactCumulative,
+            Order = 4
+        });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = endTimePlan.Id, Indicator = endTimePlan, Order = 5 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template5.Id, IndicatorId = endTimePlanCumulative.Id, Indicator = endTimePlanCumulative,
+            Order = 6
+        });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = endTimeFact.Id, Indicator = endTimeFact, Order = 7 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template5.Id, IndicatorId = endTimeFactCumulative.Id, Indicator = endTimeFactCumulative,
+            Order = 8
+        });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = planMinutes.Id, Indicator = planMinutes, Order = 9 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template5.Id, IndicatorId = planMinutesCumulative.Id, Indicator = planMinutesCumulative,
+            Order = 10
+        });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = factMinutes.Id, Indicator = factMinutes, Order = 11 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template5.Id, IndicatorId = factMinutesCumulative.Id, Indicator = factMinutesCumulative,
+            Order = 12
+        });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = deviationMinutes.Id, Indicator = deviationMinutes, Order = 13 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template5.Id, IndicatorId = deviationMinutesCumulative.Id,
+            Indicator = deviationMinutesCumulative, Order = 14
+        });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = downtime.Id, Indicator = downtime, Order = 15 });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+        {
+            TemplateId = template5.Id, IndicatorId = downtimeResponsible.Id, Indicator = downtimeResponsible, Order = 16
+        });
+        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
+            { TemplateId = template5.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 17 });
         template5.TemplateIndicators.Add(new TemplateIndicatorDbo
         {
             TemplateId = template5.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
-            Order = 11
+            Order = 18
         });
         template5.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template5.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 12 });
+            { TemplateId = template5.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 19 });
 
         dbContext.Templates.Add(template5);
         await dbContext.SaveChangesAsync();

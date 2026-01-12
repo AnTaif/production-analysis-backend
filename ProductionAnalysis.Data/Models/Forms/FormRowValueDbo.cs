@@ -12,8 +12,6 @@ public class FormRowValueDbo
 
     public required string Value { get; set; }
 
-    public string? CumulativeValue { get; set; }
-
     public FormRowDbo FormRow { get; set; } = null!;
 
     public IndicatorDbo Indicator { get; set; } = null!;

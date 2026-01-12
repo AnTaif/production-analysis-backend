@@ -7,4 +7,5 @@ public static class FieldInputTypes
     public const string Formula = "formula";
     public const string Context = "context";
     public const string Initialization = "initialization";
+    public const string Cumulative = "cumulative";
 }
