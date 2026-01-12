@@ -73,10 +73,11 @@ public class FormsController(IFormsService formsService) : ControllerBase
     }
 
     [HttpPut("{formId:int}/rows/{rowOrder}")]
-    [ProducesResponseType<FormRowDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ICollection<FormRowDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType<string>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<FormRowDto>> UpdateFormRow(int formId, short rowOrder, UpdateFormRowRequest request)
+    public async Task<ActionResult<ICollection<FormRowDto>>> UpdateFormRow(int formId, short rowOrder,
+        UpdateFormRowRequest request)
     {
         var userId = User.ReadSid();
         var result = await formsService.UpdateFormRowAsync(formId, rowOrder, request, userId);

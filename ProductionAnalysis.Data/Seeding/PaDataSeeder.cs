@@ -656,7 +656,7 @@ public class PaDataSeeder(
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Formula,
                 ValueSelector = "",
-                Formula = "indicator_2 - indicator_1",
+                Formula = "indicator_3 - indicator_2",
                 HasSummation = true
             },
             new IndicatorDbo

@@ -9,7 +9,7 @@ namespace ProductionAnalysis.Application.Implementation.Forms;
 
 public interface IFormRowUpdateOrchestrator
 {
-    Task<Result<FormRowDto>> UpdateRowAsync(
+    Task<Result<ICollection<FormRowDto>>> UpdateRowAsync(
         int formId,
         short rowOrder,
         UpdateFormRowRequest request,
@@ -28,7 +28,7 @@ public class FormRowUpdateOrchestrator(
     IFormTotalsUpdater formTotalsUpdater
 ) : IFormRowUpdateOrchestrator
 {
-    public async Task<Result<FormRowDto>> UpdateRowAsync(
+    public async Task<Result<ICollection<FormRowDto>>> UpdateRowAsync(
         int formId,
         short rowOrder,
         UpdateFormRowRequest request,
@@ -44,16 +44,24 @@ public class FormRowUpdateOrchestrator(
             request.Values,
             form.TemplateSnapshot);
 
-        if (filteredValues.Count == 0) return row.ToRowDto();
+        if (filteredValues.Count == 0)
+        {
+            // Если нет значений для обновления, возвращаем все строки в текущем состоянии
+            return form.Rows.ToRowDtos();
+        }
 
         await unitOfWork.FormRows.UpdateRowValuesAsync(formId, rowOrder, filteredValues, userId);
         await unitOfWork.SaveChangesAsync();
+
+        // Перезагружаем форму, чтобы получить обновленные значения
+        form = await unitOfWork.Forms.FindAsync(formId);
+        if (form == null) return ServiceError.NotFound($"Form {formId} not found after update");
 
         await RecalculateFormulasAsync(formId, rowOrder, filteredValues, form.TemplateSnapshot, userId);
         await RecalculateCumulativeValuesAsync(formId, rowOrder, userId);
 
         await UpdateTotalsAsync(formId, userId);
-        return await GetUpdatedRowAsync(formId, rowOrder);
+        return await GetAllRowsAsync(formId);
     }
 
     private async Task RecalculateFormulasAsync(
@@ -63,6 +71,7 @@ public class FormRowUpdateOrchestrator(
         Template template,
         Guid userId)
     {
+        // Перезагружаем форму, чтобы получить обновленные значения после SaveChangesAsync
         var form = await unitOfWork.Forms.FindAsync(formId);
         if (form == null) return;
 
@@ -112,13 +121,11 @@ public class FormRowUpdateOrchestrator(
         if (form != null) await formTotalsUpdater.UpdateTotalsIfNeededAsync(form, userId);
     }
 
-    private async Task<Result<FormRowDto>> GetUpdatedRowAsync(int formId, short rowOrder)
+    private async Task<Result<ICollection<FormRowDto>>> GetAllRowsAsync(int formId)
     {
         var form = await unitOfWork.Forms.FindAsync(formId);
-        var row = form?.Rows.SingleOrDefault(r => r.Order == rowOrder);
+        if (form == null) return ServiceError.NotFound($"Form {formId} not found after update");
 
-        if (row == null) return ServiceError.NotFound($"Form row with Order={rowOrder} not found after update");
-
-        return row.ToRowDto();
+        return form.Rows.ToRowDtos();
     }
 }
