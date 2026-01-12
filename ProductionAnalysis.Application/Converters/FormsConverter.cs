@@ -9,8 +9,16 @@ namespace ProductionAnalysis.Application.Converters;
 
 public static class FormsConverter
 {
-    public static FormShortDto ToShortDto(this Form form, EmployeeDto creator, EmployeeDto assignee)
+    public static FormShortDto ToShortDto(
+        this Form form,
+        EmployeeDto creator,
+        EmployeeDto assignee,
+        ShiftDto shift,
+        Dictionary<int, string>? productsById = null,
+        Dictionary<int, string>? operationsById = null)
     {
+        var productNames = BuildProductNames(form, productsById, operationsById);
+
         return new FormShortDto
         {
             Id = form.Id,
@@ -21,7 +29,58 @@ public static class FormsConverter
             DepartmentId = form.DepartmentId,
             Creator = creator,
             Assignee = assignee,
+            ProductNames = productNames,
+            Shift = shift
         };
+    }
+
+    private static string BuildProductNames(
+        Form form,
+        Dictionary<int, string>? productsById,
+        Dictionary<int, string>? operationsById)
+    {
+        if (productsById == null && operationsById == null)
+            return string.Empty;
+
+        // Для одного продукта
+        var productContext = form.Context.GetProductContext();
+        if (productContext != null)
+        {
+            if (productsById?.TryGetValue(productContext.ProductId, out var productName) == true)
+                return productName;
+            return string.Empty;
+        }
+
+        // Для нескольких продуктов
+        var multiProductContext = form.Context.GetMultiProductContext();
+        if (multiProductContext != null)
+        {
+            var productNames = multiProductContext.Products
+                .Where(p => productsById?.TryGetValue(p.ProductId, out _) == true)
+                .Select(p => productsById![p.ProductId])
+                .ToList();
+
+            return productNames.Count > 0 ? string.Join(", ", productNames) : string.Empty;
+        }
+
+        // Для операций или продуктов
+        var operationOrProductContext = form.Context.GetOperationOrProductContext();
+        if (operationOrProductContext != null)
+        {
+            if (operationOrProductContext.OperationId.HasValue)
+            {
+                if (operationsById?.TryGetValue(operationOrProductContext.OperationId.Value, out var operationName) ==
+                    true)
+                    return operationName;
+            }
+            else if (operationOrProductContext.ProductId.HasValue)
+            {
+                if (productsById?.TryGetValue(operationOrProductContext.ProductId.Value, out var productName) == true)
+                    return productName;
+            }
+        }
+
+        return string.Empty;
     }
 
     public static FormDto ToDto(this Form form)

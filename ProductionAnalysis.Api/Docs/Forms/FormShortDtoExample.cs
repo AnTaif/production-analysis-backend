@@ -32,6 +32,13 @@ public class FormShortDtoExample : IExamplesProvider<FormShortDto>
                 Position = "Оператор",
                 DepartmentId = 2,
                 UserId = null
+            },
+            ProductNames = "Корпус редуктора",
+            Shift = new ShiftDto
+            {
+                Id = 1,
+                Name = "1",
+                StartTime = new TimeOnly(8, 0)
             }
         };
     }
@@ -66,6 +73,13 @@ public class PaginatedFormShortDtoExample : IExamplesProvider<PaginatedResponse<
                         Position = "Оператор",
                         DepartmentId = 2,
                         UserId = null
+                    },
+                    ProductNames = "Корпус редуктора",
+                    Shift = new ShiftDto
+                    {
+                        Id = 1,
+                        Name = "1",
+                        StartTime = new TimeOnly(8, 0)
                     }
                 },
 
@@ -92,6 +106,13 @@ public class PaginatedFormShortDtoExample : IExamplesProvider<PaginatedResponse<
                         Position = "Старший оператор",
                         DepartmentId = 2,
                         UserId = Guid.Parse("87654321-4321-4321-4321-210987654321")
+                    },
+                    ProductNames = "Установка прибора",
+                    Shift = new ShiftDto
+                    {
+                        Id = 2,
+                        Name = "2",
+                        StartTime = new TimeOnly(16, 0)
                     }
                 }
             ],

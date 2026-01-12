@@ -12,4 +12,6 @@ public record FormShortDto
     public int DepartmentId { get; init; }
     public required EmployeeDto Creator { get; init; }
     public required EmployeeDto Assignee { get; init; }
+    public string ProductNames { get; init; } = string.Empty;
+    public required ShiftDto Shift { get; init; }
 }

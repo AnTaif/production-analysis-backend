@@ -2,6 +2,7 @@
 using Core.Results;
 using ProductionAnalysis.Application.Converters;
 using ProductionAnalysis.Application.Domain.Forms;
+using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Application.Implementation.Forms.Context;
 using ProductionAnalysis.Application.Implementation.Forms.Initialization;
 using ProductionAnalysis.Application.Repositories;
@@ -87,6 +88,61 @@ public class FormsService(
 
         var (forms, totalCount) = await unitOfWork.Forms.SearchFormsAsync(domainFilter);
 
+        // Собираем все ID продуктов и операций из контекстов форм
+        var productIds = new HashSet<int>();
+        var operationIds = new HashSet<int>();
+
+        foreach (var form in forms)
+        {
+            var productContext = form.Context.GetProductContext();
+            if (productContext != null)
+            {
+                productIds.Add(productContext.ProductId);
+            }
+
+            var multiProductContext = form.Context.GetMultiProductContext();
+            if (multiProductContext != null)
+            {
+                foreach (var product in multiProductContext.Products)
+                {
+                    productIds.Add(product.ProductId);
+                }
+            }
+
+            var operationOrProductContext = form.Context.GetOperationOrProductContext();
+            if (operationOrProductContext != null)
+            {
+                if (operationOrProductContext.OperationId.HasValue)
+                {
+                    operationIds.Add(operationOrProductContext.OperationId.Value);
+                }
+                else if (operationOrProductContext.ProductId.HasValue)
+                {
+                    productIds.Add(operationOrProductContext.ProductId.Value);
+                }
+            }
+        }
+
+        // Собираем все ID смен
+        var shiftIds = forms.Select(f => f.ShiftId).Distinct().ToHashSet();
+
+        // Загружаем все продукты, операции и смены одним запросом
+        var allProducts = await unitOfWork.Dictionaries.SelectProductsAsync();
+        var allOperations = await unitOfWork.Dictionaries.SelectOperationsAsync();
+        var allShifts = await unitOfWork.Dictionaries.SelectShiftsAsync();
+
+        var productsById = allProducts
+            .Where(p => productIds.Contains(p.Id))
+            .ToDictionary(p => p.Id, p => p.Name);
+
+        var operationsById = allOperations
+            .Where(o => operationIds.Contains(o.Id))
+            .ToDictionary(o => o.Id, o => o.Name);
+
+        var shiftsById = allShifts
+            .Where(s => shiftIds.Contains(s.Id))
+            .ToDictionary(s => s.Id);
+
         var dtos = new List<FormShortDto>();
         foreach (var form in forms)
         {
@@ -99,7 +155,13 @@ public class FormsService(
                 continue;
             }
 
-            dtos.Add(form.ToShortDto(creator, assignee));
+            if (!shiftsById.TryGetValue(form.ShiftId, out var shift))
+            {
+                // Пропускаем форму, если не удалось загрузить данные о смене
+                continue;
+            }
+
+            dtos.Add(form.ToShortDto(creator, assignee, shift, productsById, operationsById));
         }
 
         var response = new PaginatedResponse<FormShortDto>(
@@ -152,7 +214,50 @@ public class FormsService(
         await formTotalsUpdater.UpdateTotalsIfNeededAsync(createdForm, createdForm.CreatorId);
         await unitOfWork.SaveChangesAsync();
 
-        return createdForm.ToShortDto(creator, assignee);
+        // Загружаем продукты и операции для отображения названий
+        var productIds = new HashSet<int>();
+        var operationIds = new HashSet<int>();
+
+        var productContext = createdForm.Context.GetProductContext();
+        if (productContext != null)
+        {
+            productIds.Add(productContext.ProductId);
+        }
+
+        var multiProductContext = createdForm.Context.GetMultiProductContext();
+        if (multiProductContext != null)
+        {
+            foreach (var product in multiProductContext.Products)
+            {
+                productIds.Add(product.ProductId);
+            }
+        }
+
+        var operationOrProductContext = createdForm.Context.GetOperationOrProductContext();
+        if (operationOrProductContext != null)
+        {
+            if (operationOrProductContext.OperationId.HasValue)
+            {
+                operationIds.Add(operationOrProductContext.OperationId.Value);
+            }
+            else if (operationOrProductContext.ProductId.HasValue)
+            {
+                productIds.Add(operationOrProductContext.ProductId.Value);
+            }
+        }
+
+        var allProducts = await unitOfWork.Dictionaries.SelectProductsAsync();
+        var allOperations = await unitOfWork.Dictionaries.SelectOperationsAsync();
+
+        var productsById = allProducts
+            .Where(p => productIds.Contains(p.Id))
+            .ToDictionary(p => p.Id, p => p.Name);
+
+        var operationsById = allOperations
+            .Where(o => operationIds.Contains(o.Id))
+            .ToDictionary(o => o.Id, o => o.Name);
+
+        return createdForm.ToShortDto(creator, assignee, shift, productsById, operationsById);
     }
 
     public async Task<Result<FormDto>> GetByIdAsync(int formId)
