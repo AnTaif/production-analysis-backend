@@ -808,7 +808,7 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "2", // ID базового индикатора
                 Formula = null,
-                HasSummation = true
+                HasSummation = false
             },
             new IndicatorDbo
             {
@@ -818,7 +818,7 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "3", // ID базового индикатора
                 Formula = null,
-                HasSummation = true
+                HasSummation = false
             },
             new IndicatorDbo
             {
@@ -828,7 +828,7 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "4", // ID базового индикатора
                 Formula = null,
-                HasSummation = true
+                HasSummation = false
             },
             new IndicatorDbo
             {
@@ -838,7 +838,7 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "5", // ID базового индикатора
                 Formula = null,
-                HasSummation = true
+                HasSummation = false
             },
             new IndicatorDbo
             {
@@ -848,7 +848,7 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "12", // ID базового индикатора
                 Formula = null,
-                HasSummation = true
+                HasSummation = false
             },
             new IndicatorDbo
             {
@@ -858,7 +858,7 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "13", // ID базового индикатора
                 Formula = null,
-                HasSummation = true
+                HasSummation = false
             },
             new IndicatorDbo
             {
@@ -868,7 +868,7 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "14", // ID базового индикатора
                 Formula = null,
-                HasSummation = true
+                HasSummation = false
             },
             new IndicatorDbo
             {
@@ -878,7 +878,7 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "15", // ID базового индикатора
                 Formula = null,
-                HasSummation = true
+                HasSummation = false
             },
             new IndicatorDbo
             {
@@ -888,7 +888,7 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "16", // ID базового индикатора
                 Formula = null,
-                HasSummation = true
+                HasSummation = false
             },
             new IndicatorDbo
             {
@@ -898,7 +898,7 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "17", // ID базового индикатора
                 Formula = null,
-                HasSummation = true
+                HasSummation = false
             },
             new IndicatorDbo
             {
@@ -908,7 +908,7 @@ public class PaDataSeeder(
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "18", // ID базового индикатора
                 Formula = null,
-                HasSummation = true
+                HasSummation = false
             }
         );
 
