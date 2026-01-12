@@ -518,29 +518,29 @@ public class PaDataSeeder(
             new ProductDbo
             {
                 Id = 1,
-                Name = "Корпус редуктора",
-                TactTimeInSeconds = 600,
-                EnterpriseId = 1
-            },
-            new ProductDbo
-            {
-                Id = 2,
-                Name = "Вал привода",
-                TactTimeInSeconds = 450,
-                EnterpriseId = 1
-            },
-            new ProductDbo
-            {
-                Id = 3,
                 Name = "Втулка",
                 TactTimeInSeconds = 60,
                 EnterpriseId = 1
             },
             new ProductDbo
             {
-                Id = 4,
+                Id = 2,
                 Name = "Шайба",
                 TactTimeInSeconds = 30,
+                EnterpriseId = 1
+            },
+            new ProductDbo
+            {
+                Id = 3,
+                Name = "Подшипник",
+                TactTimeInSeconds = 60,
+                EnterpriseId = 1
+            },
+            new ProductDbo
+            {
+                Id = 4,
+                Name = "Фланец",
+                TactTimeInSeconds = 60,
                 EnterpriseId = 1
             }
         );
@@ -622,7 +622,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 1,
-                Name = "Время работы, час.",
+                Name = "Время работы, час",
                 ValueType = FieldValueTypes.Text,
                 InputType = FieldInputTypes.Initialization,
                 ValueSelector = null,
@@ -632,7 +632,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 2,
-                Name = "План, шт.",
+                Name = "План, шт",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Initialization,
                 ValueSelector = "",
@@ -642,7 +642,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 3,
-                Name = "Факт, шт.",
+                Name = "Факт, шт",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = "",
@@ -652,7 +652,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 4,
-                Name = "Отклонение, шт.",
+                Name = "Отклонение, шт",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Formula,
                 ValueSelector = "",
@@ -662,7 +662,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 5,
-                Name = "Простой, мин.",
+                Name = "Простой, мин",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
@@ -722,7 +722,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 11,
-                Name = "Время операции/элемента, мин.",
+                Name = "Время операции/элемента, мин",
                 ValueType = FieldValueTypes.Text,
                 InputType = FieldInputTypes.Context,
                 ValueSelector = null,
@@ -732,7 +732,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 12,
-                Name = "Время начала план, мин.",
+                Name = "Время начала план, мин",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Initialization,
                 ValueSelector = null,
@@ -742,7 +742,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 13,
-                Name = "Время начала факт, мин.",
+                Name = "Время начала факт, мин",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
@@ -752,7 +752,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 14,
-                Name = "Время окончания план, мин.",
+                Name = "Время окончания план, мин",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Initialization,
                 ValueSelector = null,
@@ -762,7 +762,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 15,
-                Name = "Время окончания факт, мин.",
+                Name = "Время окончания факт, мин",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
@@ -772,7 +772,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 16,
-                Name = "План, мин.",
+                Name = "План, мин",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Initialization,
                 ValueSelector = null,
@@ -782,7 +782,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 17,
-                Name = "Факт, мин.",
+                Name = "Факт, мин",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
@@ -792,7 +792,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 18,
-                Name = "Отклонение, мин.",
+                Name = "Отклонение, мин",
                 ValueType = FieldValueTypes.Text,
                 InputType = FieldInputTypes.Formula,
                 ValueSelector = null,
@@ -803,7 +803,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 19,
-                Name = "План, шт. (накопительно)",
+                Name = "План (накоп.), шт",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "2", // ID базового индикатора
@@ -813,7 +813,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 20,
-                Name = "Факт, шт. (накопительно)",
+                Name = "Факт (накоп.), шт",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "3", // ID базового индикатора
@@ -823,7 +823,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 21,
-                Name = "Отклонение, шт. (накопительно)",
+                Name = "Отклонение (накоп.), шт",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "4", // ID базового индикатора
@@ -833,7 +833,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 22,
-                Name = "Простой, мин. (накопительно)",
+                Name = "Простой (накоп.), мин",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "5", // ID базового индикатора
@@ -843,7 +843,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 23,
-                Name = "Время начала план, мин. (накопительно)",
+                Name = "Время начала план (накоп.), мин",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "12", // ID базового индикатора
@@ -853,7 +853,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 24,
-                Name = "Время начала факт, мин. (накопительно)",
+                Name = "Время начала факт (накоп.), мин",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "13", // ID базового индикатора
@@ -863,7 +863,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 25,
-                Name = "Время окончания план, мин. (накопительно)",
+                Name = "Время окончания план (накоп.), мин",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "14", // ID базового индикатора
@@ -873,7 +873,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 26,
-                Name = "Время окончания факт, мин. (накопительно)",
+                Name = "Время окончания факт (накоп.), мин",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "15", // ID базового индикатора
@@ -883,7 +883,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 27,
-                Name = "План, мин. (накопительно)",
+                Name = "План (накоп.), мин",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "16", // ID базового индикатора
@@ -893,7 +893,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 28,
-                Name = "Факт, мин. (накопительно)",
+                Name = "Факт (накоп.), мин",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "17", // ID базового индикатора
@@ -903,7 +903,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 29,
-                Name = "Отклонение, мин. (накопительно)",
+                Name = "Отклонение (накоп.), мин",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "18", // ID базового индикатора
