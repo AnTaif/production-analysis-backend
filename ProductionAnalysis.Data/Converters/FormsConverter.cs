@@ -91,7 +91,9 @@ public static class FormsConverter
 
             return root.ValueKind switch
             {
-                JsonValueKind.String => root.GetString(),
+                JsonValueKind.String => TryParseTimeOnly(root.GetString(), out var timeOnly)
+                    ? timeOnly
+                    : root.GetString(),
                 JsonValueKind.Number => root.TryGetInt64(out var intVal)
                     ? intVal
                     : root.GetDouble(),
@@ -105,6 +107,20 @@ public static class FormsConverter
         {
             return jsonValue;
         }
+    }
+
+    private static bool TryParseTimeOnly(string? value, out TimeOnly timeOnly)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            timeOnly = default;
+            return false;
+        }
+
+        // Пробуем распарсить как TimeOnly в формате "HH:mm" или ISO формате
+        return TimeOnly.TryParse(value, out timeOnly) ||
+               TimeOnly.TryParseExact(value, "HH:mm", out timeOnly) ||
+               TimeOnly.TryParseExact(value, "HH:mm:ss", out timeOnly);
     }
 
     private static Dictionary<string, FormContext> ConvertContextToDomain(

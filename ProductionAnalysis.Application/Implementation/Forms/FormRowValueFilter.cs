@@ -27,17 +27,33 @@ public class FormRowValueFilter : IFormRowValueFilter
     {
         var indicatorsDict = template.Indicators
             .Where(i => i.Id > 0 && !string.IsNullOrEmpty(i.InputType))
-            .ToDictionary(i => i.Id, i => i.InputType);
+            .ToDictionary(i => i.Id, i => i);
 
         var filteredValues = new List<FormRowValueData>();
         foreach (var (indicatorId, value) in requestValues)
-            if (indicatorsDict.TryGetValue(indicatorId, out var inputType)
-                && UpdatableInputTypes.Contains(inputType))
-                filteredValues.Add(new FormRowValueData
+        {
+            if (!indicatorsDict.TryGetValue(indicatorId, out var indicator)
+                || !UpdatableInputTypes.Contains(indicator.InputType))
+                continue;
+
+            // Если индикатор имеет тип Time и значение - строка, конвертируем в TimeOnly
+            var processedValue = value;
+            if (indicator.ValueType == FieldValueTypes.Time && value is string stringValue)
+            {
+                if (TimeOnly.TryParse(stringValue, out var timeOnly) ||
+                    TimeOnly.TryParseExact(stringValue, "HH:mm", out timeOnly) ||
+                    TimeOnly.TryParseExact(stringValue, "HH:mm:ss", out timeOnly))
                 {
-                    IndicatorId = indicatorId,
-                    Value = value
-                });
+                    processedValue = timeOnly;
+                }
+            }
+
+            filteredValues.Add(new FormRowValueData
+            {
+                IndicatorId = indicatorId,
+                Value = processedValue
+            });
+        }
 
         return filteredValues;
     }

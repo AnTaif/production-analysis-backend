@@ -1,3 +1,4 @@
+using ProductionAnalysis.Application.Domain;
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Application.Domain.Templates;
@@ -177,18 +178,34 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         if (operationNameIndicator is not null)
             values.Add(CreateFormRowValueData(operationNameIndicator, operation.Name));
 
-        // Время начала план (в минутах от начала смены)
+        // Время начала план
         if (startTimePlanIndicator is not null)
         {
-            var startMinutes = startTime.Hour * 60 + startTime.Minute - shiftStartMinutes;
-            values.Add(CreateFormRowValueData(startTimePlanIndicator, startMinutes.ToString()));
+            // Если индикатор имеет тип Time, сохраняем TimeOnly, иначе сохраняем минуты
+            if (startTimePlanIndicator.ValueType == FieldValueTypes.Time)
+            {
+                values.Add(CreateFormRowValueData(startTimePlanIndicator, startTime));
+            }
+            else
+            {
+                var startMinutes = startTime.Hour * 60 + startTime.Minute - shiftStartMinutes;
+                values.Add(CreateFormRowValueData(startTimePlanIndicator, startMinutes.ToString()));
+            }
         }
 
-        // Время окончания план (в минутах от начала смены)
+        // Время окончания план
         if (endTimePlanIndicator is not null)
         {
-            var endMinutes = endTime.Hour * 60 + endTime.Minute - shiftStartMinutes;
-            values.Add(CreateFormRowValueData(endTimePlanIndicator, endMinutes.ToString()));
+            // Если индикатор имеет тип Time, сохраняем TimeOnly, иначе сохраняем минуты
+            if (endTimePlanIndicator.ValueType == FieldValueTypes.Time)
+            {
+                values.Add(CreateFormRowValueData(endTimePlanIndicator, endTime));
+            }
+            else
+            {
+                var endMinutes = endTime.Hour * 60 + endTime.Minute - shiftStartMinutes;
+                values.Add(CreateFormRowValueData(endTimePlanIndicator, endMinutes.ToString()));
+            }
         }
 
         // План во времени (время операции в минутах)
@@ -213,7 +230,7 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         return $"{startTime:HH:mm}-{endTime:HH:mm}";
     }
 
-    private static FormRowValueData CreateFormRowValueData(Indicator indicator, string value)
+    private static FormRowValueData CreateFormRowValueData(Indicator indicator, object value)
     {
         return new FormRowValueData
         {
