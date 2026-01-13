@@ -16,21 +16,21 @@ public static class OperationOrProductContextConverter
         Dictionary<int, string>? productsById = null,
         Dictionary<int, string>? operationsById = null)
     {
-        string operationName = string.Empty;
-        string productName = string.Empty;
+        string? operationName = null;
+        string? productName = null;
 
         if (context.OperationId.HasValue)
         {
             operationName = operationsById?.TryGetValue(context.OperationId.Value, out var name) == true
                 ? name
-                : string.Empty;
+                : null;
         }
 
         if (context.ProductId.HasValue)
         {
             productName = productsById?.TryGetValue(context.ProductId.Value, out var name) == true
                 ? name
-                : string.Empty;
+                : null;
         }
 
         return new OperationOrProductContextDto
