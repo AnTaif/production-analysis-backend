@@ -169,7 +169,7 @@ public static class FormsConverter
 
     private static FormTemplateDto ConvertTemplateToDto(Template template, PaType paType)
     {
-        var mergedIndicatorIds = GetMergedIndicatorIds(paType, template);
+        var mergedIndicatorIds = GetMergedIndicatorIds(paType);
 
         return new FormTemplateDto
         {
@@ -188,28 +188,16 @@ public static class FormsConverter
         };
     }
 
-    private static HashSet<int> GetMergedIndicatorIds(PaType paType, Template template)
+    private static HashSet<int> GetMergedIndicatorIds(PaType paType)
     {
-        // Для форм типа "Менее 1 шт. в час" объединяем следующие колонки для строк группы
         if (paType == PaType.LessThanOnePerHour)
         {
-            var mergedIds = new HashSet<int>
-            {
-                ShiftConstants.WorktimeIndicatorId,
-                ShiftConstants.PlanIndicatorId
-            };
-
-            // Добавляем дополнительные индикаторы, если они есть в шаблоне
-            var indicatorIds = template.Indicators.Select(i => i.Id).ToHashSet();
-
-            if (indicatorIds.Contains(3)) // Факт, шт.
-                mergedIds.Add(3);
-            if (indicatorIds.Contains(4)) // Отклонение, шт.
-                mergedIds.Add(4);
-            if (indicatorIds.Contains(5)) // Простой, мин.
-                mergedIds.Add(5);
-
-            return mergedIds;
+            return
+            [
+                IndicatorConstants.WorktimeId,
+                IndicatorConstants.PlanId,
+                IndicatorConstants.PlanCumulativeId
+            ];
         }
 
         return [];
