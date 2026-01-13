@@ -172,6 +172,96 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
         deviationValue.Should().Be(expectedDeviation);
     }
 
+    [Test]
+    public async Task UpdateFormRowAsync_ShouldRecalculateCumulativeValuesAfterFormulaRecalculation()
+    {
+        // Arrange
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var assigneeId = await CreateAssigneeAsync(departmentId: 1);
+
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+        var request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.SingleProductWithCycleTime,
+            ShiftId = shift.Id,
+            AssigneeId = assigneeId,
+            Product = new ProductContextRequest
+            {
+                ProductId = 1,
+                DailyRate = 400,
+                CycleTime = 72
+            }
+        };
+
+        var result = await FormsService.CreateAsync(request, user.Id);
+        result.IsSuccess.Should().BeTrue();
+
+        var form = await UnitOfWork.Forms.FindAsync(result.Value.Id);
+        form.Should().NotBeNull();
+
+        var workRows = form.Rows
+            .Where(r => !r.IsAuxiliaryOperation)
+            .OrderBy(r => r.Order)
+            .ToList();
+
+        const int planIndicatorId = 2;
+        const int factIndicatorId = 3;
+        const int deviationIndicatorId = 4; // Формула: факт - план
+        const int deviationCumulativeIndicatorId = 21; // Накопительное отклонение
+
+        // Получаем начальные значения плана для первой и второй строк
+        var firstRowPlan = GetValue(workRows[0], planIndicatorId);
+        var secondRowPlan = GetValue(workRows[1], planIndicatorId);
+
+        const int firstRowFact = 80;
+        const int secondRowFact = 70;
+
+        // Act - обновляем факт в первой строке
+        await UpdateRowAsync(form.Id, workRows[0].Order, factIndicatorId, firstRowFact, user.Id);
+
+        // Assert - проверяем первую строку
+        var updatedForm = await UnitOfWork.Forms.FindAsync(form.Id);
+        var updatedFirstRow = updatedForm!.Rows
+            .Where(r => !r.IsAuxiliaryOperation)
+            .OrderBy(r => r.Order)
+            .First();
+
+        // Проверяем, что отклонение пересчиталось
+        var firstRowDeviation = GetValue(updatedFirstRow, deviationIndicatorId);
+        var expectedFirstRowDeviation = firstRowFact - firstRowPlan;
+        firstRowDeviation.Should().Be(expectedFirstRowDeviation,
+            "отклонение должно пересчитаться после обновления факта");
+
+        // Проверяем, что накопительное отклонение пересчиталось на основе актуального отклонения
+        var firstRowDeviationCumulative = GetCumulativeValue(updatedFirstRow, deviationCumulativeIndicatorId);
+        firstRowDeviationCumulative.Should().Be(expectedFirstRowDeviation,
+            "накопительное отклонение должно быть равно отклонению в первой строке");
+
+        // Act - обновляем факт во второй строке
+        await UpdateRowAsync(form.Id, workRows[1].Order, factIndicatorId, secondRowFact, user.Id);
+
+        // Assert - проверяем вторую строку
+        updatedForm = await UnitOfWork.Forms.FindAsync(form.Id);
+        var updatedSecondRow = updatedForm!.Rows
+            .Where(r => !r.IsAuxiliaryOperation)
+            .OrderBy(r => r.Order)
+            .Skip(1)
+            .First();
+
+        // Проверяем, что отклонение пересчиталось
+        var secondRowDeviation = GetValue(updatedSecondRow, deviationIndicatorId);
+        var expectedSecondRowDeviation = secondRowFact - secondRowPlan;
+        secondRowDeviation.Should().Be(expectedSecondRowDeviation,
+            "отклонение должно пересчитаться после обновления факта во второй строке");
+
+        // Проверяем, что накопительное отклонение пересчиталось с учетом отклонения из первой строки
+        var secondRowDeviationCumulative = GetCumulativeValue(updatedSecondRow, deviationCumulativeIndicatorId);
+        var expectedSecondRowDeviationCumulative = expectedFirstRowDeviation + expectedSecondRowDeviation;
+        secondRowDeviationCumulative.Should().Be(expectedSecondRowDeviationCumulative,
+            "накопительное отклонение во второй строке должно быть суммой отклонений из первой и второй строк");
+    }
+
     private async Task UpdateRowAsync(int formId, short rowOrder, int indicatorId, int value, Guid userId)
     {
         var updateRequest = new UpdateFormRowRequest

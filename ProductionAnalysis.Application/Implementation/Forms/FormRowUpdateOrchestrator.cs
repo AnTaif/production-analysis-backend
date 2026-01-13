@@ -76,9 +76,15 @@ public class FormRowUpdateOrchestrator(
         if (formulaValuesToUpdate.Count > 0)
         {
             await unitOfWork.FormRows.UpdateRowValuesAsync(formId, rowOrder, formulaValuesToUpdate, userId);
+            await unitOfWork.SaveChangesAsync();
+
+            // Перезагружаем форму после обновления формул, чтобы накопительные значения рассчитывались на актуальных данных
+            form = await unitOfWork.Forms.FindAsync(formId);
+            if (form == null) return ServiceError.NotFound($"Form {formId} not found after formula update");
         }
 
         // Пересчитываем накопительные значения (могут затрагивать несколько строк)
+        // Важно: это делается после пересчета формул, чтобы накопительные значения рассчитывались на основе актуальных значений формул
         var cumulativeValuesToUpdate = cumulativeValueCalculator.CalculateCumulativeValues(form, rowOrder);
         if (cumulativeValuesToUpdate.Count > 0)
         {
