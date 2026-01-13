@@ -10,7 +10,7 @@ internal static class FormStatusConverter
         return clientStatus switch
         {
             Client.Models.Forms.FormStatus.InProgress => InProgress,
-            Client.Models.Forms.FormStatus.Completed => Finished,
+            Client.Models.Forms.FormStatus.Completed => Completed,
             _ => throw new ArgumentOutOfRangeException(nameof(clientStatus), clientStatus, null)
         };
     }
@@ -20,7 +20,7 @@ internal static class FormStatusConverter
         return domainStatus switch
         {
             InProgress => Client.Models.Forms.FormStatus.InProgress,
-            Finished => Client.Models.Forms.FormStatus.Completed,
+            Completed => Client.Models.Forms.FormStatus.Completed,
             _ => throw new ArgumentOutOfRangeException(nameof(domainStatus), domainStatus, null)
         };
     }

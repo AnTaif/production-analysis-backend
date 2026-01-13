@@ -83,4 +83,16 @@ public class FormsController(IFormsService formsService) : ControllerBase
         var result = await formsService.UpdateFormRowAsync(formId, rowOrder, request, userId);
         return result.ToActionResult(this);
     }
+
+    [HttpPost("{formId:int}/complete")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<string>(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<string>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> CompleteForm([Range(1, int.MaxValue)] int formId)
+    {
+        var userId = User.ReadSid();
+        var result = await formsService.CompleteFormAsync(formId, userId);
+        return result.ToActionResult(this);
+    }
 }

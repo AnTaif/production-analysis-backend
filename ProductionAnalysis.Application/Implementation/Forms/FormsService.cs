@@ -21,6 +21,8 @@ public interface IFormsService
 
     Task<Result<ICollection<FormRowDto>>> UpdateFormRowAsync(int formId, short rowOrder, UpdateFormRowRequest request,
         Guid userId);
+
+    Task<Result> CompleteFormAsync(int formId, Guid userId);
 }
 
 [RegisterScoped]
@@ -347,5 +349,24 @@ public class FormsService(
         Guid userId)
     {
         return await formRowUpdateOrchestrator.UpdateRowAsync(formId, rowOrder, request, userId);
+    }
+
+    public async Task<Result> CompleteFormAsync(int formId, Guid userId)
+    {
+        var form = await unitOfWork.Forms.FindAsync(formId);
+        if (form == null)
+        {
+            return ServiceError.NotFound($"Form with id {formId} not found");
+        }
+
+        if (form.Status == FormStatus.Completed)
+        {
+            return ServiceError.Conflict($"Form {formId} is already completed");
+        }
+
+        await unitOfWork.Forms.UpdateStatusAsync(formId, FormStatus.Completed, userId);
+        await unitOfWork.SaveChangesAsync();
+
+        return Result.Success;
     }
 }

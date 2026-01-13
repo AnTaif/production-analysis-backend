@@ -3,5 +3,5 @@
 public enum FormStatus
 {
     InProgress = 0,
-    Finished = 1,
+    Completed = 1,
 }

@@ -118,4 +118,17 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
 
         await dbContext.SaveChangesAsync();
     }
+
+    public async Task UpdateStatusAsync(int formId, FormStatus status, Guid userId)
+    {
+        var formDbo = await dbContext.Forms.FirstOrDefaultAsync(f => f.Id == formId);
+        if (formDbo == null)
+        {
+            throw new InvalidOperationException($"Form with id {formId} not found");
+        }
+
+        formDbo.Status = (int)status;
+        formDbo.LastEditorId = userId;
+        formDbo.UpdateDate = DateTime.UtcNow;
+    }
 }
