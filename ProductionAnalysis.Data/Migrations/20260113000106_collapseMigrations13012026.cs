@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ProductionAnalysis.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class addIdentityAndDictionaries : Migration
+    public partial class collapseMigrations13012026 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -55,6 +55,20 @@ namespace ProductionAnalysis.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "auxiliary_operations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    DurationInSeconds = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_auxiliary_operations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "downtime_reason_groups",
                 columns: table => new
                 {
@@ -82,16 +96,21 @@ namespace ProductionAnalysis.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "pa_types",
+                name: "indicators",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false)
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    ValueType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    InputType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    ValueSelector = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Formula = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    HasSummation = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_pa_types", x => x.Id);
+                    table.PrimaryKey("PK_indicators", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -106,6 +125,21 @@ namespace ProductionAnalysis.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_shifts", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "templates",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    PaTypeId = table.Column<int>(type: "integer", nullable: false),
+                    Version = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_templates", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -256,6 +290,64 @@ namespace ProductionAnalysis.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "shift_schedules",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ShiftId = table.Column<int>(type: "integer", nullable: false),
+                    AuxiliaryOperationId = table.Column<int>(type: "integer", nullable: false),
+                    StartTime = table.Column<TimeOnly>(type: "time without time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_shift_schedules", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_shift_schedules_auxiliary_operations_AuxiliaryOperationId",
+                        column: x => x.AuxiliaryOperationId,
+                        principalTable: "auxiliary_operations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_shift_schedules_shifts_ShiftId",
+                        column: x => x.ShiftId,
+                        principalTable: "shifts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "templates_indicators",
+                columns: table => new
+                {
+                    TemplateId = table.Column<int>(type: "integer", nullable: false),
+                    IndicatorId = table.Column<int>(type: "integer", nullable: false),
+                    Order = table.Column<int>(type: "integer", nullable: false),
+                    TemplateDboId = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_templates_indicators", x => new { x.TemplateId, x.IndicatorId });
+                    table.ForeignKey(
+                        name: "FK_templates_indicators_indicators_IndicatorId",
+                        column: x => x.IndicatorId,
+                        principalTable: "indicators",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_templates_indicators_templates_TemplateDboId",
+                        column: x => x.TemplateDboId,
+                        principalTable: "templates",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_templates_indicators_templates_TemplateId",
+                        column: x => x.TemplateId,
+                        principalTable: "templates",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "employees",
                 columns: table => new
                 {
@@ -265,11 +357,17 @@ namespace ProductionAnalysis.Data.Migrations
                     LastName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     MiddleName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     Position = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    DepartmentId = table.Column<int>(type: "integer", nullable: false)
+                    DepartmentId = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_employees", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_employees_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_employees_departments_DepartmentId",
                         column: x => x.DepartmentId,
@@ -303,6 +401,109 @@ namespace ProductionAnalysis.Data.Migrations
                         column: x => x.BasedProductId,
                         principalTable: "products",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "forms",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PaTypeId = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Context = table.Column<string>(type: "jsonb", nullable: false),
+                    TemplateSnapshot = table.Column<string>(type: "jsonb", nullable: false),
+                    TotalValues = table.Column<string>(type: "jsonb", nullable: true),
+                    CreationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    FormDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatorId = table.Column<Guid>(type: "uuid", nullable: false),
+                    LastEditorId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ShiftId = table.Column<int>(type: "integer", nullable: false),
+                    DepartmentId = table.Column<int>(type: "integer", nullable: false),
+                    ExecutorId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_forms", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_forms_AspNetUsers_CreatorId",
+                        column: x => x.CreatorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_forms_AspNetUsers_LastEditorId",
+                        column: x => x.LastEditorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_forms_departments_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "departments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_forms_employees_ExecutorId",
+                        column: x => x.ExecutorId,
+                        principalTable: "employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_forms_shifts_ShiftId",
+                        column: x => x.ShiftId,
+                        principalTable: "shifts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "form_rows",
+                columns: table => new
+                {
+                    FormId = table.Column<int>(type: "integer", nullable: false),
+                    Order = table.Column<short>(type: "smallint", nullable: false),
+                    IsAuxiliaryOperation = table.Column<bool>(type: "boolean", nullable: false),
+                    AuxiliaryOperationId = table.Column<int>(type: "integer", nullable: true),
+                    ProductId = table.Column<int>(type: "integer", nullable: true),
+                    GroupKey = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_form_rows", x => new { x.FormId, x.Order });
+                    table.ForeignKey(
+                        name: "FK_form_rows_forms_FormId",
+                        column: x => x.FormId,
+                        principalTable: "forms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "form_row_values",
+                columns: table => new
+                {
+                    FormId = table.Column<int>(type: "integer", nullable: false),
+                    FormRowOrder = table.Column<short>(type: "smallint", nullable: false),
+                    IndicatorId = table.Column<int>(type: "integer", nullable: false),
+                    Value = table.Column<string>(type: "jsonb", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_form_row_values", x => new { x.FormId, x.FormRowOrder, x.IndicatorId });
+                    table.ForeignKey(
+                        name: "FK_form_row_values_form_rows_FormId_FormRowOrder",
+                        columns: x => new { x.FormId, x.FormRowOrder },
+                        principalTable: "form_rows",
+                        principalColumns: new[] { "FormId", "Order" },
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_form_row_values_indicators_IndicatorId",
+                        column: x => x.IndicatorId,
+                        principalTable: "indicators",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -353,6 +554,51 @@ namespace ProductionAnalysis.Data.Migrations
                 column: "DepartmentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_employees_UserId",
+                table: "employees",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_form_row_values_FormId_FormRowOrder",
+                table: "form_row_values",
+                columns: new[] { "FormId", "FormRowOrder" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_form_row_values_IndicatorId",
+                table: "form_row_values",
+                column: "IndicatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_form_rows_FormId",
+                table: "form_rows",
+                column: "FormId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_forms_CreatorId",
+                table: "forms",
+                column: "CreatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_forms_DepartmentId",
+                table: "forms",
+                column: "DepartmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_forms_ExecutorId",
+                table: "forms",
+                column: "ExecutorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_forms_LastEditorId",
+                table: "forms",
+                column: "LastEditorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_forms_ShiftId",
+                table: "forms",
+                column: "ShiftId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_operations_BasedOperationId",
                 table: "operations",
                 column: "BasedOperationId");
@@ -366,6 +612,26 @@ namespace ProductionAnalysis.Data.Migrations
                 name: "IX_products_EnterpriseId",
                 table: "products",
                 column: "EnterpriseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_shift_schedules_AuxiliaryOperationId",
+                table: "shift_schedules",
+                column: "AuxiliaryOperationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_shift_schedules_ShiftId",
+                table: "shift_schedules",
+                column: "ShiftId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_templates_indicators_IndicatorId",
+                table: "templates_indicators",
+                column: "IndicatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_templates_indicators_TemplateDboId",
+                table: "templates_indicators",
+                column: "TemplateDboId");
         }
 
         /// <inheritdoc />
@@ -390,28 +656,49 @@ namespace ProductionAnalysis.Data.Migrations
                 name: "downtime_reason_groups");
 
             migrationBuilder.DropTable(
-                name: "employees");
+                name: "form_row_values");
 
             migrationBuilder.DropTable(
                 name: "operations");
 
             migrationBuilder.DropTable(
-                name: "pa_types");
+                name: "shift_schedules");
 
             migrationBuilder.DropTable(
-                name: "shifts");
+                name: "templates_indicators");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "form_rows");
+
+            migrationBuilder.DropTable(
+                name: "products");
+
+            migrationBuilder.DropTable(
+                name: "auxiliary_operations");
+
+            migrationBuilder.DropTable(
+                name: "indicators");
+
+            migrationBuilder.DropTable(
+                name: "templates");
+
+            migrationBuilder.DropTable(
+                name: "forms");
+
+            migrationBuilder.DropTable(
+                name: "employees");
+
+            migrationBuilder.DropTable(
+                name: "shifts");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "departments");
-
-            migrationBuilder.DropTable(
-                name: "products");
 
             migrationBuilder.DropTable(
                 name: "enterprises");

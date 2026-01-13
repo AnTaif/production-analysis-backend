@@ -12,8 +12,8 @@ using ProductionAnalysis.Data.Context;
 namespace ProductionAnalysis.Data.Migrations
 {
     [DbContext(typeof(PaDbContext))]
-    [Migration("20251122110307_addIdentityAndDictionaries")]
-    partial class addIdentityAndDictionaries
+    [Migration("20260113000106_collapseMigrations13012026")]
+    partial class collapseMigrations13012026
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -155,6 +155,27 @@ namespace ProductionAnalysis.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.AuxiliaryOperationDbo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DurationInSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("auxiliary_operations", (string)null);
+                });
+
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.DepartmentDbo", b =>
                 {
                     b.Property<int>("Id")
@@ -231,9 +252,14 @@ namespace ProductionAnalysis.Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DepartmentId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("employees", (string)null);
                 });
@@ -254,6 +280,45 @@ namespace ProductionAnalysis.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("enterprises", (string)null);
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.IndicatorDbo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Formula")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("HasSummation")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("InputType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("ValueSelector")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ValueType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("indicators", (string)null);
                 });
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.OperationDbo", b =>
@@ -288,24 +353,6 @@ namespace ProductionAnalysis.Data.Migrations
                     b.HasIndex("BasedProductId");
 
                     b.ToTable("operations", (string)null);
-                });
-
-            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.PaTypeDbo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("pa_types", (string)null);
                 });
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.ProductDbo", b =>
@@ -352,7 +399,196 @@ namespace ProductionAnalysis.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Shifts");
+                    b.ToTable("shifts", (string)null);
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.ShiftScheduleDbo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AuxiliaryOperationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ShiftId")
+                        .HasColumnType("integer");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuxiliaryOperationId");
+
+                    b.HasIndex("ShiftId");
+
+                    b.ToTable("shift_schedules", (string)null);
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.TemplateDbo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<int>("PaTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("templates", (string)null);
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.TemplateIndicatorDbo", b =>
+                {
+                    b.Property<int>("TemplateId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IndicatorId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("TemplateDboId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("TemplateId", "IndicatorId");
+
+                    b.HasIndex("IndicatorId");
+
+                    b.HasIndex("TemplateDboId");
+
+                    b.ToTable("templates_indicators", (string)null);
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Forms.FormDbo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssigneeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ExecutorId");
+
+                    b.Property<string>("Context")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("FormDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("LastEditorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("PaTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ShiftId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TemplateSnapshot")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("TotalValues")
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssigneeId");
+
+                    b.HasIndex("CreatorId");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("LastEditorId");
+
+                    b.HasIndex("ShiftId");
+
+                    b.ToTable("forms", (string)null);
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Forms.FormRowDbo", b =>
+                {
+                    b.Property<int>("FormId")
+                        .HasColumnType("integer");
+
+                    b.Property<short>("Order")
+                        .HasColumnType("smallint");
+
+                    b.Property<int?>("AuxiliaryOperationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("GroupKey")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsAuxiliaryOperation")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("FormId", "Order");
+
+                    b.HasIndex("FormId");
+
+                    b.ToTable("form_rows", (string)null);
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Forms.FormRowValueDbo", b =>
+                {
+                    b.Property<int>("FormId")
+                        .HasColumnType("integer");
+
+                    b.Property<short>("FormRowOrder")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("IndicatorId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("FormId", "FormRowOrder", "IndicatorId");
+
+                    b.HasIndex("IndicatorId");
+
+                    b.HasIndex("FormId", "FormRowOrder");
+
+                    b.ToTable("form_row_values", (string)null);
                 });
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.UserDbo", b =>
@@ -501,6 +737,12 @@ namespace ProductionAnalysis.Data.Migrations
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("ProductionAnalysis.Data.Models.UserDbo", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.OperationDbo", b =>
@@ -521,6 +763,126 @@ namespace ProductionAnalysis.Data.Migrations
                         .HasForeignKey("EnterpriseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.ShiftScheduleDbo", b =>
+                {
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.AuxiliaryOperationDbo", "AuxiliaryOperation")
+                        .WithMany()
+                        .HasForeignKey("AuxiliaryOperationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.ShiftDbo", "Shift")
+                        .WithMany()
+                        .HasForeignKey("ShiftId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AuxiliaryOperation");
+
+                    b.Navigation("Shift");
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.TemplateIndicatorDbo", b =>
+                {
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.IndicatorDbo", "Indicator")
+                        .WithMany()
+                        .HasForeignKey("IndicatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.TemplateDbo", null)
+                        .WithMany("TemplateIndicators")
+                        .HasForeignKey("TemplateDboId");
+
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.TemplateDbo", "Template")
+                        .WithMany()
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Indicator");
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Forms.FormDbo", b =>
+                {
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.EmployeeDbo", null)
+                        .WithMany()
+                        .HasForeignKey("AssigneeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProductionAnalysis.Data.Models.UserDbo", null)
+                        .WithMany()
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.DepartmentDbo", null)
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProductionAnalysis.Data.Models.UserDbo", null)
+                        .WithMany()
+                        .HasForeignKey("LastEditorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.ShiftDbo", null)
+                        .WithMany()
+                        .HasForeignKey("ShiftId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Forms.FormRowDbo", b =>
+                {
+                    b.HasOne("ProductionAnalysis.Data.Models.Forms.FormDbo", "Form")
+                        .WithMany("FormRows")
+                        .HasForeignKey("FormId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Form");
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Forms.FormRowValueDbo", b =>
+                {
+                    b.HasOne("ProductionAnalysis.Data.Models.Dictionaries.IndicatorDbo", "Indicator")
+                        .WithMany()
+                        .HasForeignKey("IndicatorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ProductionAnalysis.Data.Models.Forms.FormRowDbo", "FormRow")
+                        .WithMany("Values")
+                        .HasForeignKey("FormId", "FormRowOrder")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FormRow");
+
+                    b.Navigation("Indicator");
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Dictionaries.TemplateDbo", b =>
+                {
+                    b.Navigation("TemplateIndicators");
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Forms.FormDbo", b =>
+                {
+                    b.Navigation("FormRows");
+                });
+
+            modelBuilder.Entity("ProductionAnalysis.Data.Models.Forms.FormRowDbo", b =>
+                {
+                    b.Navigation("Values");
                 });
 #pragma warning restore 612, 618
         }
