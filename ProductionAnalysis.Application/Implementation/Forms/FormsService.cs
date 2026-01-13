@@ -190,6 +190,7 @@ public class FormsService(
             FormStatus.InProgress,
             DateTime.UtcNow,
             DateTime.UtcNow,
+            request.FormDate,
             context,
             template,
             new List<FormRow>(),

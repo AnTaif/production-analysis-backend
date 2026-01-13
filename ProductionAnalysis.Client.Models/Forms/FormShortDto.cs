@@ -9,6 +9,7 @@ public record FormShortDto
     public FormStatus Status { get; init; }
     public DateTime CreationDate { get; init; }
     public DateTime UpdateDate { get; init; }
+    public DateTime FormDate { get; init; }
     public int DepartmentId { get; init; }
     public required EmployeeDto Creator { get; init; }
     public required EmployeeDto Assignee { get; init; }

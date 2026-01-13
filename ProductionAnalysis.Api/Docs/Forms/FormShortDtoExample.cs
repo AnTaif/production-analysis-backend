@@ -16,6 +16,7 @@ public class FormShortDtoExample : IExamplesProvider<FormShortDto>
             Status = FormStatus.InProgress,
             CreationDate = DateTime.UtcNow.AddDays(-1),
             UpdateDate = DateTime.UtcNow,
+            FormDate = DateTime.UtcNow.Date.AddDays(-1),
             DepartmentId = 2,
             Creator = new EmployeeDto
             {
@@ -90,6 +91,7 @@ public class PaginatedFormShortDtoExample : IExamplesProvider<PaginatedResponse<
                     Status = FormStatus.Completed,
                     CreationDate = DateTime.UtcNow.AddDays(-2),
                     UpdateDate = DateTime.UtcNow.AddDays(-1),
+                    FormDate = DateTime.UtcNow.Date.AddDays(-2),
                     DepartmentId = 2,
                     Creator = new EmployeeDto
                     {

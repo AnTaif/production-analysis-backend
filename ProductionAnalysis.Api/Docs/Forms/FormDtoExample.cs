@@ -14,6 +14,7 @@ public class FormDtoExample : IExamplesProvider<FormDto>
             Status = FormStatus.InProgress,
             CreationDate = DateTime.UtcNow,
             UpdateDate = DateTime.UtcNow,
+            FormDate = DateTime.UtcNow.Date,
             Context = new FormContextDto
             {
                 Product = new ProductContextDto

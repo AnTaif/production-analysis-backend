@@ -70,6 +70,7 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
             TotalValues = totalValuesJson,
             CreationDate = now,
             UpdateDate = now,
+            FormDate = newForm.FormDate,
             CreatorId = newForm.CreatorId,
             LastEditorId = newForm.CreatorId,
             ShiftId = newForm.ShiftId,

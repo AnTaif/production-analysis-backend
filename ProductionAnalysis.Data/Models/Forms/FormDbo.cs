@@ -18,6 +18,8 @@ public class FormDbo
 
     public DateTime UpdateDate { get; set; }
 
+    public DateTime FormDate { get; set; }
+
     public Guid CreatorId { get; set; }
 
     public Guid LastEditorId { get; set; }

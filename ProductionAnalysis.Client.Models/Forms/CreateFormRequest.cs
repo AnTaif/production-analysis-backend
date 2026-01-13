@@ -12,6 +12,8 @@ public record CreateFormRequest
     [Range(1, int.MaxValue)]
     public int AssigneeId { get; init; }
 
+    public DateTime FormDate { get; init; }
+
     public ProductContextDto? Product { get; init; }
 
     public ICollection<ProductContextDto>? Products { get; init; }

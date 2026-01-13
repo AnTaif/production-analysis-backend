@@ -49,6 +49,7 @@ public static class FormsConverter
             (FormStatus)dbo.Status,
             dbo.CreationDate,
             dbo.UpdateDate,
+            dbo.FormDate,
             context,
             template,
             rows,

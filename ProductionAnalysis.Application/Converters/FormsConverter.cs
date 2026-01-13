@@ -26,6 +26,7 @@ public static class FormsConverter
             Status = FormStatusConverter.ConvertToClientFormStatus(form.Status),
             CreationDate = form.CreationDate,
             UpdateDate = form.UpdateDate,
+            FormDate = form.FormDate,
             DepartmentId = form.DepartmentId,
             Creator = creator,
             Assignee = assignee,
@@ -103,6 +104,7 @@ public static class FormsConverter
             Status = FormStatusConverter.ConvertToClientFormStatus(form.Status),
             CreationDate = form.CreationDate,
             UpdateDate = form.UpdateDate,
+            FormDate = form.FormDate,
             Context = new FormContextDto
             {
                 Product = productDto,

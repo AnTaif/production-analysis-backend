@@ -11,6 +11,7 @@ public class CreateFormRequestExample : IExamplesProvider<CreateFormRequest>
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = 1,
             AssigneeId = 1,
+            FormDate = DateTime.UtcNow.Date,
             Product = new ProductContextDto
             {
                 ProductId = 1,

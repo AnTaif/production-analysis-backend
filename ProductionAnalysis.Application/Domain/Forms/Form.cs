@@ -11,6 +11,7 @@ public class Form
         FormStatus status,
         DateTime creationDate,
         DateTime updateDate,
+        DateTime formDate,
         Dictionary<string, FormContext> context,
         Template templateSnapshot,
         ICollection<FormRow> rows,
@@ -25,6 +26,7 @@ public class Form
         Status = status;
         CreationDate = creationDate;
         UpdateDate = updateDate;
+        FormDate = formDate;
         Context = context;
         TemplateSnapshot = templateSnapshot;
         Rows = rows;
@@ -40,6 +42,7 @@ public class Form
     public FormStatus Status { get; }
     public DateTime CreationDate { get; }
     public DateTime UpdateDate { get; }
+    public DateTime FormDate { get; }
     public Dictionary<string, FormContext> Context { get; }
     public Template TemplateSnapshot { get; }
     public ICollection<FormRow> Rows { get; }
