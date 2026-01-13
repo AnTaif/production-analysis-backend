@@ -14,9 +14,9 @@ public record CreateFormRequest
 
     public DateTime FormDate { get; init; }
 
-    public ProductContextDto? Product { get; init; }
+    public ProductContextRequest? Product { get; init; }
 
-    public ICollection<ProductContextDto>? Products { get; init; }
+    public ICollection<ProductContextRequest>? Products { get; init; }
 
-    public OperationOrProductContextDto? OperationOrProduct { get; init; }
+    public OperationOrProductContextRequest? OperationOrProduct { get; init; }
 }

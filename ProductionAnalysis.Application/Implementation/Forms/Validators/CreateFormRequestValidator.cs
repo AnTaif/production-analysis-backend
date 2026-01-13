@@ -7,9 +7,9 @@ namespace ProductionAnalysis.Application.Implementation.Forms.Validators;
 public class CreateFormRequestValidator : AbstractValidator<CreateFormRequest>
 {
     public CreateFormRequestValidator(
-        ProductContextDtoWithCycleTimeValidator productWithCycleTimeValidator,
-        ProductContextDtoWithWorkstationCapacityValidator productWithWorkstationCapacityValidator,
-        OperationOrProductContextDtoValidator operationOrProductValidator)
+        ProductContextRequestWithCycleTimeValidator productWithCycleTimeValidator,
+        ProductContextRequestWithWorkstationCapacityValidator productWithWorkstationCapacityValidator,
+        OperationOrProductContextRequestValidator operationOrProductValidator)
     {
         RuleFor(x => x.PaType)
             .IsInEnum()

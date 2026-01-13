@@ -12,7 +12,7 @@ public class CreateFormRequestExample : IExamplesProvider<CreateFormRequest>
             ShiftId = 1,
             AssigneeId = 1,
             FormDate = DateTime.UtcNow.Date,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 CycleTime = 72,

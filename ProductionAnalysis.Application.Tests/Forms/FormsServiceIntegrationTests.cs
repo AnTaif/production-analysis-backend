@@ -32,7 +32,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = (PaTypeDto)template.PaTypeId,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -83,7 +83,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -130,7 +130,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -231,7 +231,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -276,7 +276,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -329,7 +329,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = assignee1,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -343,7 +343,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = assignee2,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -396,7 +396,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = assignee1,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -411,7 +411,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = assignee2,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -462,7 +462,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = operatorEmployee.Id,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -479,7 +479,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = assignee2,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -528,7 +528,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -572,7 +572,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -615,7 +615,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -657,7 +657,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = (PaTypeDto)9999,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -686,7 +686,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -714,7 +714,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = 99999,
             AssigneeId = assigneeId,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -744,7 +744,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -779,7 +779,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = 1,
-            OperationOrProduct = new OperationOrProductContextDto
+            OperationOrProduct = new OperationOrProductContextRequest
             {
                 OperationId = 4 // Подсборка - операция для продукта Id: 1
             }
@@ -849,7 +849,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            OperationOrProduct = new OperationOrProductContextDto
+            OperationOrProduct = new OperationOrProductContextRequest
             {
                 OperationId = 4 // Подсборка
             }
@@ -907,7 +907,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            OperationOrProduct = new OperationOrProductContextDto
+            OperationOrProduct = new OperationOrProductContextRequest
             {
                 OperationId = 4 // Подсборка
             }
@@ -974,7 +974,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            OperationOrProduct = new OperationOrProductContextDto
+            OperationOrProduct = new OperationOrProductContextRequest
             {
                 OperationId = 4 // Подсборка
             }
@@ -1037,7 +1037,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            OperationOrProduct = new OperationOrProductContextDto
+            OperationOrProduct = new OperationOrProductContextRequest
             {
                 OperationId = 4 // Подсборка
             }
@@ -1079,7 +1079,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            OperationOrProduct = new OperationOrProductContextDto
+            OperationOrProduct = new OperationOrProductContextRequest
             {
                 OperationId = 1 // Подготовка
             }
@@ -1128,7 +1128,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            OperationOrProduct = new OperationOrProductContextDto
+            OperationOrProduct = new OperationOrProductContextRequest
             {
                 OperationId = 4 // Подсборка
             }
@@ -1176,7 +1176,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerHour,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            OperationOrProduct = new OperationOrProductContextDto
+            OperationOrProduct = new OperationOrProductContextRequest
             {
                 OperationId = 4 // Подсборка
             }
@@ -1233,7 +1233,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -1275,7 +1275,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.SingleProductWithCycleTime,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            Product = new ProductContextDto
+            Product = new ProductContextRequest
             {
                 ProductId = 1,
                 DailyRate = 400,
@@ -1345,7 +1345,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
             AssigneeId = 1,
-            OperationOrProduct = new OperationOrProductContextDto
+            OperationOrProduct = new OperationOrProductContextRequest
             {
                 OperationId = 4 // Подсборка - операция для продукта Id: 1
             }
@@ -1391,7 +1391,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            OperationOrProduct = new OperationOrProductContextDto
+            OperationOrProduct = new OperationOrProductContextRequest
             {
                 OperationId = 4 // Подсборка
             }
@@ -1453,7 +1453,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            OperationOrProduct = new OperationOrProductContextDto
+            OperationOrProduct = new OperationOrProductContextRequest
             {
                 OperationId = 4 // Подсборка
             }
@@ -1500,7 +1500,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            OperationOrProduct = new OperationOrProductContextDto
+            OperationOrProduct = new OperationOrProductContextRequest
             {
                 OperationId = 4 // Подсборка
             }
@@ -1553,7 +1553,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            OperationOrProduct = new OperationOrProductContextDto
+            OperationOrProduct = new OperationOrProductContextRequest
             {
                 OperationId = 4 // Подсборка
             }
@@ -1595,7 +1595,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            OperationOrProduct = new OperationOrProductContextDto
+            OperationOrProduct = new OperationOrProductContextRequest
             {
                 OperationId = 4 // Подсборка
             }
@@ -1633,7 +1633,7 @@ public class FormsServiceIntegrationTests : BaseIntegrationTest
             PaType = PaTypeDto.LessThanOnePerShift,
             ShiftId = shift.Id,
             AssigneeId = assigneeId,
-            OperationOrProduct = new OperationOrProductContextDto
+            OperationOrProduct = new OperationOrProductContextRequest
             {
                 OperationId = 4 // Подсборка
             }

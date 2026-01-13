@@ -4,9 +4,9 @@ using ProductionAnalysis.Client.Models.Forms;
 namespace ProductionAnalysis.Application.Implementation.Forms.Validators;
 
 [RegisterScoped]
-public class OperationOrProductContextDtoValidator : AbstractValidator<OperationOrProductContextDto>
+public class OperationOrProductContextRequestValidator : AbstractValidator<OperationOrProductContextRequest>
 {
-    public OperationOrProductContextDtoValidator()
+    public OperationOrProductContextRequestValidator()
     {
         RuleFor(x => x)
             .Must(x => x.OperationId.HasValue || x.ProductId.HasValue)

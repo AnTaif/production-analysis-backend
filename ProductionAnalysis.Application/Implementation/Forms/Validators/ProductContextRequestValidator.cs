@@ -4,9 +4,9 @@ using ProductionAnalysis.Client.Models.Forms;
 namespace ProductionAnalysis.Application.Implementation.Forms.Validators;
 
 [RegisterScoped]
-public class ProductContextDtoValidator : AbstractValidator<ProductContextDto>
+public class ProductContextRequestValidator : AbstractValidator<ProductContextRequest>
 {
-    public ProductContextDtoValidator()
+    public ProductContextRequestValidator()
     {
         RuleFor(x => x.ProductId)
             .GreaterThan(0)
@@ -19,9 +19,9 @@ public class ProductContextDtoValidator : AbstractValidator<ProductContextDto>
 }
 
 [RegisterScoped]
-public class ProductContextDtoWithCycleTimeValidator : ProductContextDtoValidator
+public class ProductContextRequestWithCycleTimeValidator : ProductContextRequestValidator
 {
-    public ProductContextDtoWithCycleTimeValidator()
+    public ProductContextRequestWithCycleTimeValidator()
     {
         RuleFor(x => x.CycleTime)
             .NotNull()
@@ -32,9 +32,9 @@ public class ProductContextDtoWithCycleTimeValidator : ProductContextDtoValidato
 }
 
 [RegisterScoped]
-public class ProductContextDtoWithWorkstationCapacityValidator : ProductContextDtoValidator
+public class ProductContextRequestWithWorkstationCapacityValidator : ProductContextRequestValidator
 {
-    public ProductContextDtoWithWorkstationCapacityValidator()
+    public ProductContextRequestWithWorkstationCapacityValidator()
     {
         RuleFor(x => x.WorkstationCapacity)
             .NotNull()
