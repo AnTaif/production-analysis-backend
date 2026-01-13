@@ -19,7 +19,7 @@ public interface IFormsService
     Task<Result<FormDto>> GetByIdAsync(int formId);
     Task<Result<ICollection<FormRowDto>>> GetFormRowsAsync(int formId);
 
-    Task<Result<ICollection<FormRowDto>>> UpdateFormRowAsync(int formId, short rowOrder, UpdateFormRowRequest request,
+    Task<Result<UpdateFormRowResponse>> UpdateFormRowAsync(int formId, short rowOrder, UpdateFormRowRequest request,
         Guid userId);
 
     Task<Result> CompleteFormAsync(int formId, Guid userId);
@@ -342,7 +342,7 @@ public class FormsService(
         return form.Rows.ToRowDtos();
     }
 
-    public async Task<Result<ICollection<FormRowDto>>> UpdateFormRowAsync(
+    public async Task<Result<UpdateFormRowResponse>> UpdateFormRowAsync(
         int formId,
         short rowOrder,
         UpdateFormRowRequest request,

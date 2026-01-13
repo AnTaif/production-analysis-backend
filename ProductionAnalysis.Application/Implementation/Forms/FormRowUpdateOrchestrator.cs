@@ -7,7 +7,7 @@ namespace ProductionAnalysis.Application.Implementation.Forms;
 
 public interface IFormRowUpdateOrchestrator
 {
-    Task<Result<ICollection<FormRowDto>>> UpdateRowAsync(
+    Task<Result<UpdateFormRowResponse>> UpdateRowAsync(
         int formId,
         short rowOrder,
         UpdateFormRowRequest request,
@@ -26,7 +26,7 @@ public class FormRowUpdateOrchestrator(
     IFormTotalsUpdater formTotalsUpdater
 ) : IFormRowUpdateOrchestrator
 {
-    public async Task<Result<ICollection<FormRowDto>>> UpdateRowAsync(
+    public async Task<Result<UpdateFormRowResponse>> UpdateRowAsync(
         int formId,
         short rowOrder,
         UpdateFormRowRequest request,
@@ -45,7 +45,11 @@ public class FormRowUpdateOrchestrator(
         if (filteredValues.Count == 0)
         {
             // Если нет значений для обновления, возвращаем все строки в текущем состоянии
-            return form.Rows.ToRowDtos();
+            return new UpdateFormRowResponse
+            {
+                Rows = form.Rows.ToRowDtos(),
+                Totals = form.TotalValues ?? new Dictionary<int, object>()
+            };
         }
 
         // Обновляем значения строки
@@ -91,6 +95,10 @@ public class FormRowUpdateOrchestrator(
         form = await unitOfWork.Forms.FindAsync(formId);
         if (form == null) return ServiceError.NotFound($"Form {formId} not found after update");
 
-        return form.Rows.ToRowDtos();
+        return new UpdateFormRowResponse
+        {
+            Rows = form.Rows.ToRowDtos(),
+            Totals = form.TotalValues ?? new Dictionary<int, object>()
+        };
     }
 }
