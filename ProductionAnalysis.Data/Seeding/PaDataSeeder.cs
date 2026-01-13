@@ -722,8 +722,8 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 12,
-                Name = "Время начала план, мин",
-                ValueType = FieldValueTypes.Number,
+                Name = "Время начала план",
+                ValueType = FieldValueTypes.Time,
                 InputType = FieldInputTypes.Initialization,
                 ValueSelector = null,
                 Formula = null,
@@ -732,8 +732,8 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 13,
-                Name = "Время начала факт, мин",
-                ValueType = FieldValueTypes.Number,
+                Name = "Время начала факт",
+                ValueType = FieldValueTypes.Time,
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
                 Formula = null,
@@ -742,8 +742,8 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 14,
-                Name = "Время окончания план, мин",
-                ValueType = FieldValueTypes.Number,
+                Name = "Время окончания план",
+                ValueType = FieldValueTypes.Time,
                 InputType = FieldInputTypes.Initialization,
                 ValueSelector = null,
                 Formula = null,
@@ -752,8 +752,8 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 15,
-                Name = "Время окончания факт, мин",
-                ValueType = FieldValueTypes.Number,
+                Name = "Время окончания факт",
+                ValueType = FieldValueTypes.Time,
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
                 Formula = null,
