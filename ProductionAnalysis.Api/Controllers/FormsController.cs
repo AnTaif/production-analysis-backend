@@ -73,6 +73,8 @@ public class FormsController(IFormsService formsService) : ControllerBase
     }
 
     [HttpPut("{formId:int}/rows/{rowOrder}")]
+    [SwaggerRequestExample(typeof(UpdateFormRowRequest), typeof(UpdateFormRowRequestExample))]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(UpdateFormRowResponseExample))]
     [ProducesResponseType<UpdateFormRowResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<string>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
