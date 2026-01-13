@@ -793,7 +793,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 19,
-                Name = "План (накоп.), шт",
+                Name = "План накоп, шт",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "2", // ID базового индикатора
@@ -803,7 +803,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 20,
-                Name = "Факт (накоп.), шт",
+                Name = "Факт накоп, шт",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "3", // ID базового индикатора
@@ -813,7 +813,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 21,
-                Name = "Отклонение (накоп.), шт",
+                Name = "Отклонение накоп, шт",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "4", // ID базового индикатора
@@ -823,7 +823,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 22,
-                Name = "Отклонение (накоп.), мин",
+                Name = "Отклонение накоп, мин",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "18", // ID базового индикатора
