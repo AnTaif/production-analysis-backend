@@ -84,7 +84,12 @@ public static class FormsConverter
         return string.Empty;
     }
 
-    public static FormDto ToDto(this Form form)
+    public static FormDto ToDto(
+        this Form form,
+        ShiftDto shift,
+        DepartmentDto department,
+        Dictionary<int, string>? productsById = null,
+        Dictionary<int, string>? operationsById = null)
     {
         var template = ConvertTemplateToDto(form.TemplateSnapshot, form.PaType);
 
@@ -93,9 +98,11 @@ public static class FormsConverter
             .Select(r => r.ToRowDto())
             .ToList();
 
-        var productDto = form.Context.GetProductContext()?.ToDto();
-        var productsDto = form.Context.GetMultiProductContext()?.Products.Select(p => p.ToDto()).ToList();
-        var operationOrProductDto = form.Context.GetOperationOrProductContext()?.ToDto();
+        var productDto = form.Context.GetProductContext()?.ToDto(productsById);
+        var productsDto = form.Context.GetMultiProductContext()?.Products
+            .Select(p => p.ToDto(productsById))
+            .ToList();
+        var operationOrProductDto = form.Context.GetOperationOrProductContext()?.ToDto(productsById, operationsById);
 
         return new FormDto
         {
@@ -113,7 +120,9 @@ public static class FormsConverter
             },
             Rows = rows,
             Template = template,
-            TotalValues = form.TotalValues
+            TotalValues = form.TotalValues,
+            Shift = shift,
+            Department = department
         };
     }
 

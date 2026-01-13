@@ -11,14 +11,21 @@ public static class ProductContextConverter
     /// <summary>
     /// Конвертирует ProductContext в ProductContextDto
     /// </summary>
-    public static ProductContextDto ToDto(this ProductContext context)
+    public static ProductContextDto ToDto(
+        this ProductContext context,
+        Dictionary<int, string>? productsById = null)
     {
+        var productName = productsById?.TryGetValue(context.ProductId, out var name) == true
+            ? name
+            : string.Empty;
+
         return new ProductContextDto
         {
             ProductId = context.ProductId,
             CycleTime = context.CycleTime,
             WorkstationCapacity = context.WorkstationCapacity,
-            DailyRate = context.DailyRate
+            DailyRate = context.DailyRate,
+            ProductName = productName
         };
     }
 }

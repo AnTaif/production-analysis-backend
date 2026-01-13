@@ -269,7 +269,66 @@ public class FormsService(
 
         if (form == null) return ServiceError.NotFound($"Form with id {formId} not found");
 
-        return form.ToDto();
+        // Загружаем смену
+        var shift = await unitOfWork.Dictionaries.SelectShiftByIdAsync(form.ShiftId);
+        if (shift == null)
+        {
+            return ServiceError.NotFound($"Shift with id {form.ShiftId} not found");
+        }
+
+        // Загружаем департамент
+        var allDepartments = await unitOfWork.Dictionaries.SelectDepartmentsAsync();
+        var department = allDepartments.FirstOrDefault(d => d.Id == form.DepartmentId);
+        if (department == null)
+        {
+            return ServiceError.NotFound($"Department with id {form.DepartmentId} not found");
+        }
+
+        // Собираем ID продуктов и операций из контекста
+        var productIds = new HashSet<int>();
+        var operationIds = new HashSet<int>();
+
+        var productContext = form.Context.GetProductContext();
+        if (productContext != null)
+        {
+            productIds.Add(productContext.ProductId);
+        }
+
+        var multiProductContext = form.Context.GetMultiProductContext();
+        if (multiProductContext != null)
+        {
+            foreach (var product in multiProductContext.Products)
+            {
+                productIds.Add(product.ProductId);
+            }
+        }
+
+        var operationOrProductContext = form.Context.GetOperationOrProductContext();
+        if (operationOrProductContext != null)
+        {
+            if (operationOrProductContext.OperationId.HasValue)
+            {
+                operationIds.Add(operationOrProductContext.OperationId.Value);
+            }
+            else if (operationOrProductContext.ProductId.HasValue)
+            {
+                productIds.Add(operationOrProductContext.ProductId.Value);
+            }
+        }
+
+        // Загружаем продукты и операции
+        var allProducts = await unitOfWork.Dictionaries.SelectProductsAsync();
+        var allOperations = await unitOfWork.Dictionaries.SelectOperationsAsync();
+
+        var productsById = allProducts
+            .Where(p => productIds.Contains(p.Id))
+            .ToDictionary(p => p.Id, p => p.Name);
+
+        var operationsById = allOperations
+            .Where(o => operationIds.Contains(o.Id))
+            .ToDictionary(o => o.Id, o => o.Name);
+
+        return form.ToDto(shift, department, productsById, operationsById);
     }
 
     public async Task<Result<ICollection<FormRowDto>>> GetFormRowsAsync(int formId)

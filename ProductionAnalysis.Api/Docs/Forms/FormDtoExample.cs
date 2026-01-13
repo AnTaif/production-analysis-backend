@@ -1,4 +1,5 @@
-﻿using ProductionAnalysis.Client.Models.Forms;
+﻿using ProductionAnalysis.Client.Models.Dictionaries;
+using ProductionAnalysis.Client.Models.Forms;
 using Swashbuckle.AspNetCore.Filters;
 
 namespace ProductionAnalysis.Api.Docs.Forms;
@@ -22,7 +23,8 @@ public class FormDtoExample : IExamplesProvider<FormDto>
                     ProductId = 1,
                     CycleTime = 60,
                     WorkstationCapacity = null,
-                    DailyRate = 400
+                    DailyRate = 400,
+                    ProductName = "Корпус редуктора"
                 },
                 OperationOrProduct = null
             },
@@ -186,6 +188,18 @@ public class FormDtoExample : IExamplesProvider<FormDto>
                         ValueType = "text"
                     }
                 }
+            },
+            Shift = new ShiftDto
+            {
+                Id = 1,
+                Name = "1",
+                StartTime = new TimeOnly(8, 0)
+            },
+            Department = new DepartmentDto
+            {
+                Id = 1,
+                Name = "Цех №1",
+                EnterpriseId = 1
             }
         };
     }

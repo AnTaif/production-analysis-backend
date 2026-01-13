@@ -13,4 +13,8 @@ public record OperationOrProductContextDto
 
     [Range(1, int.MaxValue)]
     public int? ProductId { get; init; }
+
+    public string OperationName { get; init; } = string.Empty;
+
+    public string ProductName { get; init; } = string.Empty;
 }

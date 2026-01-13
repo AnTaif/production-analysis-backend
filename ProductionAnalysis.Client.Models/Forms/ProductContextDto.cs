@@ -6,4 +6,5 @@ public record ProductContextDto
     public int? CycleTime { get; init; }
     public int? WorkstationCapacity { get; init; }
     public int DailyRate { get; init; }
+    public string ProductName { get; init; } = string.Empty;
 }
