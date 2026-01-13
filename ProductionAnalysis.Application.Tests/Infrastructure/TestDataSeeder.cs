@@ -278,17 +278,7 @@ public class TestDataSeeder
             new IndicatorDbo
             {
                 Id = 8,
-                Name = "Причины отклонения/комментарий",
-                ValueType = FieldValueTypes.Text,
-                InputType = FieldInputTypes.Manual,
-                ValueSelector = null,
-                Formula = null,
-                HasSummation = false
-            },
-            new IndicatorDbo
-            {
-                Id = 9,
-                Name = "Принятые меры",
+                Name = "Причины отклонения, принятые меры",
                 ValueType = FieldValueTypes.Text,
                 InputType = FieldInputTypes.Manual,
                 ValueSelector = null,
@@ -514,7 +504,6 @@ public class TestDataSeeder
         var downtimeResponsible = await dbContext.Indicators.FirstAsync(i => i.Id == 6);
         var downTimeReasonsGroup = await dbContext.Indicators.FirstAsync(i => i.Id == 7);
         var downtimeReason = await dbContext.Indicators.FirstAsync(i => i.Id == 8);
-        var actionsTaken = await dbContext.Indicators.FirstAsync(i => i.Id == 9);
         var operationName = await dbContext.Indicators.FirstAsync(i => i.Id == 10);
         var operationTime = await dbContext.Indicators.FirstAsync(i => i.Id == 11);
         var startTimePlan = await dbContext.Indicators.FirstAsync(i => i.Id == 12);
@@ -577,8 +566,6 @@ public class TestDataSeeder
             TemplateId = template1.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
             Order = 11
         });
-        template1.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template1.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 12 });
 
         dbContext.Templates.Add(template1);
 
@@ -624,8 +611,6 @@ public class TestDataSeeder
         });
         template2.TemplateIndicators.Add(new TemplateIndicatorDbo
             { TemplateId = template2.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 11 });
-        template2.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template2.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 12 });
 
         dbContext.Templates.Add(template2);
 
@@ -671,8 +656,6 @@ public class TestDataSeeder
         });
         template3.TemplateIndicators.Add(new TemplateIndicatorDbo
             { TemplateId = template3.Id, IndicatorId = downtimeReason.Id, Indicator = downtimeReason, Order = 11 });
-        template3.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template3.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 12 });
 
         dbContext.Templates.Add(template3);
 
@@ -721,8 +704,6 @@ public class TestDataSeeder
             TemplateId = template4.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
             Order = 13
         });
-        template4.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template4.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 14 });
 
         dbContext.Templates.Add(template4);
 
@@ -798,8 +779,6 @@ public class TestDataSeeder
             TemplateId = template5.Id, IndicatorId = downTimeReasonsGroup.Id, Indicator = downTimeReasonsGroup,
             Order = 18
         });
-        template5.TemplateIndicators.Add(new TemplateIndicatorDbo
-            { TemplateId = template5.Id, IndicatorId = actionsTaken.Id, Indicator = actionsTaken, Order = 19 });
 
         dbContext.Templates.Add(template5);
         await dbContext.SaveChangesAsync();
