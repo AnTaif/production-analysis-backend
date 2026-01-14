@@ -25,6 +25,8 @@ public interface IFormsService
     Task<Result> CompleteFormAsync(int formId, Guid userId);
 
     Task<Result> DeleteFormAsync(int formId, ContextUser user);
+
+    Task<Result<FormCountsDto>> GetFormCountsAsync(ContextUser user);
 }
 
 [RegisterScoped]
@@ -397,5 +399,69 @@ public class FormsService(
         await unitOfWork.SaveChangesAsync();
 
         return Result.Success;
+    }
+
+    public async Task<Result<FormCountsDto>> GetFormCountsAsync(ContextUser user)
+    {
+        int? departmentId = null;
+        int? assigneeId = null;
+
+        if (user.Roles.Contains(Roles.Admin))
+        {
+            // Админ видит все формы, фильтры не применяются
+        }
+        else if (user.Roles.Contains(Roles.DepartmentHead))
+        {
+            var employee = await unitOfWork.Dictionaries.FindEmployeeByUserIdAsync(user.Id);
+            if (employee != null)
+            {
+                departmentId = employee.DepartmentId;
+            }
+            else
+            {
+                // Если Employee не найден, возвращаем нулевые счетчики
+                return new FormCountsDto
+                {
+                    Total = 0,
+                    InProgress = 0,
+                    Completed = 0
+                };
+            }
+        }
+        else if (user.Roles.Contains(Roles.Operator))
+        {
+            var employee = await unitOfWork.Dictionaries.FindEmployeeByUserIdAsync(user.Id);
+            if (employee != null)
+            {
+                assigneeId = employee.Id;
+            }
+            else
+            {
+                return new FormCountsDto
+                {
+                    Total = 0,
+                    InProgress = 0,
+                    Completed = 0
+                };
+            }
+        }
+        else
+        {
+            return new FormCountsDto
+            {
+                Total = 0,
+                InProgress = 0,
+                Completed = 0
+            };
+        }
+
+        var (total, inProgress, completed) = await unitOfWork.Forms.GetFormCountsAsync(departmentId, assigneeId);
+
+        return new FormCountsDto
+        {
+            Total = total,
+            InProgress = inProgress,
+            Completed = completed
+        };
     }
 }

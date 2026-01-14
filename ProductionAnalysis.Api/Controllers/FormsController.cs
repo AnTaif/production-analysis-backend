@@ -16,6 +16,15 @@ namespace ProductionAnalysis.Api.Controllers;
 [Authorize]
 public class FormsController(IFormsService formsService) : ControllerBase
 {
+    [HttpGet("counts")]
+    [ProducesResponseType<FormCountsDto>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<FormCountsDto>> GetFormCounts()
+    {
+        var user = User.ReadContextUser();
+        var result = await formsService.GetFormCountsAsync(user);
+        return result.ToActionResult(this);
+    }
+
     [HttpPost("search")]
     [SwaggerRequestExample(typeof(SearchFormsFilterDto), typeof(SearchFormsFilterDtoExample))]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(PaginatedFormShortDtoExample))]

@@ -142,4 +142,25 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
 
         dbContext.Forms.Remove(formDbo);
     }
+
+    public async Task<(int Total, int InProgress, int Completed)> GetFormCountsAsync(int? departmentId, int? assigneeId)
+    {
+        var query = dbContext.Forms.AsQueryable();
+
+        if (departmentId.HasValue)
+        {
+            query = query.Where(f => f.DepartmentId == departmentId.Value);
+        }
+
+        if (assigneeId.HasValue)
+        {
+            query = query.Where(f => f.AssigneeId == assigneeId.Value);
+        }
+
+        var total = await query.CountAsync();
+        var inProgress = await query.CountAsync(f => f.Status == (int)FormStatus.InProgress);
+        var completed = await query.CountAsync(f => f.Status == (int)FormStatus.Completed);
+
+        return (total, inProgress, completed);
+    }
 }

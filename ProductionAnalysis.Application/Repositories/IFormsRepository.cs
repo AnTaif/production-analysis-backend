@@ -10,4 +10,5 @@ public interface IFormsRepository
     Task UpdateTotalValuesAsync(int formId, Dictionary<int, object> totalValues, Guid userId);
     Task UpdateStatusAsync(int formId, FormStatus status, Guid userId);
     Task DeleteAsync(int formId);
+    Task<(int Total, int InProgress, int Completed)> GetFormCountsAsync(int? departmentId, int? assigneeId);
 }
