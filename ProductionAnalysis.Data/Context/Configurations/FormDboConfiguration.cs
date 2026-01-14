@@ -24,25 +24,30 @@ public class FormDboConfiguration : IEntityTypeConfiguration<FormDbo>
 
         builder.HasOne<UserDbo>()
             .WithMany()
-            .HasForeignKey(x => x.CreatorId);
+            .HasForeignKey(x => x.CreatorId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne<UserDbo>()
             .WithMany()
-            .HasForeignKey(x => x.LastEditorId);
+            .HasForeignKey(x => x.LastEditorId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne<ShiftDbo>()
             .WithMany()
-            .HasForeignKey(x => x.ShiftId);
+            .HasForeignKey(x => x.ShiftId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne<DepartmentDbo>()
             .WithMany()
-            .HasForeignKey(x => x.DepartmentId);
+            .HasForeignKey(x => x.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(x => x.AssigneeId)
             .HasColumnName("ExecutorId");
 
         builder.HasOne<EmployeeDbo>()
             .WithMany()
-            .HasForeignKey(x => x.AssigneeId);
+            .HasForeignKey(x => x.AssigneeId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
