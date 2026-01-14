@@ -23,6 +23,8 @@ public interface IFormsService
         Guid userId);
 
     Task<Result> CompleteFormAsync(int formId, Guid userId);
+
+    Task<Result> DeleteFormAsync(int formId, ContextUser user);
 }
 
 [RegisterScoped]
@@ -365,6 +367,33 @@ public class FormsService(
         }
 
         await unitOfWork.Forms.UpdateStatusAsync(formId, FormStatus.Completed, userId);
+        await unitOfWork.SaveChangesAsync();
+
+        return Result.Success;
+    }
+
+    public async Task<Result> DeleteFormAsync(int formId, ContextUser user)
+    {
+        var isAdmin = user.Roles.Contains(Roles.Admin);
+        var isDepartmentHead = user.Roles.Contains(Roles.DepartmentHead);
+
+        if (!isAdmin && !isDepartmentHead)
+        {
+            return ServiceError.Forbidden("Only Admin or DepartmentHead can delete forms");
+        }
+
+        var form = await unitOfWork.Forms.FindAsync(formId);
+        if (form == null)
+        {
+            return ServiceError.NotFound($"Form with id {formId} not found");
+        }
+
+        if (isDepartmentHead && !isAdmin && form.CreatorId != user.Id)
+        {
+            return ServiceError.Forbidden("DepartmentHead can only delete forms created by themselves");
+        }
+
+        await unitOfWork.Forms.DeleteAsync(formId);
         await unitOfWork.SaveChangesAsync();
 
         return Result.Success;

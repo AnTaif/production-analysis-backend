@@ -131,4 +131,15 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
         formDbo.LastEditorId = userId;
         formDbo.UpdateDate = DateTime.UtcNow;
     }
+
+    public async Task DeleteAsync(int formId)
+    {
+        var formDbo = await dbContext.Forms.FirstOrDefaultAsync(f => f.Id == formId);
+        if (formDbo == null)
+        {
+            return;
+        }
+
+        dbContext.Forms.Remove(formDbo);
+    }
 }

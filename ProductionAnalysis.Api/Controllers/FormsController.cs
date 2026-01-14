@@ -97,4 +97,21 @@ public class FormsController(IFormsService formsService) : ControllerBase
         var result = await formsService.CompleteFormAsync(formId, userId);
         return result.ToActionResult(this);
     }
+
+    /// <remarks>
+    /// Для вызова метода у пользователя должна быть роль Admin или DepartmentHead.
+    /// Если запрос от DepartmentHead, форма должна быть создана им.
+    /// </remarks>
+    [HttpDelete("{formId:int}")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.DepartmentHead}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<string>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<string>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> DeleteForm([Range(1, int.MaxValue)] int formId)
+    {
+        var user = User.ReadContextUser();
+        var result = await formsService.DeleteFormAsync(formId, user);
+        return result.ToActionResult(this);
+    }
 }

@@ -9,4 +9,5 @@ public interface IFormsRepository
     Task<Form?> FindAsync(int formId);
     Task UpdateTotalValuesAsync(int formId, Dictionary<int, object> totalValues, Guid userId);
     Task UpdateStatusAsync(int formId, FormStatus status, Guid userId);
+    Task DeleteAsync(int formId);
 }
