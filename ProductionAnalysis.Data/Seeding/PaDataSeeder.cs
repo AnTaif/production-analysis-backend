@@ -873,7 +873,7 @@ public class PaDataSeeder(
 
         var template1 = CreateTemplate(
             1,
-            "Почасовой по времени такта",
+            "По времени такта",
             PaType.SingleProductWithCycleTime
         );
 
@@ -886,7 +886,7 @@ public class PaDataSeeder(
 
         var template2 = CreateTemplate(
             2,
-            "Почасовой по мощности рабочего места",
+            "По мощности рабочего места",
             PaType.SingleProductWithWorkstationCapacity
         );
 
@@ -899,7 +899,7 @@ public class PaDataSeeder(
 
         var template3 = CreateTemplate(
             3,
-            "Почасовой по мощности рабочего места",
+            "Несколько номенклатур",
             PaType.MultipleProductsWithCycleTime
         );
 
