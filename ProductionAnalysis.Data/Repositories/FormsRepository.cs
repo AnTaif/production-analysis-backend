@@ -34,7 +34,8 @@ public class FormsRepository(PaDbContext dbContext) : IFormsRepository
         var totalCount = await query.CountAsync();
 
         var formsDbo = await query
-            .OrderByDescending(f => f.UpdateDate)
+            .OrderByDescending(f => f.FormDate)
+            .ThenByDescending(f => f.CreationDate)
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
             .ToListAsync();
