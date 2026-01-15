@@ -106,7 +106,7 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
             breakProcessor);
         rows.AddRange(remainingBreakRows);
 
-        order = localOrder;
+        order = (short)(localOrder + remainingBreakRows.Count);
         return rows;
     }
 }

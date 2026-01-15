@@ -430,4 +430,59 @@ public class CreateFormTests : FormsTestBase
         form.Should().NotBeNull();
         form.Status.Should().Be(FormStatus.InProgress);
     }
+
+    [Test]
+    public async Task CreateAsync_ForMultipleProducts_ShouldCreateFormWithUniqueOrderForEachRow()
+    {
+        // Arrange
+        var user = await DataBuilder.CreateUserAsync();
+        await DataBuilder.CreateEmployeeAsync(user.Id, departmentId: 1);
+        var assigneeId = await CreateAssigneeAsync(departmentId: 1);
+        var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
+
+        var request = new CreateFormRequest
+        {
+            PaType = PaTypeDto.MultipleProductsWithCycleTime,
+            ShiftId = shift.Id,
+            AssigneeId = assigneeId,
+            FormDate = DateTime.UtcNow.Date,
+            Products = new List<ProductContextRequest>
+            {
+                new ProductContextRequest
+                {
+                    ProductId = 3,
+                    DailyRate = 400,
+                    CycleTime = 72
+                },
+                new ProductContextRequest
+                {
+                    ProductId = 4,
+                    DailyRate = 350,
+                    CycleTime = 60
+                }
+            }
+        };
+
+        // Act
+        var result = await FormsService.CreateAsync(request, user.Id);
+        result.IsSuccess.Should().BeTrue();
+
+        // Assert
+        var form = await UnitOfWork.Forms.FindAsync(result.Value.Id);
+        form.Should().NotBeNull();
+        form.PaType.Should().Be(PaType.MultipleProductsWithCycleTime);
+
+        // Проверяем, что все строки имеют уникальный Order
+        var allRows = form.Rows.OrderBy(r => r.Order).ToList();
+        allRows.Should().NotBeEmpty();
+
+        var orders = allRows.Select(r => r.Order).ToList();
+        orders.Should().OnlyHaveUniqueItems("все строки должны иметь уникальный Order");
+
+        // Проверяем, что Order идут последовательно
+        for (var i = 0; i < orders.Count - 1; i++)
+        {
+            orders[i + 1].Should().BeGreaterThan(orders[i], "Order должны идти последовательно");
+        }
+    }
 }
