@@ -12,6 +12,7 @@ using ProductionAnalysis.Application.Implementation.Forms;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Data.Context;
 using ProductionAnalysis.Data.Models;
+using ProductionAnalysis.Data.Seeding;
 
 namespace ProductionAnalysis.Application.Tests.Infrastructure;
 
@@ -103,8 +104,9 @@ public abstract class BaseIntegrationTest
 
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserDbo>>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<PaDataSeeder>>();
 
-        var testDataSeeder = new TestDataSeeder(DbContext, userManager, roleManager);
+        var testDataSeeder = new TestDataSeeder(DbContext, userManager, roleManager, logger);
         await testDataSeeder.SeedAllAsync();
 
         DataBuilder = new TestDataBuilder(DbContext, userManager);

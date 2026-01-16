@@ -52,6 +52,22 @@ public abstract class FormsTestBase : BaseIntegrationTest
             : Convert.ToInt32(rowValue.Value);
     }
 
+    protected static DateTime? GetDateTimeValue(FormRow row, int indicatorId)
+    {
+        var key = indicatorId.ToString();
+        if (!row.Values.TryGetValue(key, out var rowValue))
+        {
+            return null;
+        }
+
+        return rowValue.Value switch
+        {
+            DateTime dt => dt,
+            TimeOnly time => DateTime.Today.Add(time.ToTimeSpan()),
+            _ => null
+        };
+    }
+
     protected static ContextUser CreateContextUser(Guid userId, params string[] roles)
     {
         return new ContextUser
