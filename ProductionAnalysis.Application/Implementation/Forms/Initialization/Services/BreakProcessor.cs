@@ -21,7 +21,8 @@ public interface IBreakProcessor
         ProductContext? productContext,
         ref short order,
         ref TimeOnly currentTime,
-        ref TimeSpan elapsedWorkTime);
+        ref TimeSpan elapsedWorkTime,
+        bool isFirst = false);
 
     /// <summary>
     ///     Обрабатывает оставшиеся перерывы после завершения рабочего времени
@@ -31,7 +32,8 @@ public interface IBreakProcessor
         short startOrder,
         Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
         InitializedIndicators indicators,
-        ProductContext? productContext = null);
+        ProductContext? productContext = null,
+        bool isLast = true);
 }
 
 [RegisterScoped]
@@ -49,7 +51,8 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
         ProductContext? productContext,
         ref short order,
         ref TimeOnly currentTime,
-        ref TimeSpan elapsedWorkTime)
+        ref TimeSpan elapsedWorkTime,
+        bool isFirst = false)
     {
         var rows = new List<FormRowData>();
 
@@ -73,6 +76,9 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
         var breakMetaInfo = auxiliaryOperations[breakSchedule.AuxiliaryOperationId];
         var breakEndTime = breakSchedule.StartTime.Add(breakMetaInfo.Duration);
 
+        // Если операция первая (нет рабочего времени до неё), то ProductId = null
+        var operationProductContext = isFirst && currentTime >= breakSchedule.StartTime ? null : productContext;
+
         var breakRow = formRowDataFactory.CreateBreakRow(
             order++,
             indicators.WorkTime,
@@ -80,7 +86,7 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
             breakEndTime,
             breakMetaInfo.Name,
             breakSchedule.AuxiliaryOperationId,
-            productContext);
+            operationProductContext);
 
         rows.Add(breakRow);
         currentTime = breakEndTime;
@@ -97,7 +103,8 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
         short startOrder,
         Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
         InitializedIndicators indicators,
-        ProductContext? productContext = null)
+        ProductContext? productContext = null,
+        bool isLast = true)
     {
         var rows = new List<FormRowData>();
         var order = startOrder;
@@ -107,6 +114,9 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
             var breakMetaInfo = auxiliaryOperations[breakSchedule.AuxiliaryOperationId];
             var breakEndTime = breakSchedule.StartTime.Add(breakMetaInfo.Duration);
 
+            // Если операция последняя, то ProductId = null
+            var operationProductContext = isLast ? null : productContext;
+
             var breakRow = formRowDataFactory.CreateBreakRow(
                 order++,
                 indicators.WorkTime,
@@ -114,7 +124,7 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
                 breakEndTime,
                 breakMetaInfo.Name,
                 breakSchedule.AuxiliaryOperationId,
-                productContext);
+                operationProductContext);
 
             rows.Add(breakRow);
         }

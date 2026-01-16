@@ -29,7 +29,8 @@ public abstract class RowInitializationStrategyBase : IRowInitializationStrategy
         Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
         InitializedIndicators indicators,
         IBreakProcessor breakProcessor,
-        ProductContext? productContext = null)
+        ProductContext? productContext = null,
+        bool isLast = true)
     {
         var remainingBreaks = sortedBreaks.Skip(breakIndex).ToList();
         if (remainingBreaks.Count == 0) return new List<FormRowData>();
@@ -39,6 +40,7 @@ public abstract class RowInitializationStrategyBase : IRowInitializationStrategy
             startOrder,
             auxiliaryOperations,
             indicators,
-            productContext);
+            productContext,
+            isLast);
     }
 }

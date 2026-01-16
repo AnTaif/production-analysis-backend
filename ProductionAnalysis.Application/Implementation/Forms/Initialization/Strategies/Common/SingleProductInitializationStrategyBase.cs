@@ -39,6 +39,7 @@ public abstract class SingleProductInitializationStrategyBase(
         var elapsedWorkTime = TimeSpan.Zero;
         var breakIndex = 0;
         short order = 1;
+        var hasWorkRows = false; // Отслеживаем, были ли созданы рабочие строки
 
         while (!shiftTimeManager.IsWorkTimeComplete(elapsedWorkTime, totalWorkTime))
         {
@@ -49,6 +50,9 @@ public abstract class SingleProductInitializationStrategyBase(
 
             if (nextBreak != null && breakProcessor.ShouldInsertBreak(currentTime, nextBreak, workIntervalEndTime))
             {
+                // Определяем, является ли это первой операцией (нет рабочих строк и нет рабочего времени до перерыва)
+                var isFirst = !hasWorkRows && currentTime >= nextBreak.StartTime;
+
                 var breakResult = breakProcessor.ProcessBreak(
                     nextBreak,
                     auxiliaryOperations,
@@ -56,7 +60,8 @@ public abstract class SingleProductInitializationStrategyBase(
                     productContext,
                     ref order,
                     ref currentTime,
-                    ref elapsedWorkTime);
+                    ref elapsedWorkTime,
+                    isFirst);
 
                 rows.AddRange(breakResult.Rows);
                 breakIndex++;
@@ -72,6 +77,7 @@ public abstract class SingleProductInitializationStrategyBase(
                     productContext);
 
                 rows.Add(workRow);
+                hasWorkRows = true; // Отмечаем, что создана рабочая строка
                 currentTime = workIntervalEndTime;
                 elapsedWorkTime = elapsedWorkTime.Add(workIntervalDuration);
             }
@@ -84,7 +90,8 @@ public abstract class SingleProductInitializationStrategyBase(
             auxiliaryOperations,
             indicators,
             breakProcessor,
-            productContext);
+            productContext,
+            isLast: true); // Все оставшиеся перерывы - последние
         rows.AddRange(remainingBreakRows);
 
         return rows;
