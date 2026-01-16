@@ -1,4 +1,5 @@
 using ProductionAnalysis.Application.Domain.Forms;
+using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Application.Implementation.Forms.Initialization.Services;
 using ProductionAnalysis.Client.Models.Dictionaries;
 
@@ -27,7 +28,8 @@ public abstract class RowInitializationStrategyBase : IRowInitializationStrategy
         short startOrder,
         Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
         InitializedIndicators indicators,
-        IBreakProcessor breakProcessor)
+        IBreakProcessor breakProcessor,
+        ProductContext? productContext = null)
     {
         var remainingBreaks = sortedBreaks.Skip(breakIndex).ToList();
         if (remainingBreaks.Count == 0) return new List<FormRowData>();
@@ -36,6 +38,7 @@ public abstract class RowInitializationStrategyBase : IRowInitializationStrategy
             remainingBreaks,
             startOrder,
             auxiliaryOperations,
-            indicators);
+            indicators,
+            productContext);
     }
 }

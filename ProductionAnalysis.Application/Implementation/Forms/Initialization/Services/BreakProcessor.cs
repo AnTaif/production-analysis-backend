@@ -30,7 +30,8 @@ public interface IBreakProcessor
         ICollection<ShiftScheduleDto> remainingBreaks,
         short startOrder,
         Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
-        InitializedIndicators indicators);
+        InitializedIndicators indicators,
+        ProductContext? productContext = null);
 }
 
 [RegisterScoped]
@@ -78,7 +79,8 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
             breakSchedule.StartTime,
             breakEndTime,
             breakMetaInfo.Name,
-            breakSchedule.AuxiliaryOperationId);
+            breakSchedule.AuxiliaryOperationId,
+            productContext);
 
         rows.Add(breakRow);
         currentTime = breakEndTime;
@@ -94,7 +96,8 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
         ICollection<ShiftScheduleDto> remainingBreaks,
         short startOrder,
         Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
-        InitializedIndicators indicators)
+        InitializedIndicators indicators,
+        ProductContext? productContext = null)
     {
         var rows = new List<FormRowData>();
         var order = startOrder;
@@ -110,7 +113,8 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
                 breakSchedule.StartTime,
                 breakEndTime,
                 breakMetaInfo.Name,
-                breakSchedule.AuxiliaryOperationId);
+                breakSchedule.AuxiliaryOperationId,
+                productContext);
 
             rows.Add(breakRow);
         }

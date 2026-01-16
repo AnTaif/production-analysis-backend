@@ -22,7 +22,8 @@ public interface IFormRowDataFactory
         TimeOnly startTime,
         TimeOnly endTime,
         string operationName,
-        int auxiliaryOperationId);
+        int auxiliaryOperationId,
+        ProductContext? productContext = null);
 
     ICollection<FormRowData> CreateOperationCycleRows(
         ref short order,
@@ -86,7 +87,8 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         TimeOnly startTime,
         TimeOnly endTime,
         string operationName,
-        int auxiliaryOperationId)
+        int auxiliaryOperationId,
+        ProductContext? productContext = null)
     {
         var values = new List<FormRowValueData>();
 
@@ -99,6 +101,7 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
             Order = order,
             IsAuxiliaryOperation = true,
             AuxiliaryOperationId = auxiliaryOperationId,
+            ProductId = productContext?.ProductId,
             Values = values
         };
     }

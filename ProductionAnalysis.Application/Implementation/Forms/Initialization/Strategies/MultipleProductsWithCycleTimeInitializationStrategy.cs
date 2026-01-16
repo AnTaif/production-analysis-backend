@@ -103,7 +103,8 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
             localOrder,
             auxiliaryOperations,
             indicators,
-            breakProcessor);
+            breakProcessor,
+            productContext);
         rows.AddRange(remainingBreakRows);
 
         order = (short)(localOrder + remainingBreakRows.Count);

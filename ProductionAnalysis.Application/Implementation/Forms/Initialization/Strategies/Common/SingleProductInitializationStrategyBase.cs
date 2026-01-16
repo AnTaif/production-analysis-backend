@@ -83,7 +83,8 @@ public abstract class SingleProductInitializationStrategyBase(
             order,
             auxiliaryOperations,
             indicators,
-            breakProcessor);
+            breakProcessor,
+            productContext);
         rows.AddRange(remainingBreakRows);
 
         return rows;

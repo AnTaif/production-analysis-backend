@@ -54,7 +54,8 @@ public class LessThanOnePerShiftInitializationStrategy(
                     nextBreak.StartTime,
                     breakEndTime,
                     breakMetaInfo.Name,
-                    nextBreak.AuxiliaryOperationId);
+                    nextBreak.AuxiliaryOperationId,
+                    null);
 
                 rows.Add(breakRow);
                 currentTime = breakEndTime;
@@ -94,7 +95,8 @@ public class LessThanOnePerShiftInitializationStrategy(
             order,
             context.AuxiliaryOperations,
             context.Indicators,
-            breakProcessor);
+            breakProcessor,
+            null);
         rows.AddRange(remainingBreakRows);
 
         return rows;
