@@ -11,6 +11,8 @@
 
 .env
 
+production-analysis-frontend
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

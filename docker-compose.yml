@@ -32,6 +32,18 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql
+  
+  pa.front:
+    container_name: pa.front
+    image: pa.front
+    build:
+      context: ./production-analysis-frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
 
 volumes:
   postgres-data:
