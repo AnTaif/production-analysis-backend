@@ -31,6 +31,7 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
         short globalOrder = 1;
         var currentTime = context.ShiftStartTime;
         var globalBreakIndex = 0; // Глобальный индекс перерывов для всех продуктов
+        const int cleanupOperationId = 3; // ID операции "Уборка 15 мин"
         const int retoolingOperationId = 4; // ID операции "Переналадка 15 мин"
 
         var productsList = multiProducts.Products.ToList();
@@ -75,6 +76,24 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
             {
                 currentTime = endTime;
             }
+        }
+
+        // Добавляем уборку один раз в самом конце формы после всех продуктов
+        if (context.AuxiliaryOperations.TryGetValue(cleanupOperationId, out var cleanupOperation))
+        {
+            var cleanupStartTime = currentTime;
+            var cleanupEndTime = cleanupStartTime.Add(cleanupOperation.Duration);
+
+            var cleanupRow = formRowDataFactory.CreateBreakRow(
+                globalOrder++,
+                context.Indicators.WorkTime,
+                cleanupStartTime,
+                cleanupEndTime,
+                cleanupOperation.Name,
+                cleanupOperationId,
+                null); // Уборка не связана с продуктом
+
+            allRows.Add(cleanupRow);
         }
 
         return Task.FromResult<ICollection<FormRowData>>(allRows);
@@ -129,7 +148,9 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                 }
             }
 
-            if (nextBreak != null && breakProcessor.ShouldInsertBreak(currentTime, nextBreak, workIntervalEndTime))
+            // Пропускаем уборку из расписания - она добавляется в конце формы
+            if (nextBreak != null && nextBreak.AuxiliaryOperationId != cleanupOperationId &&
+                breakProcessor.ShouldInsertBreak(currentTime, nextBreak, workIntervalEndTime))
             {
                 // Определяем, является ли это первой операцией (нет рабочих строк и нет рабочего времени до перерыва)
                 var isFirst = !hasWorkRows && currentTime >= nextBreak.StartTime;
@@ -145,6 +166,11 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                     isFirst);
 
                 rows.AddRange(breakResult.Rows);
+                breakIndex++;
+            }
+            else if (nextBreak != null && nextBreak.AuxiliaryOperationId == cleanupOperationId)
+            {
+                // Пропускаем уборку из расписания - она будет добавлена в конце формы
                 breakIndex++;
             }
             else
@@ -292,7 +318,11 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
             if (isLastProduct)
             {
                 // Для последнего продукта добавляем все оставшиеся перерывы, отсортированные по времени
-                var sortedRemainingBreaks = remainingBreaks.OrderBy(b => b.StartTime).ToList();
+                // Исключаем уборку из расписания - она добавляется в конце формы
+                var sortedRemainingBreaks = remainingBreaks
+                    .Where(b => b.AuxiliaryOperationId != cleanupOperationId)
+                    .OrderBy(b => b.StartTime)
+                    .ToList();
                 remainingBreakRows = breakProcessor.ProcessRemainingBreaks(
                     sortedRemainingBreaks,
                     localOrder,
@@ -304,56 +334,17 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
             }
             else
             {
-                // Для не последнего продукта проверяем, есть ли перерывы, которые должны быть перед переналадкой
-                // "Уборка" должна быть перед переналадкой, если она еще не была обработана
-                // Проверяем перерывы, которые должны быть до текущего времени + время переналадки
-                var retoolingDuration = auxiliaryOperations.TryGetValue(retoolingOperationId, out var retoolingOp)
-                    ? retoolingOp.Duration
-                    : TimeSpan.FromMinutes(15);
-                var timeBeforeRetooling = currentTime.Add(retoolingDuration);
-
-                // Проверяем переход через полночь
-                if (timeBeforeRetooling < currentTime)
-                {
-                    var timeUntilMidnight = TimeSpan.FromDays(1) - TimeSpan.FromTicks(currentTime.Ticks);
-                    var minutesUntilMidnight = (int)timeUntilMidnight.TotalMinutes;
-                    timeBeforeRetooling = currentTime.AddMinutes(minutesUntilMidnight);
-                    if (timeBeforeRetooling < currentTime)
-                    {
-                        timeBeforeRetooling = new TimeOnly(23, 59);
-                    }
-                }
-
-                // Находим перерывы, которые должны быть перед переналадкой
-                // Это перерывы, которые по времени должны быть до переналадки
-                var breaksBeforeRetooling = remainingBreaks
-                    .Where(b =>
-                    {
-                        // Проверяем, попадает ли перерыв по времени до переналадки
-                        // Учитываем переход через полночь
-                        if (b.StartTime < currentTime)
-                        {
-                            // Перерыв уже прошел, не добавляем
-                            return false;
-                        }
-
-                        // Если перерыв - это "Уборка", и она должна быть перед переналадкой
-                        if (b.AuxiliaryOperationId == cleanupOperationId)
-                        {
-                            return b.StartTime <= timeBeforeRetooling;
-                        }
-
-                        // Для других перерывов проверяем, попадают ли они в интервал до переналадки
-                        return b.StartTime <= timeBeforeRetooling;
-                    })
+                // Для не последнего продукта обрабатываем оставшиеся перерывы (кроме уборки, которая добавляется в конце формы)
+                // Фильтруем уборку из оставшихся перерывов
+                var breaksToProcess = remainingBreaks
+                    .Where(b => b.AuxiliaryOperationId != cleanupOperationId)
                     .OrderBy(b => b.StartTime)
                     .ToList();
 
-                if (breaksBeforeRetooling.Count > 0)
+                if (breaksToProcess.Count > 0)
                 {
-                    // Добавляем перерывы, которые должны быть перед переналадкой
                     var breaksToAdd = breakProcessor.ProcessRemainingBreaks(
-                        breaksBeforeRetooling,
+                        breaksToProcess,
                         localOrder,
                         auxiliaryOperations,
                         indicators,
@@ -361,7 +352,7 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                         isLast: false).ToList();
                     rows.AddRange(breaksToAdd);
                     localOrder += (short)breaksToAdd.Count;
-                    breakIndex += breaksToAdd.Count;
+                    breakIndex += breaksToProcess.Count;
                 }
             }
         }
@@ -370,8 +361,8 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
         var endTime = currentTime;
         if (isLastProduct && remainingBreakRows.Count > 0)
         {
-            // Находим максимальное время окончания из оставшихся перерывов
-            foreach (var breakSchedule in remainingBreaks)
+            // Находим максимальное время окончания из оставшихся перерывов (исключая уборку)
+            foreach (var breakSchedule in remainingBreaks.Where(b => b.AuxiliaryOperationId != cleanupOperationId))
             {
                 if (auxiliaryOperations.TryGetValue(breakSchedule.AuxiliaryOperationId, out var breakOperation))
                 {

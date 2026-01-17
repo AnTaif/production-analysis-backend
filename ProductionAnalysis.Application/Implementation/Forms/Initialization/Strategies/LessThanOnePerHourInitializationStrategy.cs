@@ -36,6 +36,7 @@ public class LessThanOnePerHourInitializationStrategy(
         var elapsedWorkTime = TimeSpan.Zero;
         var breakIndex = 0;
         short order = 1;
+        const int cleanupOperationId = 3;
 
         while (!shiftTimeManager.IsWorkTimeComplete(elapsedWorkTime, totalWorkTime))
         {
@@ -47,7 +48,10 @@ public class LessThanOnePerHourInitializationStrategy(
                 ? (nextBreak.StartTime - currentTime).TotalSeconds
                 : remainingWorkTime.TotalSeconds;
 
-            if (nextBreak != null && timeUntilBreak > 0 && timeUntilBreak < cycleDuration)
+            // Пропускаем уборку из расписания - она добавляется после всех операций
+            // ID операции "Уборка 15 мин"
+            if (nextBreak != null && nextBreak.AuxiliaryOperationId != cleanupOperationId &&
+                timeUntilBreak > 0 && timeUntilBreak < cycleDuration)
             {
                 // До перерыва не помещается полный цикл, обрабатываем перерыв
                 // Для операций не добавляем elapsedWorkTime при обработке перерыва
@@ -66,6 +70,11 @@ public class LessThanOnePerHourInitializationStrategy(
                 rows.Add(breakRow);
                 currentTime = breakEndTime;
                 elapsedWorkTime = elapsedWorkTime.Add(breakMetaInfo.Duration);
+                breakIndex++;
+            }
+            else if (nextBreak != null && nextBreak.AuxiliaryOperationId == cleanupOperationId)
+            {
+                // Пропускаем уборку из расписания - она будет добавлена после всех операций
                 breakIndex++;
             }
             else if (remainingWorkTime.TotalSeconds >= cycleDuration)
@@ -107,15 +116,58 @@ public class LessThanOnePerHourInitializationStrategy(
             }
         }
 
-        var remainingBreakRows = ProcessRemainingBreaks(
-            context.SortedSchedules,
-            breakIndex,
-            order,
-            context.AuxiliaryOperations,
-            context.Indicators,
-            breakProcessor,
-            null);
-        rows.AddRange(remainingBreakRows);
+        // Исключаем уборку из оставшихся перерывов - она добавляется после всех операций
+        var remainingBreaksWithoutCleanup = context.SortedSchedules
+            .Skip(breakIndex)
+            .Where(b => b.AuxiliaryOperationId != cleanupOperationId)
+            .ToList();
+
+        if (remainingBreaksWithoutCleanup.Count > 0)
+        {
+            var remainingBreakRows = ProcessRemainingBreaks(
+                context.SortedSchedules,
+                breakIndex,
+                order,
+                context.AuxiliaryOperations,
+                context.Indicators,
+                breakProcessor,
+                null);
+
+            // Фильтруем уборку из результата
+            var filteredBreakRows = remainingBreakRows
+                .Where(r => r.AuxiliaryOperationId != cleanupOperationId)
+                .ToList();
+            rows.AddRange(filteredBreakRows);
+
+            // Обновляем currentTime на основе последнего перерыва
+            if (filteredBreakRows.Count > 0)
+            {
+                var lastBreak = remainingBreaksWithoutCleanup.Last();
+                if (context.AuxiliaryOperations.TryGetValue(lastBreak.AuxiliaryOperationId, out var lastBreakOp))
+                {
+                    currentTime = lastBreak.StartTime.Add(lastBreakOp.Duration);
+                }
+            }
+        }
+
+        // Добавляем уборку после всех операций
+        if (context.AuxiliaryOperations.TryGetValue(cleanupOperationId, out var cleanupOperation))
+        {
+            var cleanupStartTime = currentTime;
+            var cleanupEndTime = cleanupStartTime.Add(cleanupOperation.Duration);
+            var cleanupOrder = (short)(rows.Count > 0 ? rows.Max(r => r.Order) + 1 : 1);
+
+            var cleanupRow = formRowDataFactory.CreateBreakRow(
+                cleanupOrder,
+                context.Indicators.WorkTime,
+                cleanupStartTime,
+                cleanupEndTime,
+                cleanupOperation.Name,
+                cleanupOperationId,
+                null);
+
+            rows.Add(cleanupRow);
+        }
 
         return rows;
     }
