@@ -64,7 +64,18 @@ public class LessThanOnePerHourInitializationStrategy(
             }
             else if (remainingWorkTime.TotalSeconds >= cycleDuration)
             {
-                var cycleEndTime = currentTime.Add(TimeSpan.FromSeconds(cycleDuration));
+                var cycleDurationSpan = TimeSpan.FromSeconds(cycleDuration);
+
+                if (!shiftTimeManager.CanAddWorkInterval(elapsedWorkTime, cycleDurationSpan))
+                {
+                    var adjustedRemainingWorkTime = shiftTimeManager.GetRemainingWorkTime(elapsedWorkTime);
+                    if (adjustedRemainingWorkTime <= TimeSpan.Zero)
+                        break;
+
+                    cycleDurationSpan = adjustedRemainingWorkTime;
+                }
+
+                var cycleEndTime = currentTime.Add(cycleDurationSpan);
 
                 var cycleRows = formRowDataFactory.CreateOperationCycleRows(
                     ref order,
@@ -78,7 +89,7 @@ public class LessThanOnePerHourInitializationStrategy(
 
                 rows.AddRange(cycleRows);
                 currentTime = cycleEndTime;
-                elapsedWorkTime = elapsedWorkTime.Add(TimeSpan.FromSeconds(cycleDuration));
+                elapsedWorkTime = elapsedWorkTime.Add(cycleDurationSpan);
             }
             else
             {

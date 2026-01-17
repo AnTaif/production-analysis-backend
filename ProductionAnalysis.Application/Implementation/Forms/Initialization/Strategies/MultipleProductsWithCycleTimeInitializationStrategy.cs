@@ -140,6 +140,22 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                 if (intervalPlan <= 0)
                     break;
 
+                var workDuration = TimeHelper.CalculateDurationAcrossMidnight(currentTime, workIntervalEndTime);
+
+                if (!shiftTimeManager.CanAddWorkInterval(elapsedWorkTime, workDuration))
+                {
+                    var adjustedRemainingWorkTime = shiftTimeManager.GetRemainingWorkTime(elapsedWorkTime);
+                    if (adjustedRemainingWorkTime <= TimeSpan.Zero)
+                        break;
+
+                    workIntervalEndTime = TimeHelper.AdjustForMidnight(currentTime, adjustedRemainingWorkTime);
+                    workDuration = adjustedRemainingWorkTime;
+                    intervalPlan = planCalculator.Calculate(currentTime, workIntervalEndTime, productContext);
+
+                    if (intervalPlan <= 0)
+                        break;
+                }
+
                 var workRow = formRowDataFactory.CreateWorkRow(
                     localOrder++,
                     indicators.WorkTime!,
@@ -151,8 +167,6 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                 rows.Add(workRow);
                 hasWorkRows = true;
                 accumulatedPlan += intervalPlan;
-
-                var workDuration = TimeHelper.CalculateDurationAcrossMidnight(currentTime, workIntervalEndTime);
                 currentTime = workIntervalEndTime;
                 elapsedWorkTime = elapsedWorkTime.Add(workDuration);
 

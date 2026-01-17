@@ -72,6 +72,16 @@ public abstract class SingleProductInitializationStrategyBase(
             }
             else
             {
+                if (!shiftTimeManager.CanAddWorkInterval(elapsedWorkTime, workIntervalDuration))
+                {
+                    var adjustedRemainingWorkTime = shiftTimeManager.GetRemainingWorkTime(elapsedWorkTime);
+                    if (adjustedRemainingWorkTime <= TimeSpan.Zero)
+                        break;
+
+                    workIntervalDuration = adjustedRemainingWorkTime;
+                    workIntervalEndTime = TimeHelper.AdjustForMidnight(currentTime, workIntervalDuration);
+                }
+
                 var workRow = formRowDataFactory.CreateWorkRow(
                     order++,
                     indicators.WorkTime!,
