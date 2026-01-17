@@ -32,7 +32,6 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
 
         var allRows = new List<FormRowData>();
         short globalOrder = 1;
-        var currentTime = context.ShiftStartTime;
         var globalBreakIndex = 0;
 
         var productsList = multiProducts.Products.ToList();
@@ -45,7 +44,6 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
             var isLastProduct = i == productsList.Count - 1;
 
             var (productRows, endTime, newBreakIndex) = InitializeRowsForProduct(
-                currentTime,
                 context.SortedSchedules,
                 context.Indicators,
                 context.AuxiliaryOperations,
@@ -69,16 +67,10 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                 if (retoolingRow != null)
                 {
                     allRows.Add(retoolingRow);
-                    currentTime = endTimeExtractor.ExtractEndTime(retoolingRow);
+                    var retoolingEndTime = endTimeExtractor.ExtractEndTime(retoolingRow);
+                    var retoolingDuration = TimeHelper.CalculateDurationAcrossMidnight(endTime, retoolingEndTime);
+                    worktimeTracker.AdvanceTime(retoolingDuration);
                 }
-                else
-                {
-                    currentTime = endTime;
-                }
-            }
-            else
-            {
-                currentTime = endTime;
             }
         }
 
@@ -86,7 +78,6 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
     }
 
     private (List<FormRowData> Rows, TimeOnly EndTime, int NewBreakIndex) InitializeRowsForProduct(
-        TimeOnly shiftStartTime,
         IList<ShiftScheduleDto> sortedBreaks,
         InitializedIndicators indicators,
         Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
@@ -97,7 +88,6 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
         ref short order)
     {
         var rows = new List<FormRowData>();
-        var currentTime = shiftStartTime;
         var breakIndex = startBreakIndex;
         var localOrder = order;
         var hasWorkRows = false;
@@ -105,6 +95,7 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
 
         while (!workTimeTracker.IsComplete)
         {
+            var currentTime = workTimeTracker.CurrentTime;
             var nextBreak = GetNextBreak(sortedBreaks, breakIndex);
             var workIntervalDuration = workTimeTracker.GetNextWorkIntervalDuration();
 
@@ -147,7 +138,7 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                     break;
 
                 var workDuration = TimeHelper.CalculateDurationAcrossMidnight(currentTime, workIntervalEndTime);
-                var actualDuration = workTimeTracker.AddAndGetActual(workDuration);
+                var actualDuration = workTimeTracker.AdvanceWorktime(workDuration);
 
                 if (actualDuration <= TimeSpan.Zero)
                     break;
@@ -172,7 +163,6 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                 rows.Add(workRow);
                 hasWorkRows = true;
                 accumulatedPlan += intervalPlan;
-                currentTime = workIntervalEndTime;
 
                 if (accumulatedPlan >= productContext.DailyRate)
                     break;
@@ -185,6 +175,7 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
             localOrder,
             auxiliaryOperations,
             indicators,
+            workTimeTracker,
             productContext,
             isLastProduct);
 
@@ -192,7 +183,7 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
 
         var endTime = remainingBreakRows.Count > 0
             ? endTimeExtractor.ExtractEndTime(remainingBreakRows.Last())
-            : currentTime;
+            : workTimeTracker.CurrentTime;
 
         order = (short)(localOrder + remainingBreakRows.Count);
         return (rows, endTime, breakIndex + remainingBreakRows.Count);
@@ -265,6 +256,7 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
         short localOrder,
         Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
         InitializedIndicators indicators,
+        IWorkTimeTracker workTimeTracker,
         ProductContext productContext,
         bool isLastProduct)
     {
@@ -274,6 +266,7 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
             localOrder,
             auxiliaryOperations,
             indicators,
+            workTimeTracker,
             productContext,
             isLast: isLastProduct).ToList();
     }

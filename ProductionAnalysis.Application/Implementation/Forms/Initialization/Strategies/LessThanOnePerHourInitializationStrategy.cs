@@ -32,12 +32,12 @@ public class LessThanOnePerHourInitializationStrategy(
         var cycleDuration = OperationService.CalculateCycleDuration(relatedOperations);
 
         var rows = new List<FormRowData>();
-        var currentTime = context.ShiftStartTime;
         var breakIndex = 0;
         short order = 1;
 
         while (!worktimeTracker.IsComplete)
         {
+            var currentTime = worktimeTracker.CurrentTime;
             var nextBreak = GetNextBreak(context.SortedSchedules, breakIndex);
             var remainingWorkTime = worktimeTracker.RemainingWorkTime;
             var timeUntilBreak =
@@ -61,7 +61,7 @@ public class LessThanOnePerHourInitializationStrategy(
             else if (remainingWorkTime.TotalSeconds >= cycleDuration)
             {
                 var cycleDurationSpan = TimeSpan.FromSeconds(cycleDuration);
-                var actualDuration = worktimeTracker.AddAndGetActual(cycleDurationSpan);
+                var actualDuration = worktimeTracker.AdvanceWorktime(cycleDurationSpan);
 
                 if (actualDuration <= TimeSpan.Zero)
                     break;
@@ -79,11 +79,10 @@ public class LessThanOnePerHourInitializationStrategy(
                     relatedOperations);
 
                 rows.AddRange(cycleRows);
-                currentTime = cycleEndTime;
             }
             else
             {
-                var actualDuration = worktimeTracker.AddAndGetActual(remainingWorkTime);
+                var actualDuration = worktimeTracker.AdvanceWorktime(remainingWorkTime);
                 var cycleEndTime = currentTime.Add(actualDuration);
 
                 var cycleRows = formRowDataFactory.CreateOperationCycleRows(
@@ -106,7 +105,8 @@ public class LessThanOnePerHourInitializationStrategy(
             breakIndex,
             order,
             context.AuxiliaryOperations,
-            context.Indicators);
+            context.Indicators,
+            worktimeTracker);
 
         rows.AddRange(remainingBreakRows);
         return rows;

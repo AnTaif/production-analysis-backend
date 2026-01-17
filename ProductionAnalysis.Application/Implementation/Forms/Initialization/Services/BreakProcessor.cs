@@ -55,16 +55,22 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
         if (currentTime < breakSchedule.StartTime)
         {
             var workDuration = breakSchedule.StartTime - currentTime;
-            var workRow = formRowDataFactory.CreateWorkRow(
-                order++,
-                indicators.WorkTime!,
-                indicators.Plan,
-                currentTime,
-                breakSchedule.StartTime,
-                productContext);
 
-            rows.Add(workRow);
+            if (productContext is not null)
+            {
+                var workRow = formRowDataFactory.CreateWorkRow(
+                    order++,
+                    indicators.WorkTime!,
+                    indicators.Plan,
+                    currentTime,
+                    breakSchedule.StartTime,
+                    productContext);
+
+                rows.Add(workRow);
+            }
+
             elapsedWorkTime = elapsedWorkTime.Add(workDuration);
+            currentTime = breakSchedule.StartTime;
         }
 
         var breakMetaInfo = auxiliaryOperations[breakSchedule.AuxiliaryOperationId];

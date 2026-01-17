@@ -32,7 +32,6 @@ public class LessThanOnePerShiftInitializationStrategy(
         var shiftStartMinutes = context.ShiftStartTime.TotalMinutes();
 
         var rows = new List<FormRowData>();
-        var currentTime = context.ShiftStartTime;
         var breakIndex = 0;
         short order = 1;
         var operationIndex = 0;
@@ -40,6 +39,7 @@ public class LessThanOnePerShiftInitializationStrategy(
 
         while (operationIndex < operationsList.Count && !worktimeTracker.IsComplete)
         {
+            var currentTime = worktimeTracker.CurrentTime;
             var nextBreak = GetNextBreak(context.SortedSchedules, breakIndex);
 
             if (ShouldProcessBreak(nextBreak, currentTime))
@@ -69,7 +69,7 @@ public class LessThanOnePerShiftInitializationStrategy(
                 operationDuration = TimeHelper.CalculateDurationAcrossMidnight(currentTime, operationEndTime);
             }
 
-            var actualDuration = worktimeTracker.AddAndGetActual(operationDuration);
+            var actualDuration = worktimeTracker.AdvanceWorktime(operationDuration);
 
             if (actualDuration <= TimeSpan.Zero)
                 break;
@@ -91,7 +91,6 @@ public class LessThanOnePerShiftInitializationStrategy(
                 shiftStartMinutes);
 
             rows.Add(operationRow);
-            currentTime = operationEndTime;
             operationIndex++;
         }
 
@@ -100,7 +99,8 @@ public class LessThanOnePerShiftInitializationStrategy(
             breakIndex,
             order,
             context.AuxiliaryOperations,
-            context.Indicators);
+            context.Indicators,
+            worktimeTracker);
 
         rows.AddRange(remainingBreakRows);
         return rows;

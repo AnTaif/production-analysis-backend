@@ -2,20 +2,23 @@ namespace ProductionAnalysis.Application.Implementation.Forms.Initialization.Ser
 
 public interface IWorkTimeTracker
 {
+    TimeOnly CurrentTime { get; }
     TimeSpan ElapsedWorkTime { get; }
     TimeSpan RemainingWorkTime { get; }
     TimeSpan TotalWorkTime { get; }
     bool IsComplete { get; }
     TimeSpan GetNextWorkIntervalDuration();
     TimeSpan GetAdjustedDuration(TimeSpan requestedDuration);
-    TimeSpan AddAndGetActual(TimeSpan duration);
-    void Add(TimeSpan duration);
+    TimeSpan AdvanceWorktime(TimeSpan duration);
+    void AdvanceTime(TimeSpan duration);
 }
 
-public class WorkTimeTracker : IWorkTimeTracker
+public class WorkTimeTracker(TimeOnly shiftStartTime) : IWorkTimeTracker
 {
     private TimeSpan elapsedWorkTime = TimeSpan.Zero;
+    private TimeOnly currentTime = shiftStartTime;
 
+    public TimeOnly CurrentTime => currentTime;
     public TimeSpan ElapsedWorkTime => elapsedWorkTime;
     public TimeSpan TotalWorkTime { get; } = TimeSpan.FromHours(ShiftConstants.ShiftDurationHours);
 
@@ -46,17 +49,17 @@ public class WorkTimeTracker : IWorkTimeTracker
         return RemainingWorkTime;
     }
 
-    public TimeSpan AddAndGetActual(TimeSpan duration)
+    public TimeSpan AdvanceWorktime(TimeSpan duration)
     {
         var adjusted = GetAdjustedDuration(duration);
         elapsedWorkTime = elapsedWorkTime.Add(adjusted);
+        currentTime = currentTime.Add(adjusted);
         return adjusted;
     }
 
-    public void Add(TimeSpan duration)
+    public void AdvanceTime(TimeSpan duration)
     {
-        var adjusted = GetAdjustedDuration(duration);
-        elapsedWorkTime = elapsedWorkTime.Add(adjusted);
+        currentTime = currentTime.Add(duration);
     }
 
     private bool CanAddInterval(TimeSpan duration)

@@ -84,7 +84,7 @@ public class FormRowInitializer(
             AuxiliaryOperations = auxiliaryOperations,
             AllOperations = allOperations,
             Indicators = initializedIndicators,
-            WorkTimeTracker = new WorkTimeTracker()
+            WorkTimeTracker = new WorkTimeTracker(shiftStartTime)
         };
     }
 }

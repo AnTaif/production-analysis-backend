@@ -48,6 +48,7 @@ public abstract class RowInitializationStrategyBase(
         short startOrder,
         Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
         InitializedIndicators indicators,
+        IWorkTimeTracker workTimeTracker,
         ProductContext? productContext = null,
         bool isLast = true)
     {
@@ -57,13 +58,23 @@ public abstract class RowInitializationStrategyBase(
         if (remainingBreaks.Count == 0)
             return new List<FormRowData>();
 
-        return breakProcessor.ProcessRemainingBreaks(
+        var rows = breakProcessor.ProcessRemainingBreaks(
             remainingBreaks,
             startOrder,
             auxiliaryOperations,
             indicators,
             productContext,
             isLast);
+
+        if (rows.Count > 0)
+        {
+            var lastBreak = remainingBreaks.Last();
+            var lastBreakMetaInfo = auxiliaryOperations[lastBreak.AuxiliaryOperationId];
+            var breakDuration = lastBreakMetaInfo.Duration;
+            workTimeTracker.AdvanceTime(breakDuration);
+        }
+
+        return rows;
     }
 
     protected BreakProcessingResult ProcessBreakWithTracking(
@@ -76,6 +87,7 @@ public abstract class RowInitializationStrategyBase(
         ref TimeOnly currentTime,
         bool isFirst = false)
     {
+        currentTime = workTimeTracker.CurrentTime;
         var elapsedWorkTimeBeforeBreak = workTimeTracker.ElapsedWorkTime;
         var elapsedWorkTimeForBreak = elapsedWorkTimeBeforeBreak;
 
@@ -92,8 +104,12 @@ public abstract class RowInitializationStrategyBase(
         var workTimeUsed = elapsedWorkTimeForBreak - elapsedWorkTimeBeforeBreak;
         if (workTimeUsed > TimeSpan.Zero)
         {
-            workTimeTracker.Add(workTimeUsed);
+            workTimeTracker.AdvanceWorktime(workTimeUsed);
         }
+
+        var breakMetaInfo = auxiliaryOperations[breakSchedule.AuxiliaryOperationId];
+        var breakDuration = breakMetaInfo.Duration;
+        workTimeTracker.AdvanceTime(breakDuration);
 
         return breakResult;
     }

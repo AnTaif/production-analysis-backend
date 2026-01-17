@@ -21,7 +21,6 @@ public abstract class SingleProductInitializationStrategyBase(
         var productContext = context.FormContext.Require<ProductContext>(FormContextAccessor.ProductContextKey);
 
         var (rows, _) = InitializeRowsForProduct(
-            context.ShiftStartTime,
             context.SortedSchedules,
             context.Indicators,
             context.AuxiliaryOperations,
@@ -32,7 +31,6 @@ public abstract class SingleProductInitializationStrategyBase(
     }
 
     private (List<FormRowData> Rows, TimeOnly EndTime) InitializeRowsForProduct(
-        TimeOnly shiftStartTime,
         IList<ShiftScheduleDto> sortedBreaks,
         InitializedIndicators indicators,
         Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
@@ -40,13 +38,13 @@ public abstract class SingleProductInitializationStrategyBase(
         IWorkTimeTracker workTimeTracker)
     {
         var rows = new List<FormRowData>();
-        var currentTime = shiftStartTime;
         var breakIndex = 0;
         short order = 1;
         var hasWorkRows = false;
 
         while (!workTimeTracker.IsComplete)
         {
+            var currentTime = workTimeTracker.CurrentTime;
             var nextBreak = GetNextBreak(sortedBreaks, breakIndex);
             var workIntervalDuration = workTimeTracker.GetNextWorkIntervalDuration();
 
@@ -74,7 +72,7 @@ public abstract class SingleProductInitializationStrategyBase(
             }
             else
             {
-                var actualDuration = workTimeTracker.AddAndGetActual(workIntervalDuration);
+                var actualDuration = workTimeTracker.AdvanceWorktime(workIntervalDuration);
                 var actualEndTime = TimeHelper.AdjustForMidnight(currentTime, actualDuration);
 
                 var workRow = formRowDataFactory.CreateWorkRow(
@@ -87,7 +85,6 @@ public abstract class SingleProductInitializationStrategyBase(
 
                 rows.Add(workRow);
                 hasWorkRows = true;
-                currentTime = actualEndTime;
             }
         }
 
@@ -97,6 +94,7 @@ public abstract class SingleProductInitializationStrategyBase(
             order,
             auxiliaryOperations,
             indicators,
+            workTimeTracker,
             productContext,
             isLast: true);
 
@@ -104,7 +102,7 @@ public abstract class SingleProductInitializationStrategyBase(
 
         var endTime = remainingBreakRows.Count > 0
             ? endTimeExtractor.ExtractEndTime(remainingBreakRows.Last())
-            : currentTime;
+            : workTimeTracker.CurrentTime;
 
         return (rows, endTime);
     }
