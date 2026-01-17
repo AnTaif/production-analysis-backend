@@ -711,7 +711,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 4,
-                Name = "Отклонение, шт",
+                Name = "Отклонен, шт",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Formula,
                 ValueSelector = "",
@@ -872,7 +872,7 @@ public class PaDataSeeder(
             new IndicatorDbo
             {
                 Id = 21,
-                Name = "Отклонение накоп, шт",
+                Name = "Отклонен накоп, шт",
                 ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Cumulative,
                 ValueSelector = "4", // ID базового индикатора

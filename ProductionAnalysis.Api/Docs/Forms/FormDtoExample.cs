@@ -134,7 +134,7 @@ public class FormDtoExample : IExamplesProvider<FormDto>
                     new()
                     {
                         Id = 3,
-                        Name = "Отклонение, шт.",
+                        Name = "Отклонен, шт.",
                         InputType = "formula",
                         InputSelector = "",
                         ValueType = "number"
