@@ -1,23 +1,26 @@
 using ProductionAnalysis.Application.Domain.Forms;
+using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Application.Implementation.Forms.Initialization.Services;
 using ProductionAnalysis.Client.Models.Dictionaries;
 
 namespace ProductionAnalysis.Application.Implementation.Forms.Initialization.Strategies.Common;
 
 public abstract class RowInitializationStrategyBase(
-    ICleanupOperationHandler cleanupHandler
+    ICleanupOperationHandler cleanupHandler,
+    IFormRowEndTimeExtractor endTimeExtractor,
+    IBreakProcessor breakProcessor
 ) : IRowInitializationStrategy
 {
     public abstract bool CanHandle(PaType paType);
 
-    public async Task<ICollection<FormRowData>> InitializeAsync(RowInitializationContext context)
+    public ICollection<FormRowData> Initialize(RowInitializationContext context)
     {
         var filteredContext = CreateFilteredContext(context);
-        var rows = await InitializeRowsAsync(filteredContext);
+        var rows = InitializeRows(filteredContext);
         return AppendCleanupOperation(rows, context);
     }
 
-    protected abstract Task<ICollection<FormRowData>> InitializeRowsAsync(RowInitializationContext context);
+    protected abstract ICollection<FormRowData> InitializeRows(RowInitializationContext context);
 
     protected static ShiftScheduleDto? GetNextBreak(IList<ShiftScheduleDto> sortedBreaks, int breakIndex)
     {
@@ -39,6 +42,30 @@ public abstract class RowInitializationStrategyBase(
         return cleanupHandler.FilterOutCleanup(rows);
     }
 
+    protected ICollection<FormRowData> ProcessRemainingBreaks(
+        IList<ShiftScheduleDto> sortedBreaks,
+        int breakIndex,
+        short startOrder,
+        Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
+        InitializedIndicators indicators,
+        ProductContext? productContext = null,
+        bool isLast = true)
+    {
+        var remainingBreaks = FilterOutCleanup(
+            sortedBreaks.Skip(breakIndex).ToList());
+
+        if (remainingBreaks.Count == 0)
+            return new List<FormRowData>();
+
+        return breakProcessor.ProcessRemainingBreaks(
+            remainingBreaks,
+            startOrder,
+            auxiliaryOperations,
+            indicators,
+            productContext,
+            isLast);
+    }
+
     private RowInitializationContext CreateFilteredContext(RowInitializationContext originalContext)
     {
         var filteredSchedules = cleanupHandler.FilterOutCleanup(originalContext.SortedSchedules);
@@ -50,6 +77,7 @@ public abstract class RowInitializationStrategyBase(
             Template = originalContext.Template,
             FormContext = originalContext.FormContext,
             AuxiliaryOperations = originalContext.AuxiliaryOperations,
+            AllOperations = originalContext.AllOperations,
             Indicators = originalContext.Indicators
         };
     }
@@ -59,8 +87,8 @@ public abstract class RowInitializationStrategyBase(
         RowInitializationContext context)
     {
         var rowsList = rows.ToList();
-        var endTime = CalculateEndTime(rowsList);
-        var nextOrder = GetNextOrder(rowsList);
+        var endTime = endTimeExtractor.ExtractEndTime(rowsList);
+        var nextOrder = CalculateNextOrder(rowsList);
 
         var cleanupRow = cleanupHandler.CreateCleanupRow(
             endTime,
@@ -76,39 +104,18 @@ public abstract class RowInitializationStrategyBase(
         return rowsList;
     }
 
-    private static TimeOnly CalculateEndTime(List<FormRowData> rows)
+    private static short CalculateNextOrder(List<FormRowData> rows)
     {
         if (rows.Count == 0)
-            return new TimeOnly(0, 0);
+            return 1;
 
-        var lastRow = rows.Last();
-
-        foreach (var value in lastRow.Values)
+        var maxOrder = rows[0].Order;
+        for (var i = 1; i < rows.Count; i++)
         {
-            if (value.Value is TimeOnly timeOnly)
-            {
-                return timeOnly;
-            }
-
-            if (value.Value is string timeString)
-            {
-                var parts = timeString.Split('-');
-                if (parts.Length >= 2)
-                {
-                    var endTimePart = parts[1].Split(' ')[0].Trim();
-                    if (TimeOnly.TryParse(endTimePart, out var endTime))
-                    {
-                        return endTime;
-                    }
-                }
-            }
+            if (rows[i].Order > maxOrder)
+                maxOrder = rows[i].Order;
         }
 
-        return new TimeOnly(23, 59);
-    }
-
-    private static short GetNextOrder(List<FormRowData> rows)
-    {
-        return (short)(rows.Count > 0 ? rows.Max(r => r.Order) + 1 : 1);
+        return (short)(maxOrder + 1);
     }
 }

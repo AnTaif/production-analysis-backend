@@ -5,5 +5,5 @@ namespace ProductionAnalysis.Application.Implementation.Forms.Initialization.Str
 public interface IRowInitializationStrategy
 {
     bool CanHandle(PaType paType);
-    Task<ICollection<FormRowData>> InitializeAsync(RowInitializationContext context);
+    ICollection<FormRowData> Initialize(RowInitializationContext context);
 }

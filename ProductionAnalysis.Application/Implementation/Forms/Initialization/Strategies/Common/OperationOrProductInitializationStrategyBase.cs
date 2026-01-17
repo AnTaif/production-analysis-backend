@@ -6,24 +6,28 @@ namespace ProductionAnalysis.Application.Implementation.Forms.Initialization.Str
 
 public abstract class OperationOrProductInitializationStrategyBase(
     IOperationService operationService,
-    ICleanupOperationHandler cleanupHandler
-) : RowInitializationStrategyBase(cleanupHandler)
+    ICleanupOperationHandler cleanupHandler,
+    IFormRowEndTimeExtractor endTimeExtractor,
+    IBreakProcessor breakProcessor
+) : RowInitializationStrategyBase(cleanupHandler, endTimeExtractor, breakProcessor)
 {
     protected readonly IOperationService OperationService = operationService;
 
-    protected async Task<ICollection<OperationDto>> GetRelatedOperationsAsync(
-        OperationOrProductContext operationContext)
+    protected ICollection<OperationDto> GetRelatedOperations(
+        OperationOrProductContext operationContext,
+        ICollection<OperationDto> allOperations)
     {
         ICollection<OperationDto> relatedOperations;
 
         if (operationContext is { IsOperationBased: true, OperationId: not null })
         {
-            relatedOperations = await OperationService.GetRelatedOperationsAsync(operationContext.OperationId.Value);
+            relatedOperations =
+                OperationService.GetRelatedOperations(operationContext.OperationId.Value, allOperations);
         }
         else if (operationContext is { IsProductBased: true, ProductId: not null })
         {
             relatedOperations =
-                await OperationService.GetRelatedOperationsByProductIdAsync(operationContext.ProductId.Value);
+                OperationService.GetRelatedOperationsByProductId(operationContext.ProductId.Value, allOperations);
         }
         else
         {

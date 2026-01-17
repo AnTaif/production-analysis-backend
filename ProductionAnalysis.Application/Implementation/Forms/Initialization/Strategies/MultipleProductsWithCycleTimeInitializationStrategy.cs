@@ -1,6 +1,5 @@
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Forms.Context;
-using ProductionAnalysis.Application.Implementation.Forms.Initialization.Constants;
 using ProductionAnalysis.Application.Implementation.Forms.Initialization.Services;
 using ProductionAnalysis.Application.Implementation.Forms.Initialization.Strategies.Common;
 using ProductionAnalysis.Client.Models.Dictionaries;
@@ -13,16 +12,20 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
     IShiftTimeManager shiftTimeManager,
     IPlanCalculator planCalculator,
     ICleanupOperationHandler cleanupHandler,
-    IRetoolingOperationHandler retoolingHandler
+    IRetoolingOperationHandler retoolingHandler,
+    IFormRowEndTimeExtractor endTimeExtractor
 )
-    : RowInitializationStrategyBase(cleanupHandler), IRowInitializationStrategy
+    : RowInitializationStrategyBase(cleanupHandler, endTimeExtractor, breakProcessor), IRowInitializationStrategy
 {
+    private readonly IFormRowEndTimeExtractor endTimeExtractor = endTimeExtractor;
+    private readonly IBreakProcessor breakProcessor = breakProcessor;
+
     public override bool CanHandle(PaType paType)
     {
         return paType == PaType.MultipleProductsWithCycleTime;
     }
 
-    protected override Task<ICollection<FormRowData>> InitializeRowsAsync(RowInitializationContext context)
+    protected override ICollection<FormRowData> InitializeRows(RowInitializationContext context)
     {
         var multiProducts =
             context.FormContext.Require<MultiProductContext>(FormContextAccessor.MultiProductContextKey);
@@ -62,7 +65,7 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                 if (retoolingRow != null)
                 {
                     allRows.Add(retoolingRow);
-                    currentTime = endTime.Add(context.AuxiliaryOperations[AuxiliaryOperationIds.Retooling].Duration);
+                    currentTime = endTimeExtractor.ExtractEndTime(retoolingRow);
                 }
                 else
                 {
@@ -75,7 +78,7 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
             }
         }
 
-        return Task.FromResult<ICollection<FormRowData>>(allRows);
+        return allRows;
     }
 
     private (List<FormRowData> Rows, TimeOnly EndTime, int NewBreakIndex) InitializeRowsForProduct(
@@ -169,8 +172,9 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
 
         rows.AddRange(remainingBreakRows);
 
-        var endTime = CalculateEndTime(currentTime, remainingBreakRows, sortedBreaks, breakIndex, auxiliaryOperations,
-            isLastProduct);
+        var endTime = remainingBreakRows.Count > 0
+            ? endTimeExtractor.ExtractEndTime(remainingBreakRows.Last())
+            : currentTime;
 
         order = (short)(localOrder + remainingBreakRows.Count);
         return (rows, endTime, breakIndex + remainingBreakRows.Count);
@@ -246,54 +250,13 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
         ProductContext productContext,
         bool isLastProduct)
     {
-        var remainingBreaks = FilterOutCleanup(
-            sortedBreaks.Skip(breakIndex).ToList());
-
-        if (remainingBreaks.Count == 0)
-            return new List<FormRowData>();
-
-        var remainingBreakRows = breakProcessor.ProcessRemainingBreaks(
-            remainingBreaks,
+        return ProcessRemainingBreaks(
+            sortedBreaks,
+            breakIndex,
             localOrder,
             auxiliaryOperations,
             indicators,
             productContext,
             isLast: isLastProduct).ToList();
-
-        return remainingBreakRows;
-    }
-
-    private TimeOnly CalculateEndTime(
-        TimeOnly currentTime,
-        List<FormRowData> remainingBreakRows,
-        IList<ShiftScheduleDto> sortedBreaks,
-        int breakIndex,
-        Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
-        bool isLastProduct)
-    {
-        if (!isLastProduct || remainingBreakRows.Count == 0)
-            return currentTime;
-
-        var remainingBreaks = FilterOutCleanup(
-            sortedBreaks.Skip(breakIndex).ToList());
-
-        var maxEndTime = currentTime;
-
-        foreach (var breakSchedule in remainingBreaks)
-        {
-            if (!auxiliaryOperations.TryGetValue(breakSchedule.AuxiliaryOperationId, out var breakOperation))
-                continue;
-
-            var breakEndTime = TimeHelper.AdjustForMidnight(
-                breakSchedule.StartTime,
-                breakOperation.Duration);
-
-            if (breakEndTime > maxEndTime)
-            {
-                maxEndTime = breakEndTime;
-            }
-        }
-
-        return maxEndTime;
     }
 }

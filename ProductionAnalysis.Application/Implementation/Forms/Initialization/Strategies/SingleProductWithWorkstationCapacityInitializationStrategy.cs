@@ -8,10 +8,11 @@ public class SingleProductWithWorkstationCapacityInitializationStrategy(
     IFormRowDataFactory formRowDataFactory,
     IBreakProcessor breakProcessor,
     IShiftTimeManager shiftTimeManager,
-    ICleanupOperationHandler cleanupOperationHandler
+    ICleanupOperationHandler cleanupOperationHandler,
+    IFormRowEndTimeExtractor endTimeExtractor
 )
     : SingleProductInitializationStrategyBase(formRowDataFactory, breakProcessor, shiftTimeManager,
-        cleanupOperationHandler)
+        cleanupOperationHandler, endTimeExtractor)
 {
     public override bool CanHandle(PaType paType)
     {

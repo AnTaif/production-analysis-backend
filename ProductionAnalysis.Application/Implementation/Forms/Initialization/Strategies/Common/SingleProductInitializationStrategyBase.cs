@@ -9,11 +9,15 @@ public abstract class SingleProductInitializationStrategyBase(
     IFormRowDataFactory formRowDataFactory,
     IBreakProcessor breakProcessor,
     IShiftTimeManager shiftTimeManager,
-    ICleanupOperationHandler cleanupHandler
+    ICleanupOperationHandler cleanupHandler,
+    IFormRowEndTimeExtractor endTimeExtractor
 )
-    : RowInitializationStrategyBase(cleanupHandler)
+    : RowInitializationStrategyBase(cleanupHandler, endTimeExtractor, breakProcessor)
 {
-    protected override async Task<ICollection<FormRowData>> InitializeRowsAsync(RowInitializationContext context)
+    private readonly IFormRowEndTimeExtractor endTimeExtractor = endTimeExtractor;
+    private readonly IBreakProcessor breakProcessor = breakProcessor;
+
+    protected override ICollection<FormRowData> InitializeRows(RowInitializationContext context)
     {
         var productContext = context.FormContext.Require<ProductContext>(FormContextAccessor.ProductContextKey);
 
@@ -54,7 +58,7 @@ public abstract class SingleProductInitializationStrategyBase(
                 var isFirst = !hasWorkRows && currentTime >= nextBreak!.StartTime;
 
                 var breakResult = breakProcessor.ProcessBreak(
-                    nextBreak,
+                    nextBreak!,
                     auxiliaryOperations,
                     indicators,
                     productContext,
@@ -83,23 +87,22 @@ public abstract class SingleProductInitializationStrategyBase(
             }
         }
 
-        var remainingBreaks = FilterOutCleanup(
-            sortedBreaks.Skip(breakIndex).ToList());
+        var remainingBreakRows = ProcessRemainingBreaks(
+            sortedBreaks,
+            breakIndex,
+            order,
+            auxiliaryOperations,
+            indicators,
+            productContext,
+            isLast: true);
 
-        if (remainingBreaks.Count > 0)
-        {
-            var remainingBreakRows = breakProcessor.ProcessRemainingBreaks(
-                remainingBreaks,
-                order,
-                auxiliaryOperations,
-                indicators,
-                productContext,
-                isLast: true);
+        rows.AddRange(remainingBreakRows);
 
-            rows.AddRange(remainingBreakRows);
-        }
+        var endTime = remainingBreakRows.Count > 0
+            ? endTimeExtractor.ExtractEndTime(remainingBreakRows.Last())
+            : currentTime;
 
-        return (rows, currentTime);
+        return (rows, endTime);
     }
 
     private bool ShouldProcessBreak(

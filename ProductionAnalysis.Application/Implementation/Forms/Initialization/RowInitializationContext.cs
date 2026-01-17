@@ -11,5 +11,6 @@ public class RowInitializationContext
     public Template Template { get; init; } = null!;
     public required Dictionary<string, FormContext> FormContext { get; init; }
     public Dictionary<int, AuxiliaryOperationDto> AuxiliaryOperations { get; init; } = new();
+    public ICollection<OperationDto> AllOperations { get; init; } = new List<OperationDto>();
     public InitializedIndicators Indicators { get; init; } = null!;
 }

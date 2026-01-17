@@ -6,8 +6,8 @@ namespace ProductionAnalysis.Application.Implementation.Forms.Initialization.Ser
 public interface IOperationService
 {
     Task<ICollection<OperationDto>> LoadOperationsAsync();
-    Task<ICollection<OperationDto>> GetRelatedOperationsAsync(int operationId);
-    Task<ICollection<OperationDto>> GetRelatedOperationsByProductIdAsync(int productId);
+    ICollection<OperationDto> GetRelatedOperations(int operationId, ICollection<OperationDto> allOperations);
+    ICollection<OperationDto> GetRelatedOperationsByProductId(int productId, ICollection<OperationDto> allOperations);
     double CalculateCycleDuration(ICollection<OperationDto> operations);
 }
 
@@ -19,33 +19,27 @@ public class OperationService(IPaUnitOfWork unitOfWork) : IOperationService
         return await unitOfWork.Dictionaries.SelectOperationsAsync();
     }
 
-    public async Task<ICollection<OperationDto>> GetRelatedOperationsAsync(int operationId)
+    public ICollection<OperationDto> GetRelatedOperations(int operationId, ICollection<OperationDto> allOperations)
     {
-        var allOperations = await LoadOperationsAsync();
         var operationsById = allOperations.ToDictionary(op => op.Id);
         var result = new List<OperationDto>();
         var visited = new HashSet<int>();
 
         if (!operationsById.TryGetValue(operationId, out var mainOperation)) return result;
 
-        // Добавляем основную операцию
         result.Add(mainOperation);
         visited.Add(operationId);
-
-        // Собираем все операции, которые связаны с основной операцией или продуктом
-        // через BasedOperationId или BasedProductId
         CollectRelatedOperations(mainOperation, operationsById, result, visited);
 
         return result;
     }
 
-    public async Task<ICollection<OperationDto>> GetRelatedOperationsByProductIdAsync(int productId)
+    public ICollection<OperationDto> GetRelatedOperationsByProductId(int productId,
+        ICollection<OperationDto> allOperations)
     {
-        var allOperations = await LoadOperationsAsync();
         var result = new List<OperationDto>();
         var visited = new HashSet<int>();
 
-        // Находим все операции, связанные с продуктом через BasedProductId
         var productOperations = allOperations
             .Where(op => op.BasedOnType == OperationBasedOnType.Product &&
                          op.BasedProductId == productId)
@@ -53,15 +47,12 @@ public class OperationService(IPaUnitOfWork unitOfWork) : IOperationService
 
         if (productOperations.Count == 0) return result;
 
-        // Добавляем все операции, связанные с продуктом
-        // Для продуктов используем только BasedProductId, не BasedOperationId
         foreach (var productOp in productOperations)
         {
             if (!visited.Contains(productOp.Id))
             {
                 visited.Add(productOp.Id);
                 result.Add(productOp);
-                // Собираем только операции, связанные через BasedProductId
                 CollectRelatedOperationsByProduct(productOp, allOperations.ToDictionary(op => op.Id), result, visited,
                     productId);
             }

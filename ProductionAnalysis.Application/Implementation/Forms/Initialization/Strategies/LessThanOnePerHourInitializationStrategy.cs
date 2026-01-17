@@ -11,20 +11,25 @@ public class LessThanOnePerHourInitializationStrategy(
     IBreakProcessor breakProcessor,
     IShiftTimeManager shiftTimeManager,
     IOperationService operationService,
-    ICleanupOperationHandler cleanupHandler
+    ICleanupOperationHandler cleanupHandler,
+    ITimeIntervalCalculator timeIntervalCalculator,
+    IFormRowEndTimeExtractor endTimeExtractor
 )
-    : OperationOrProductInitializationStrategyBase(operationService, cleanupHandler), IRowInitializationStrategy
+    : OperationOrProductInitializationStrategyBase(operationService, cleanupHandler, endTimeExtractor, breakProcessor),
+        IRowInitializationStrategy
 {
+    private readonly IBreakProcessor breakProcessor = breakProcessor;
+
     public override bool CanHandle(PaType paType)
     {
         return paType == PaType.LessThanOnePerHour;
     }
 
-    protected override async Task<ICollection<FormRowData>> InitializeRowsAsync(RowInitializationContext context)
+    protected override ICollection<FormRowData> InitializeRows(RowInitializationContext context)
     {
         var operationContext =
             context.FormContext.Require<OperationOrProductContext>(FormContextAccessor.OperationOrProductContextKey);
-        var relatedOperations = await GetRelatedOperationsAsync(operationContext);
+        var relatedOperations = GetRelatedOperations(operationContext, context.AllOperations);
 
         var totalWorkTime = shiftTimeManager.GetTotalWorkTime();
         var cycleDuration = OperationService.CalculateCycleDuration(relatedOperations);
@@ -39,28 +44,22 @@ public class LessThanOnePerHourInitializationStrategy(
         {
             var nextBreak = GetNextBreak(context.SortedSchedules, breakIndex);
             var remainingWorkTime = totalWorkTime - elapsedWorkTime;
-
-            var timeUntilBreak = nextBreak != null
-                ? (nextBreak.StartTime - currentTime).TotalSeconds
-                : remainingWorkTime.TotalSeconds;
+            var timeUntilBreak =
+                timeIntervalCalculator.CalculateTimeUntilBreak(currentTime, nextBreak, remainingWorkTime);
 
             if (ShouldProcessBreak(nextBreak, timeUntilBreak, cycleDuration))
             {
-                var breakMetaInfo = context.AuxiliaryOperations[nextBreak!.AuxiliaryOperationId];
-                var breakEndTime = nextBreak.StartTime.Add(breakMetaInfo.Duration);
+                var breakResult = breakProcessor.ProcessBreak(
+                    nextBreak!,
+                    context.AuxiliaryOperations,
+                    context.Indicators,
+                    null,
+                    ref order,
+                    ref currentTime,
+                    ref elapsedWorkTime,
+                    isFirst: false);
 
-                var breakRow = formRowDataFactory.CreateBreakRow(
-                    order++,
-                    context.Indicators.WorkTime,
-                    nextBreak.StartTime,
-                    breakEndTime,
-                    breakMetaInfo.Name,
-                    nextBreak.AuxiliaryOperationId,
-                    null);
-
-                rows.Add(breakRow);
-                currentTime = breakEndTime;
-                elapsedWorkTime = elapsedWorkTime.Add(breakMetaInfo.Duration);
+                rows.AddRange(breakResult.Rows);
                 breakIndex++;
             }
             else if (remainingWorkTime.TotalSeconds >= cycleDuration)
@@ -100,25 +99,18 @@ public class LessThanOnePerHourInitializationStrategy(
             }
         }
 
-        var remainingBreaks = FilterOutCleanup(
-            context.SortedSchedules.Skip(breakIndex).ToList());
+        var remainingBreakRows = ProcessRemainingBreaks(
+            context.SortedSchedules,
+            breakIndex,
+            order,
+            context.AuxiliaryOperations,
+            context.Indicators);
 
-        if (remainingBreaks.Count > 0)
-        {
-            var remainingBreakRows = breakProcessor.ProcessRemainingBreaks(
-                remainingBreaks,
-                order,
-                context.AuxiliaryOperations,
-                context.Indicators,
-                null);
-
-            rows.AddRange(remainingBreakRows);
-        }
-
+        rows.AddRange(remainingBreakRows);
         return rows;
     }
 
-    private bool ShouldProcessBreak(ShiftScheduleDto? nextBreak, double timeUntilBreak, double cycleDuration)
+    private static bool ShouldProcessBreak(ShiftScheduleDto? nextBreak, double timeUntilBreak, double cycleDuration)
     {
         if (nextBreak == null)
             return false;

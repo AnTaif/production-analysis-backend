@@ -33,6 +33,7 @@ public class FormRowInitializer(
     {
         var indicators = indicatorExtractor.Extract(template);
         var auxiliaryOperations = await LoadAuxiliaryOperationsAsync();
+        var allOperations = await LoadAllOperationsAsync();
         var sortedBreaks = schedules.OrderBy(s => s.StartTime).ToList();
 
         var context = CreateContext(
@@ -41,11 +42,12 @@ public class FormRowInitializer(
             template,
             formContext,
             auxiliaryOperations,
+            allOperations,
             indicators
         );
 
         var strategy = strategyFactory.GetStrategy(template.PaType);
-        var rows = await strategy.InitializeAsync(context);
+        var rows = strategy.Initialize(context);
 
         cumulativeValueCalculator.FillCumulativeValues(rows, template.Indicators);
 
@@ -58,12 +60,18 @@ public class FormRowInitializer(
         return operations.ToDictionary(ao => ao.Id);
     }
 
+    private async Task<ICollection<OperationDto>> LoadAllOperationsAsync()
+    {
+        return await unitOfWork.Dictionaries.SelectOperationsAsync();
+    }
+
     private static RowInitializationContext CreateContext(
         TimeOnly shiftStartTime,
         List<ShiftScheduleDto> sortedSchedules,
         Template template,
         Dictionary<string, FormContext>? formContext,
         Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
+        ICollection<OperationDto> allOperations,
         InitializedIndicators initializedIndicators
     )
     {
@@ -74,6 +82,7 @@ public class FormRowInitializer(
             Template = template,
             FormContext = formContext ?? new Dictionary<string, FormContext>(),
             AuxiliaryOperations = auxiliaryOperations,
+            AllOperations = allOperations,
             Indicators = initializedIndicators
         };
     }

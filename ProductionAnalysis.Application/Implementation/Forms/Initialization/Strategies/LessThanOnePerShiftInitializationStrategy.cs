@@ -11,20 +11,24 @@ public class LessThanOnePerShiftInitializationStrategy(
     IFormRowDataFactory formRowDataFactory,
     IBreakProcessor breakProcessor,
     IOperationService operationService,
-    ICleanupOperationHandler cleanupHandler
+    ICleanupOperationHandler cleanupHandler,
+    IFormRowEndTimeExtractor endTimeExtractor
 )
-    : OperationOrProductInitializationStrategyBase(operationService, cleanupHandler), IRowInitializationStrategy
+    : OperationOrProductInitializationStrategyBase(operationService, cleanupHandler, endTimeExtractor, breakProcessor),
+        IRowInitializationStrategy
 {
+    private readonly IBreakProcessor breakProcessor = breakProcessor;
+
     public override bool CanHandle(PaType paType)
     {
         return paType == PaType.LessThanOnePerShift;
     }
 
-    protected override async Task<ICollection<FormRowData>> InitializeRowsAsync(RowInitializationContext context)
+    protected override ICollection<FormRowData> InitializeRows(RowInitializationContext context)
     {
         var operationContext =
             context.FormContext.Require<OperationOrProductContext>(FormContextAccessor.OperationOrProductContextKey);
-        var relatedOperations = await GetRelatedOperationsAsync(operationContext);
+        var relatedOperations = GetRelatedOperations(operationContext, context.AllOperations);
 
         var shiftStartMinutes = context.ShiftStartTime.TotalMinutes();
 
@@ -41,20 +45,18 @@ public class LessThanOnePerShiftInitializationStrategy(
 
             if (ShouldProcessBreak(nextBreak, currentTime))
             {
-                var breakMetaInfo = context.AuxiliaryOperations[nextBreak!.AuxiliaryOperationId];
-                var breakEndTime = nextBreak.StartTime.Add(breakMetaInfo.Duration);
+                var elapsedWorkTime = TimeSpan.Zero;
+                var breakResult = breakProcessor.ProcessBreak(
+                    nextBreak!,
+                    context.AuxiliaryOperations,
+                    context.Indicators,
+                    null,
+                    ref order,
+                    ref currentTime,
+                    ref elapsedWorkTime,
+                    isFirst: false);
 
-                var breakRow = formRowDataFactory.CreateBreakRow(
-                    order++,
-                    context.Indicators.WorkTime,
-                    nextBreak.StartTime,
-                    breakEndTime,
-                    breakMetaInfo.Name,
-                    nextBreak.AuxiliaryOperationId,
-                    null);
-
-                rows.Add(breakRow);
-                currentTime = breakEndTime;
+                rows.AddRange(breakResult.Rows);
                 breakIndex++;
                 continue;
             }
@@ -84,25 +86,18 @@ public class LessThanOnePerShiftInitializationStrategy(
             operationIndex++;
         }
 
-        var remainingBreaks = FilterOutCleanup(
-            context.SortedSchedules.Skip(breakIndex).ToList());
+        var remainingBreakRows = ProcessRemainingBreaks(
+            context.SortedSchedules,
+            breakIndex,
+            order,
+            context.AuxiliaryOperations,
+            context.Indicators);
 
-        if (remainingBreaks.Count > 0)
-        {
-            var remainingBreakRows = breakProcessor.ProcessRemainingBreaks(
-                remainingBreaks,
-                order,
-                context.AuxiliaryOperations,
-                context.Indicators,
-                null);
-
-            rows.AddRange(remainingBreakRows);
-        }
-
+        rows.AddRange(remainingBreakRows);
         return rows;
     }
 
-    private bool ShouldProcessBreak(ShiftScheduleDto? nextBreak, TimeOnly currentTime)
+    private static bool ShouldProcessBreak(ShiftScheduleDto? nextBreak, TimeOnly currentTime)
     {
         if (nextBreak == null)
             return false;
@@ -110,7 +105,7 @@ public class LessThanOnePerShiftInitializationStrategy(
         return currentTime >= nextBreak.StartTime;
     }
 
-    private bool ShouldTrimOperationForBreak(ShiftScheduleDto? nextBreak, TimeOnly operationEndTime)
+    private static bool ShouldTrimOperationForBreak(ShiftScheduleDto? nextBreak, TimeOnly operationEndTime)
     {
         if (nextBreak == null)
             return false;
