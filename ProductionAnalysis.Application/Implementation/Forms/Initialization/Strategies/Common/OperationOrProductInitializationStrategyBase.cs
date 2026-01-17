@@ -4,24 +4,23 @@ using ProductionAnalysis.Client.Models.Dictionaries;
 
 namespace ProductionAnalysis.Application.Implementation.Forms.Initialization.Strategies.Common;
 
-public abstract class OperationOrProductInitializationStrategyBase(IOperationService operationService)
-    : RowInitializationStrategyBase
+public abstract class OperationOrProductInitializationStrategyBase(
+    IOperationService operationService,
+    ICleanupOperationHandler cleanupHandler
+) : RowInitializationStrategyBase(cleanupHandler)
 {
     protected readonly IOperationService OperationService = operationService;
 
-    /// <summary>
-    ///     Получает связанные операции для контекста операции или продукта
-    /// </summary>
     protected async Task<ICollection<OperationDto>> GetRelatedOperationsAsync(
         OperationOrProductContext operationContext)
     {
         ICollection<OperationDto> relatedOperations;
 
-        if (operationContext.IsOperationBased && operationContext.OperationId.HasValue)
+        if (operationContext is { IsOperationBased: true, OperationId: not null })
         {
             relatedOperations = await OperationService.GetRelatedOperationsAsync(operationContext.OperationId.Value);
         }
-        else if (operationContext.IsProductBased && operationContext.ProductId.HasValue)
+        else if (operationContext is { IsProductBased: true, ProductId: not null })
         {
             relatedOperations =
                 await OperationService.GetRelatedOperationsByProductIdAsync(operationContext.ProductId.Value);

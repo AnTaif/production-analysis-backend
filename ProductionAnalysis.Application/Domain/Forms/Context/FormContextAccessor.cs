@@ -9,7 +9,7 @@ public static class FormContextAccessor
     public const string MultiProductContextKey = "multiProduct";
     public const string OperationOrProductContextKey = "operationOrProduct";
 
-    public static TContext RequireContext<TContext>(this Dictionary<string, FormContext> context, string contextKey)
+    public static TContext Require<TContext>(this Dictionary<string, FormContext> context, string contextKey)
         where TContext : FormContext
     {
         return context.TryGetValue(contextKey, out var ctx) && ctx is TContext typedContext

@@ -13,18 +13,17 @@ public class LessThanOnePerHourInitializationStrategy(
     IOperationService operationService,
     ICleanupOperationHandler cleanupHandler
 )
-    : OperationOrProductInitializationStrategyBase(operationService), IRowInitializationStrategy
+    : OperationOrProductInitializationStrategyBase(operationService, cleanupHandler), IRowInitializationStrategy
 {
     public override bool CanHandle(PaType paType)
     {
         return paType == PaType.LessThanOnePerHour;
     }
 
-    public override async Task<ICollection<FormRowData>> InitializeAsync(RowInitializationContext context)
+    protected override async Task<ICollection<FormRowData>> InitializeRowsAsync(RowInitializationContext context)
     {
         var operationContext =
-            context.FormContext.RequireContext<OperationOrProductContext>(FormContextAccessor
-                .OperationOrProductContextKey);
+            context.FormContext.Require<OperationOrProductContext>(FormContextAccessor.OperationOrProductContextKey);
         var relatedOperations = await GetRelatedOperationsAsync(operationContext);
 
         var totalWorkTime = shiftTimeManager.GetTotalWorkTime();
@@ -101,7 +100,7 @@ public class LessThanOnePerHourInitializationStrategy(
             }
         }
 
-        var remainingBreaks = cleanupHandler.FilterOutCleanup(
+        var remainingBreaks = FilterOutCleanup(
             context.SortedSchedules.Skip(breakIndex).ToList());
 
         if (remainingBreaks.Count > 0)
@@ -114,26 +113,6 @@ public class LessThanOnePerHourInitializationStrategy(
                 null);
 
             rows.AddRange(remainingBreakRows);
-
-            if (remainingBreakRows.Count > 0)
-            {
-                var lastBreak = remainingBreaks.Last();
-                if (context.AuxiliaryOperations.TryGetValue(lastBreak.AuxiliaryOperationId, out var lastBreakOp))
-                {
-                    currentTime = lastBreak.StartTime.Add(lastBreakOp.Duration);
-                }
-            }
-        }
-
-        var cleanupRow = cleanupHandler.CreateCleanupRow(
-            currentTime,
-            GetNextOrder(rows),
-            context.AuxiliaryOperations,
-            context.Indicators);
-
-        if (cleanupRow != null)
-        {
-            rows.Add(cleanupRow);
         }
 
         return rows;
@@ -144,14 +123,6 @@ public class LessThanOnePerHourInitializationStrategy(
         if (nextBreak == null)
             return false;
 
-        if (cleanupHandler.IsCleanupOperation(nextBreak.AuxiliaryOperationId))
-            return false;
-
         return timeUntilBreak > 0 && timeUntilBreak < cycleDuration;
-    }
-
-    private static short GetNextOrder(List<FormRowData> rows)
-    {
-        return (short)(rows.Count > 0 ? rows.Max(r => r.Order) + 1 : 1);
     }
 }

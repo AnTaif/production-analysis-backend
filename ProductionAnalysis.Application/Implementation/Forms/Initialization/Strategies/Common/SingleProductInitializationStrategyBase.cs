@@ -11,31 +11,20 @@ public abstract class SingleProductInitializationStrategyBase(
     IShiftTimeManager shiftTimeManager,
     ICleanupOperationHandler cleanupHandler
 )
-    : RowInitializationStrategyBase, IRowInitializationStrategy
+    : RowInitializationStrategyBase(cleanupHandler)
 {
-    public override Task<ICollection<FormRowData>> InitializeAsync(RowInitializationContext context)
+    protected override async Task<ICollection<FormRowData>> InitializeRowsAsync(RowInitializationContext context)
     {
-        var productContext = context.FormContext.RequireContext<ProductContext>(FormContextAccessor.ProductContextKey);
+        var productContext = context.FormContext.Require<ProductContext>(FormContextAccessor.ProductContextKey);
 
-        var (rows, endTime) = InitializeRowsForProduct(
+        var (rows, _) = InitializeRowsForProduct(
             context.ShiftStartTime,
             context.SortedSchedules,
             context.Indicators,
             context.AuxiliaryOperations,
             productContext);
 
-        var cleanupRow = cleanupHandler.CreateCleanupRow(
-            endTime,
-            GetNextOrder(rows),
-            context.AuxiliaryOperations,
-            context.Indicators);
-
-        if (cleanupRow != null)
-        {
-            rows.Add(cleanupRow);
-        }
-
-        return Task.FromResult<ICollection<FormRowData>>(rows);
+        return rows;
     }
 
     private (List<FormRowData> Rows, TimeOnly EndTime) InitializeRowsForProduct(
@@ -65,7 +54,7 @@ public abstract class SingleProductInitializationStrategyBase(
                 var isFirst = !hasWorkRows && currentTime >= nextBreak!.StartTime;
 
                 var breakResult = breakProcessor.ProcessBreak(
-                    nextBreak!,
+                    nextBreak,
                     auxiliaryOperations,
                     indicators,
                     productContext,
@@ -94,7 +83,7 @@ public abstract class SingleProductInitializationStrategyBase(
             }
         }
 
-        var remainingBreaks = cleanupHandler.FilterOutCleanup(
+        var remainingBreaks = FilterOutCleanup(
             sortedBreaks.Skip(breakIndex).ToList());
 
         if (remainingBreaks.Count > 0)
@@ -108,15 +97,6 @@ public abstract class SingleProductInitializationStrategyBase(
                 isLast: true);
 
             rows.AddRange(remainingBreakRows);
-
-            if (remainingBreakRows.Count > 0)
-            {
-                var lastBreak = remainingBreaks.Last();
-                if (auxiliaryOperations.TryGetValue(lastBreak.AuxiliaryOperationId, out var lastBreakOp))
-                {
-                    currentTime = lastBreak.StartTime.Add(lastBreakOp.Duration);
-                }
-            }
         }
 
         return (rows, currentTime);
@@ -130,14 +110,6 @@ public abstract class SingleProductInitializationStrategyBase(
         if (nextBreak == null)
             return false;
 
-        if (cleanupHandler.IsCleanupOperation(nextBreak.AuxiliaryOperationId))
-            return false;
-
         return breakProcessor.ShouldInsertBreak(currentTime, nextBreak, workIntervalEndTime);
-    }
-
-    private static short GetNextOrder(List<FormRowData> rows)
-    {
-        return (short)(rows.Count > 0 ? rows.Max(r => r.Order) + 1 : 1);
     }
 }

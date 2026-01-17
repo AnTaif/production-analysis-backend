@@ -4,9 +4,6 @@ using ProductionAnalysis.Application.Implementation.Forms.Initialization.Strateg
 
 namespace ProductionAnalysis.Application.Implementation.Forms.Initialization.Strategies;
 
-/// <summary>
-///     Стратегия инициализации для одного продукта с цикловым временем
-/// </summary>
 public class SingleProductWithCycleTimeInitializationStrategy(
     IFormRowDataFactory formRowDataFactory,
     IBreakProcessor breakProcessor,

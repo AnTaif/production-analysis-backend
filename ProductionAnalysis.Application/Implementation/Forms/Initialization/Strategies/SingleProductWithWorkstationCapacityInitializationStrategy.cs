@@ -4,9 +4,6 @@ using ProductionAnalysis.Application.Implementation.Forms.Initialization.Strateg
 
 namespace ProductionAnalysis.Application.Implementation.Forms.Initialization.Strategies;
 
-/// <summary>
-///     Стратегия инициализации для одного продукта с пропускной способностью рабочего места
-/// </summary>
 public class SingleProductWithWorkstationCapacityInitializationStrategy(
     IFormRowDataFactory formRowDataFactory,
     IBreakProcessor breakProcessor,

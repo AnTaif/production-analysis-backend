@@ -15,17 +15,17 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
     ICleanupOperationHandler cleanupHandler,
     IRetoolingOperationHandler retoolingHandler
 )
-    : RowInitializationStrategyBase, IRowInitializationStrategy
+    : RowInitializationStrategyBase(cleanupHandler), IRowInitializationStrategy
 {
     public override bool CanHandle(PaType paType)
     {
         return paType == PaType.MultipleProductsWithCycleTime;
     }
 
-    public override Task<ICollection<FormRowData>> InitializeAsync(RowInitializationContext context)
+    protected override Task<ICollection<FormRowData>> InitializeRowsAsync(RowInitializationContext context)
     {
         var multiProducts =
-            context.FormContext.RequireContext<MultiProductContext>(FormContextAccessor.MultiProductContextKey);
+            context.FormContext.Require<MultiProductContext>(FormContextAccessor.MultiProductContextKey);
 
         var allRows = new List<FormRowData>();
         short globalOrder = 1;
@@ -73,17 +73,6 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
             {
                 currentTime = endTime;
             }
-        }
-
-        var cleanupRow = cleanupHandler.CreateCleanupRow(
-            currentTime,
-            globalOrder++,
-            context.AuxiliaryOperations,
-            context.Indicators);
-
-        if (cleanupRow != null)
-        {
-            allRows.Add(cleanupRow);
         }
 
         return Task.FromResult<ICollection<FormRowData>>(allRows);
@@ -192,9 +181,6 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
         if (nextBreak == null)
             return false;
 
-        if (cleanupHandler.IsCleanupOperation(nextBreak.AuxiliaryOperationId))
-            return false;
-
         return breakProcessor.ShouldInsertBreak(currentTime, nextBreak, workIntervalEndTime);
     }
 
@@ -260,7 +246,7 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
         ProductContext productContext,
         bool isLastProduct)
     {
-        var remainingBreaks = cleanupHandler.FilterOutCleanup(
+        var remainingBreaks = FilterOutCleanup(
             sortedBreaks.Skip(breakIndex).ToList());
 
         if (remainingBreaks.Count == 0)
@@ -288,7 +274,7 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
         if (!isLastProduct || remainingBreakRows.Count == 0)
             return currentTime;
 
-        var remainingBreaks = cleanupHandler.FilterOutCleanup(
+        var remainingBreaks = FilterOutCleanup(
             sortedBreaks.Skip(breakIndex).ToList());
 
         var maxEndTime = currentTime;
