@@ -51,7 +51,6 @@ public class LessThanOnePerShiftInitializationStrategy(
                     null,
                     worktimeTracker,
                     ref order,
-                    ref currentTime,
                     isFirst: false);
 
                 rows.AddRange(breakResult.Rows);

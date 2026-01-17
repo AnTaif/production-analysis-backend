@@ -64,7 +64,6 @@ public abstract class SingleProductInitializationStrategyBase(
                     productContext,
                     workTimeTracker,
                     ref order,
-                    ref currentTime,
                     isFirst);
 
                 rows.AddRange(breakResult.Rows);

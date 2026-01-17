@@ -115,7 +115,6 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                     productContext,
                     workTimeTracker,
                     ref localOrder,
-                    ref currentTime,
                     isFirst);
 
                 rows.AddRange(breakResult.Rows);
@@ -126,27 +125,30 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                 if (accumulatedPlan >= productContext.DailyRate)
                     break;
 
+                var workIntervalStartTime = workTimeTracker.CurrentTime;
                 var workIntervalEndTime = CalculateWorkIntervalEndTime(
-                    currentTime,
+                    workIntervalStartTime,
                     workTimeTracker,
                     productContext,
                     accumulatedPlan);
 
-                var intervalPlan = planCalculator.Calculate(currentTime, workIntervalEndTime, productContext);
+                var intervalPlan = planCalculator.Calculate(workIntervalStartTime, workIntervalEndTime, productContext);
 
                 if (intervalPlan <= 0)
                     break;
 
-                var workDuration = TimeHelper.CalculateDurationAcrossMidnight(currentTime, workIntervalEndTime);
+                var workDuration =
+                    TimeHelper.CalculateDurationAcrossMidnight(workIntervalStartTime, workIntervalEndTime);
                 var actualDuration = workTimeTracker.AdvanceWorktime(workDuration);
 
                 if (actualDuration <= TimeSpan.Zero)
                     break;
 
+                var actualEndTime = workTimeTracker.CurrentTime;
+
                 if (actualDuration < workDuration)
                 {
-                    workIntervalEndTime = TimeHelper.AdjustForMidnight(currentTime, actualDuration);
-                    intervalPlan = planCalculator.Calculate(currentTime, workIntervalEndTime, productContext);
+                    intervalPlan = planCalculator.Calculate(workIntervalStartTime, actualEndTime, productContext);
 
                     if (intervalPlan <= 0)
                         break;
@@ -156,8 +158,8 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                     localOrder++,
                     indicators.WorkTime!,
                     indicators.Plan,
-                    currentTime,
-                    workIntervalEndTime,
+                    workIntervalStartTime,
+                    actualEndTime,
                     productContext);
 
                 rows.Add(workRow);
@@ -181,12 +183,18 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
 
         rows.AddRange(remainingBreakRows);
 
+        var processedBreaksCount = remainingBreakRows.Count > 0
+            ? sortedBreaks.Skip(breakIndex)
+                .TakeWhile(b => b.StartTime <= workTimeTracker.CurrentTime)
+                .Count(b => !IsCleanupOperation(b.AuxiliaryOperationId))
+            : 0;
+
         var endTime = remainingBreakRows.Count > 0
             ? endTimeExtractor.ExtractEndTime(remainingBreakRows.Last())
             : workTimeTracker.CurrentTime;
 
         order = (short)(localOrder + remainingBreakRows.Count);
-        return (rows, endTime, breakIndex + remainingBreakRows.Count);
+        return (rows, endTime, breakIndex + processedBreaksCount);
     }
 
     private bool ShouldProcessBreak(ShiftScheduleDto? nextBreak, TimeOnly currentTime, TimeOnly workIntervalEndTime)

@@ -52,14 +52,22 @@ public abstract class RowInitializationStrategyBase(
         ProductContext? productContext = null,
         bool isLast = true)
     {
+        var currentTime = workTimeTracker.CurrentTime;
         var remainingBreaks = FilterOutCleanup(
             sortedBreaks.Skip(breakIndex).ToList());
 
         if (remainingBreaks.Count == 0)
             return new List<FormRowData>();
 
+        var breaksToProcess = remainingBreaks
+            .Where(b => b.StartTime <= currentTime)
+            .ToList();
+
+        if (breaksToProcess.Count == 0)
+            return new List<FormRowData>();
+
         var rows = breakProcessor.ProcessRemainingBreaks(
-            remainingBreaks,
+            breaksToProcess,
             startOrder,
             auxiliaryOperations,
             indicators,
@@ -68,9 +76,10 @@ public abstract class RowInitializationStrategyBase(
 
         if (rows.Count > 0)
         {
-            var lastBreak = remainingBreaks.Last();
+            var lastBreak = breaksToProcess.Last();
             var lastBreakMetaInfo = auxiliaryOperations[lastBreak.AuxiliaryOperationId];
-            var breakDuration = lastBreakMetaInfo.Duration;
+            var lastBreakEndTime = lastBreak.StartTime.Add(lastBreakMetaInfo.Duration);
+            var breakDuration = TimeHelper.CalculateDurationAcrossMidnight(currentTime, lastBreakEndTime);
             workTimeTracker.AdvanceTime(breakDuration);
         }
 
@@ -84,10 +93,9 @@ public abstract class RowInitializationStrategyBase(
         ProductContext? productContext,
         IWorkTimeTracker workTimeTracker,
         ref short order,
-        ref TimeOnly currentTime,
         bool isFirst = false)
     {
-        currentTime = workTimeTracker.CurrentTime;
+        var currentTime = workTimeTracker.CurrentTime;
         var elapsedWorkTimeBeforeBreak = workTimeTracker.ElapsedWorkTime;
         var elapsedWorkTimeForBreak = elapsedWorkTimeBeforeBreak;
 
