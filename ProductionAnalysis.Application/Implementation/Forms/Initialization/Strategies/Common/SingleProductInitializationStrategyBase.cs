@@ -8,7 +8,8 @@ namespace ProductionAnalysis.Application.Implementation.Forms.Initialization.Str
 public abstract class SingleProductInitializationStrategyBase(
     IFormRowDataFactory formRowDataFactory,
     IBreakProcessor breakProcessor,
-    IShiftTimeManager shiftTimeManager
+    IShiftTimeManager shiftTimeManager,
+    ICleanupOperationHandler cleanupHandler
 )
     : RowInitializationStrategyBase, IRowInitializationStrategy
 {
@@ -23,23 +24,14 @@ public abstract class SingleProductInitializationStrategyBase(
             context.AuxiliaryOperations,
             productContext);
 
-        // Добавляем уборку после продукта
-        const int cleanupOperationId = 3; // ID операции "Уборка 15 мин"
-        if (context.AuxiliaryOperations.TryGetValue(cleanupOperationId, out var cleanupOperation))
+        var cleanupRow = cleanupHandler.CreateCleanupRow(
+            endTime,
+            GetNextOrder(rows),
+            context.AuxiliaryOperations,
+            context.Indicators);
+
+        if (cleanupRow != null)
         {
-            var cleanupStartTime = endTime;
-            var cleanupEndTime = cleanupStartTime.Add(cleanupOperation.Duration);
-            var cleanupOrder = (short)(rows.Count > 0 ? rows.Max(r => r.Order) + 1 : 1);
-
-            var cleanupRow = formRowDataFactory.CreateBreakRow(
-                cleanupOrder,
-                context.Indicators.WorkTime,
-                cleanupStartTime,
-                cleanupEndTime,
-                cleanupOperation.Name,
-                cleanupOperationId,
-                null); // Уборка не связана с продуктом
-
             rows.Add(cleanupRow);
         }
 
@@ -59,25 +51,21 @@ public abstract class SingleProductInitializationStrategyBase(
         var elapsedWorkTime = TimeSpan.Zero;
         var breakIndex = 0;
         short order = 1;
-        var hasWorkRows = false; // Отслеживаем, были ли созданы рабочие строки
-        const int cleanupOperationId = 3; // ID операции "Уборка 15 мин"
+        var hasWorkRows = false;
 
         while (!shiftTimeManager.IsWorkTimeComplete(elapsedWorkTime, totalWorkTime))
         {
             var nextBreak = GetNextBreak(sortedBreaks, breakIndex);
             var remainingWorkTime = totalWorkTime - elapsedWorkTime;
             var workIntervalDuration = shiftTimeManager.CalculateWorkIntervalDuration(remainingWorkTime);
-            var workIntervalEndTime = currentTime.Add(workIntervalDuration);
+            var workIntervalEndTime = TimeHelper.AdjustForMidnight(currentTime, workIntervalDuration);
 
-            // Пропускаем уборку из расписания - она добавляется после продукта
-            if (nextBreak != null && nextBreak.AuxiliaryOperationId != cleanupOperationId &&
-                breakProcessor.ShouldInsertBreak(currentTime, nextBreak, workIntervalEndTime))
+            if (ShouldProcessBreak(nextBreak, currentTime, workIntervalEndTime))
             {
-                // Определяем, является ли это первой операцией (нет рабочих строк и нет рабочего времени до перерыва)
-                var isFirst = !hasWorkRows && currentTime >= nextBreak.StartTime;
+                var isFirst = !hasWorkRows && currentTime >= nextBreak!.StartTime;
 
                 var breakResult = breakProcessor.ProcessBreak(
-                    nextBreak,
+                    nextBreak!,
                     auxiliaryOperations,
                     indicators,
                     productContext,
@@ -87,11 +75,6 @@ public abstract class SingleProductInitializationStrategyBase(
                     isFirst);
 
                 rows.AddRange(breakResult.Rows);
-                breakIndex++;
-            }
-            else if (nextBreak != null && nextBreak.AuxiliaryOperationId == cleanupOperationId)
-            {
-                // Пропускаем уборку из расписания - она будет добавлена после продукта
                 breakIndex++;
             }
             else
@@ -105,40 +88,30 @@ public abstract class SingleProductInitializationStrategyBase(
                     productContext);
 
                 rows.Add(workRow);
-                hasWorkRows = true; // Отмечаем, что создана рабочая строка
+                hasWorkRows = true;
                 currentTime = workIntervalEndTime;
                 elapsedWorkTime = elapsedWorkTime.Add(workIntervalDuration);
             }
         }
 
-        // Исключаем уборку из оставшихся перерывов - она добавляется после продукта
-        var remainingBreaksWithoutCleanup = sortedBreaks
-            .Skip(breakIndex)
-            .Where(b => b.AuxiliaryOperationId != cleanupOperationId)
-            .ToList();
+        var remainingBreaks = cleanupHandler.FilterOutCleanup(
+            sortedBreaks.Skip(breakIndex).ToList());
 
-        if (remainingBreaksWithoutCleanup.Count > 0)
+        if (remainingBreaks.Count > 0)
         {
-            var remainingBreakRows = ProcessRemainingBreaks(
-                sortedBreaks,
-                breakIndex,
+            var remainingBreakRows = breakProcessor.ProcessRemainingBreaks(
+                remainingBreaks,
                 order,
                 auxiliaryOperations,
                 indicators,
-                breakProcessor,
                 productContext,
-                isLast: true); // Все оставшиеся перерывы - последние
+                isLast: true);
 
-            // Фильтруем уборку из результата
-            var filteredBreakRows = remainingBreakRows
-                .Where(r => r.AuxiliaryOperationId != cleanupOperationId)
-                .ToList();
-            rows.AddRange(filteredBreakRows);
+            rows.AddRange(remainingBreakRows);
 
-            // Обновляем currentTime на основе последнего перерыва
-            if (filteredBreakRows.Count > 0)
+            if (remainingBreakRows.Count > 0)
             {
-                var lastBreak = remainingBreaksWithoutCleanup.Last();
+                var lastBreak = remainingBreaks.Last();
                 if (auxiliaryOperations.TryGetValue(lastBreak.AuxiliaryOperationId, out var lastBreakOp))
                 {
                     currentTime = lastBreak.StartTime.Add(lastBreakOp.Duration);
@@ -147,5 +120,24 @@ public abstract class SingleProductInitializationStrategyBase(
         }
 
         return (rows, currentTime);
+    }
+
+    private bool ShouldProcessBreak(
+        ShiftScheduleDto? nextBreak,
+        TimeOnly currentTime,
+        TimeOnly workIntervalEndTime)
+    {
+        if (nextBreak == null)
+            return false;
+
+        if (cleanupHandler.IsCleanupOperation(nextBreak.AuxiliaryOperationId))
+            return false;
+
+        return breakProcessor.ShouldInsertBreak(currentTime, nextBreak, workIntervalEndTime);
+    }
+
+    private static short GetNextOrder(List<FormRowData> rows)
+    {
+        return (short)(rows.Count > 0 ? rows.Max(r => r.Order) + 1 : 1);
     }
 }

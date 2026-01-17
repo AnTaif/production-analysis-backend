@@ -6,14 +6,8 @@ namespace ProductionAnalysis.Application.Implementation.Forms.Initialization.Ser
 
 public interface IBreakProcessor
 {
-    /// <summary>
-    ///     Проверяет, нужно ли вставить перерыв в рабочий интервал
-    /// </summary>
     bool ShouldInsertBreak(TimeOnly currentTime, ShiftScheduleDto breakSchedule, TimeOnly intervalEnd);
 
-    /// <summary>
-    ///     Обрабатывает перерыв в рабочем интервале
-    /// </summary>
     BreakProcessingResult ProcessBreak(
         ShiftScheduleDto breakSchedule,
         Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
@@ -24,9 +18,6 @@ public interface IBreakProcessor
         ref TimeSpan elapsedWorkTime,
         bool isFirst = false);
 
-    /// <summary>
-    ///     Обрабатывает оставшиеся перерывы после завершения рабочего времени
-    /// </summary>
     ICollection<FormRowData> ProcessRemainingBreaks(
         ICollection<ShiftScheduleDto> remainingBreaks,
         short startOrder,
@@ -41,15 +32,11 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
 {
     public bool ShouldInsertBreak(TimeOnly currentTime, ShiftScheduleDto breakSchedule, TimeOnly intervalEnd)
     {
-        // Проверяем, попадает ли перерыв в интервал
-        // Учитываем переход через полночь: если intervalEnd < currentTime, значит перешли через полночь
         if (intervalEnd < currentTime)
         {
-            // Переход через полночь: перерыв попадает в интервал, если он после currentTime или до intervalEnd
             return breakSchedule.StartTime >= currentTime || breakSchedule.StartTime < intervalEnd;
         }
 
-        // Обычный случай: перерыв попадает в интервал, если он между currentTime и intervalEnd
         return currentTime <= breakSchedule.StartTime && breakSchedule.StartTime < intervalEnd;
     }
 
@@ -65,7 +52,6 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
     {
         var rows = new List<FormRowData>();
 
-        // Если есть рабочее время до перерыва
         if (currentTime < breakSchedule.StartTime)
         {
             var workDuration = breakSchedule.StartTime - currentTime;
@@ -81,11 +67,8 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
             elapsedWorkTime = elapsedWorkTime.Add(workDuration);
         }
 
-        // Создаем строку перерыва
         var breakMetaInfo = auxiliaryOperations[breakSchedule.AuxiliaryOperationId];
         var breakEndTime = breakSchedule.StartTime.Add(breakMetaInfo.Duration);
-
-        // Если операция первая (нет рабочего времени до неё), то ProductId = null
         var operationProductContext = isFirst && currentTime >= breakSchedule.StartTime ? null : productContext;
 
         var breakRow = formRowDataFactory.CreateBreakRow(
@@ -103,7 +86,7 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
         return new BreakProcessingResult
         {
             Rows = rows,
-            NextBreakIndex = 1 // Инкрементируется в вызывающем коде
+            NextBreakIndex = 1
         };
     }
 
@@ -123,10 +106,6 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
             var breakMetaInfo = auxiliaryOperations[breakSchedule.AuxiliaryOperationId];
             var breakEndTime = breakSchedule.StartTime.Add(breakMetaInfo.Duration);
 
-            // Если есть productContext, используем его (для одного продукта или для перерывов во время работы продукта)
-            // ProductId = null только если это действительно последняя операция после всех продуктов и нет productContext
-            var operationProductContext = productContext;
-
             var breakRow = formRowDataFactory.CreateBreakRow(
                 order++,
                 indicators.WorkTime,
@@ -134,7 +113,7 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
                 breakEndTime,
                 breakMetaInfo.Name,
                 breakSchedule.AuxiliaryOperationId,
-                operationProductContext);
+                productContext);
 
             rows.Add(breakRow);
         }

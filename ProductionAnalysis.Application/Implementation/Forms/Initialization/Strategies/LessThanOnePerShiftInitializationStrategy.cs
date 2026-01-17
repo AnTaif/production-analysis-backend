@@ -3,16 +3,15 @@ using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Application.Implementation.Forms.Initialization.Services;
 using ProductionAnalysis.Application.Implementation.Forms.Initialization.Strategies.Common;
+using ProductionAnalysis.Client.Models.Dictionaries;
 
 namespace ProductionAnalysis.Application.Implementation.Forms.Initialization.Strategies;
 
-/// <summary>
-///     Стратегия инициализации для операций (менее 1 шт. в смену)
-/// </summary>
 public class LessThanOnePerShiftInitializationStrategy(
     IFormRowDataFactory formRowDataFactory,
     IBreakProcessor breakProcessor,
-    IOperationService operationService
+    IOperationService operationService,
+    ICleanupOperationHandler cleanupHandler
 )
     : OperationOrProductInitializationStrategyBase(operationService), IRowInitializationStrategy
 {
@@ -36,20 +35,14 @@ public class LessThanOnePerShiftInitializationStrategy(
         short order = 1;
         var operationIndex = 0;
         var operationsList = relatedOperations.ToList();
-        const int cleanupOperationId = 3; // ID операции "Уборка 15 мин"
 
         while (operationIndex < operationsList.Count)
         {
             var nextBreak = GetNextBreak(context.SortedSchedules, breakIndex);
 
-            // Проверяем, нужно ли вставить перерыв перед следующей операцией
-            // Пропускаем уборку из расписания - она добавляется после всех операций
-
-            if (nextBreak != null && nextBreak.AuxiliaryOperationId != cleanupOperationId &&
-                currentTime >= nextBreak.StartTime)
+            if (ShouldProcessBreak(nextBreak, currentTime))
             {
-                // Вставляем перерыв
-                var breakMetaInfo = context.AuxiliaryOperations[nextBreak.AuxiliaryOperationId];
+                var breakMetaInfo = context.AuxiliaryOperations[nextBreak!.AuxiliaryOperationId];
                 var breakEndTime = nextBreak.StartTime.Add(breakMetaInfo.Duration);
 
                 var breakRow = formRowDataFactory.CreateBreakRow(
@@ -66,24 +59,14 @@ public class LessThanOnePerShiftInitializationStrategy(
                 breakIndex++;
                 continue;
             }
-            else if (nextBreak != null && nextBreak.AuxiliaryOperationId == cleanupOperationId)
-            {
-                // Пропускаем уборку из расписания - она будет добавлена после всех операций
-                breakIndex++;
-                continue;
-            }
 
-            // Создаем строку для текущей операции
             var operation = operationsList[operationIndex];
             var operationDuration = operation.Duration ?? TimeSpan.Zero;
             var operationEndTime = currentTime.Add(operationDuration);
 
-            // Проверяем, не пересекается ли операция с перерывом (исключая уборку)
-            if (nextBreak != null && nextBreak.AuxiliaryOperationId != cleanupOperationId &&
-                operationEndTime > nextBreak.StartTime)
+            if (ShouldTrimOperationForBreak(nextBreak, operationEndTime))
             {
-                // Операция пересекается с перерывом, обрезаем её до начала перерыва
-                operationEndTime = nextBreak.StartTime;
+                operationEndTime = nextBreak!.StartTime;
             }
 
             var operationRow = formRowDataFactory.CreateOperationTimeRow(
@@ -102,33 +85,23 @@ public class LessThanOnePerShiftInitializationStrategy(
             operationIndex++;
         }
 
-        // Исключаем уборку из оставшихся перерывов - она добавляется после всех операций
-        var remainingBreaksWithoutCleanup = context.SortedSchedules
-            .Skip(breakIndex)
-            .Where(b => b.AuxiliaryOperationId != cleanupOperationId)
-            .ToList();
+        var remainingBreaks = cleanupHandler.FilterOutCleanup(
+            context.SortedSchedules.Skip(breakIndex).ToList());
 
-        if (remainingBreaksWithoutCleanup.Count > 0)
+        if (remainingBreaks.Count > 0)
         {
-            var remainingBreakRows = ProcessRemainingBreaks(
-                context.SortedSchedules,
-                breakIndex,
+            var remainingBreakRows = breakProcessor.ProcessRemainingBreaks(
+                remainingBreaks,
                 order,
                 context.AuxiliaryOperations,
                 context.Indicators,
-                breakProcessor,
                 null);
 
-            // Фильтруем уборку из результата
-            var filteredBreakRows = remainingBreakRows
-                .Where(r => r.AuxiliaryOperationId != cleanupOperationId)
-                .ToList();
-            rows.AddRange(filteredBreakRows);
+            rows.AddRange(remainingBreakRows);
 
-            // Обновляем currentTime на основе последнего перерыва
-            if (filteredBreakRows.Count > 0)
+            if (remainingBreakRows.Count > 0)
             {
-                var lastBreak = remainingBreaksWithoutCleanup.Last();
+                var lastBreak = remainingBreaks.Last();
                 if (context.AuxiliaryOperations.TryGetValue(lastBreak.AuxiliaryOperationId, out var lastBreakOp))
                 {
                     currentTime = lastBreak.StartTime.Add(lastBreakOp.Duration);
@@ -136,25 +109,44 @@ public class LessThanOnePerShiftInitializationStrategy(
             }
         }
 
-        // Добавляем уборку после всех операций
-        if (context.AuxiliaryOperations.TryGetValue(cleanupOperationId, out var cleanupOperation))
+        var cleanupRow = cleanupHandler.CreateCleanupRow(
+            currentTime,
+            GetNextOrder(rows),
+            context.AuxiliaryOperations,
+            context.Indicators);
+
+        if (cleanupRow != null)
         {
-            var cleanupStartTime = currentTime;
-            var cleanupEndTime = cleanupStartTime.Add(cleanupOperation.Duration);
-            var cleanupOrder = (short)(rows.Count > 0 ? rows.Max(r => r.Order) + 1 : 1);
-
-            var cleanupRow = formRowDataFactory.CreateBreakRow(
-                cleanupOrder,
-                context.Indicators.WorkTime,
-                cleanupStartTime,
-                cleanupEndTime,
-                cleanupOperation.Name,
-                cleanupOperationId,
-                null);
-
             rows.Add(cleanupRow);
         }
 
         return rows;
+    }
+
+    private bool ShouldProcessBreak(ShiftScheduleDto? nextBreak, TimeOnly currentTime)
+    {
+        if (nextBreak == null)
+            return false;
+
+        if (cleanupHandler.IsCleanupOperation(nextBreak.AuxiliaryOperationId))
+            return false;
+
+        return currentTime >= nextBreak.StartTime;
+    }
+
+    private bool ShouldTrimOperationForBreak(ShiftScheduleDto? nextBreak, TimeOnly operationEndTime)
+    {
+        if (nextBreak == null)
+            return false;
+
+        if (cleanupHandler.IsCleanupOperation(nextBreak.AuxiliaryOperationId))
+            return false;
+
+        return operationEndTime > nextBreak.StartTime;
+    }
+
+    private static short GetNextOrder(List<FormRowData> rows)
+    {
+        return (short)(rows.Count > 0 ? rows.Max(r => r.Order) + 1 : 1);
     }
 }

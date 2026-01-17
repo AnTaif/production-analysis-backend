@@ -11,17 +11,11 @@ public abstract class RowInitializationStrategyBase : IRowInitializationStrategy
 
     public abstract Task<ICollection<FormRowData>> InitializeAsync(RowInitializationContext context);
 
-    /// <summary>
-    ///     Получает следующий перерыв из отсортированного списка
-    /// </summary>
     protected static ShiftScheduleDto? GetNextBreak(IList<ShiftScheduleDto> sortedBreaks, int breakIndex)
     {
         return breakIndex < sortedBreaks.Count ? sortedBreaks[breakIndex] : null;
     }
 
-    /// <summary>
-    ///     Обрабатывает оставшиеся перерывы после завершения рабочего времени
-    /// </summary>
     protected static ICollection<FormRowData> ProcessRemainingBreaks(
         IList<ShiftScheduleDto> sortedBreaks,
         int breakIndex,
