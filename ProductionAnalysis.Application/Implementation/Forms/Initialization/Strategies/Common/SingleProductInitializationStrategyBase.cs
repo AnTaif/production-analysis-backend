@@ -8,7 +8,6 @@ namespace ProductionAnalysis.Application.Implementation.Forms.Initialization.Str
 public abstract class SingleProductInitializationStrategyBase(
     IFormRowDataFactory formRowDataFactory,
     IBreakProcessor breakProcessor,
-    IShiftTimeManager shiftTimeManager,
     ICleanupOperationHandler cleanupHandler,
     IFormRowEndTimeExtractor endTimeExtractor
 )
@@ -26,7 +25,8 @@ public abstract class SingleProductInitializationStrategyBase(
             context.SortedSchedules,
             context.Indicators,
             context.AuxiliaryOperations,
-            productContext);
+            productContext,
+            context.WorkTimeTracker);
 
         return rows;
     }
@@ -36,9 +36,9 @@ public abstract class SingleProductInitializationStrategyBase(
         IList<ShiftScheduleDto> sortedBreaks,
         InitializedIndicators indicators,
         Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
-        ProductContext productContext)
+        ProductContext productContext,
+        IWorkTimeTracker workTimeTracker)
     {
-        var workTimeTracker = new WorkTimeTracker(shiftTimeManager);
         var rows = new List<FormRowData>();
         var currentTime = shiftStartTime;
         var breakIndex = 0;
@@ -48,58 +48,46 @@ public abstract class SingleProductInitializationStrategyBase(
         while (!workTimeTracker.IsComplete)
         {
             var nextBreak = GetNextBreak(sortedBreaks, breakIndex);
-            var remainingWorkTime = workTimeTracker.RemainingWorkTime;
-            var workIntervalDuration = shiftTimeManager.CalculateWorkIntervalDuration(remainingWorkTime);
+            var workIntervalDuration = workTimeTracker.GetNextWorkIntervalDuration();
+
+            if (workIntervalDuration <= TimeSpan.Zero)
+                break;
+
             var workIntervalEndTime = TimeHelper.AdjustForMidnight(currentTime, workIntervalDuration);
 
             if (ShouldProcessBreak(nextBreak, currentTime, workIntervalEndTime))
             {
                 var isFirst = !hasWorkRows && currentTime >= nextBreak!.StartTime;
 
-                var elapsedWorkTimeBeforeBreak = workTimeTracker.ElapsedWorkTime;
-                var elapsedWorkTimeForBreak = elapsedWorkTimeBeforeBreak;
-                var breakResult = breakProcessor.ProcessBreak(
+                var breakResult = ProcessBreakWithTracking(
                     nextBreak!,
                     auxiliaryOperations,
                     indicators,
                     productContext,
+                    workTimeTracker,
                     ref order,
                     ref currentTime,
-                    ref elapsedWorkTimeForBreak,
                     isFirst);
-
-                var workTimeUsed = elapsedWorkTimeForBreak - elapsedWorkTimeBeforeBreak;
-                if (workTimeUsed > TimeSpan.Zero)
-                {
-                    workTimeTracker.Add(workTimeUsed);
-                }
 
                 rows.AddRange(breakResult.Rows);
                 breakIndex++;
             }
             else
             {
-                var adjustedDuration = workTimeTracker.GetAdjustedDuration(workIntervalDuration);
-                if (adjustedDuration <= TimeSpan.Zero)
-                    break;
-
-                if (adjustedDuration < workIntervalDuration)
-                {
-                    workIntervalEndTime = TimeHelper.AdjustForMidnight(currentTime, adjustedDuration);
-                }
+                var actualDuration = workTimeTracker.AddAndGetActual(workIntervalDuration);
+                var actualEndTime = TimeHelper.AdjustForMidnight(currentTime, actualDuration);
 
                 var workRow = formRowDataFactory.CreateWorkRow(
                     order++,
                     indicators.WorkTime!,
                     indicators.Plan,
                     currentTime,
-                    workIntervalEndTime,
+                    actualEndTime,
                     productContext);
 
                 rows.Add(workRow);
                 hasWorkRows = true;
-                currentTime = workIntervalEndTime;
-                workTimeTracker.Add(adjustedDuration);
+                currentTime = actualEndTime;
             }
         }
 

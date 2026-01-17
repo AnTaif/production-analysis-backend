@@ -4,27 +4,38 @@ public interface IWorkTimeTracker
 {
     TimeSpan ElapsedWorkTime { get; }
     TimeSpan RemainingWorkTime { get; }
+    TimeSpan TotalWorkTime { get; }
     bool IsComplete { get; }
-    bool CanAddInterval(TimeSpan duration);
+    TimeSpan GetNextWorkIntervalDuration();
     TimeSpan GetAdjustedDuration(TimeSpan requestedDuration);
+    TimeSpan AddAndGetActual(TimeSpan duration);
     void Add(TimeSpan duration);
 }
 
-[RegisterScoped]
-public class WorkTimeTracker(IShiftTimeManager shiftTimeManager) : IWorkTimeTracker
+public class WorkTimeTracker : IWorkTimeTracker
 {
     private TimeSpan elapsedWorkTime = TimeSpan.Zero;
-    private readonly TimeSpan totalWorkTime = shiftTimeManager.GetTotalWorkTime();
 
     public TimeSpan ElapsedWorkTime => elapsedWorkTime;
+    public TimeSpan TotalWorkTime { get; } = TimeSpan.FromHours(ShiftConstants.ShiftDurationHours);
 
-    public TimeSpan RemainingWorkTime => shiftTimeManager.GetRemainingWorkTime(elapsedWorkTime);
-
-    public bool IsComplete => shiftTimeManager.IsWorkTimeComplete(elapsedWorkTime, totalWorkTime);
-
-    public bool CanAddInterval(TimeSpan duration)
+    public TimeSpan RemainingWorkTime
     {
-        return shiftTimeManager.CanAddWorkInterval(elapsedWorkTime, duration);
+        get
+        {
+            var remaining = TotalWorkTime - elapsedWorkTime;
+            return remaining > TimeSpan.Zero ? remaining : TimeSpan.Zero;
+        }
+    }
+
+    public bool IsComplete => elapsedWorkTime >= TotalWorkTime;
+
+    public TimeSpan GetNextWorkIntervalDuration()
+    {
+        var remaining = RemainingWorkTime;
+        return remaining >= TimeSpan.FromHours(1)
+            ? TimeSpan.FromHours(1)
+            : remaining;
     }
 
     public TimeSpan GetAdjustedDuration(TimeSpan requestedDuration)
@@ -32,20 +43,24 @@ public class WorkTimeTracker(IShiftTimeManager shiftTimeManager) : IWorkTimeTrac
         if (CanAddInterval(requestedDuration))
             return requestedDuration;
 
-        var remaining = RemainingWorkTime;
-        return remaining > requestedDuration ? requestedDuration : remaining;
+        return RemainingWorkTime;
+    }
+
+    public TimeSpan AddAndGetActual(TimeSpan duration)
+    {
+        var adjusted = GetAdjustedDuration(duration);
+        elapsedWorkTime = elapsedWorkTime.Add(adjusted);
+        return adjusted;
     }
 
     public void Add(TimeSpan duration)
     {
-        if (!CanAddInterval(duration))
-        {
-            var adjusted = GetAdjustedDuration(duration);
-            elapsedWorkTime = elapsedWorkTime.Add(adjusted);
-        }
-        else
-        {
-            elapsedWorkTime = elapsedWorkTime.Add(duration);
-        }
+        var adjusted = GetAdjustedDuration(duration);
+        elapsedWorkTime = elapsedWorkTime.Add(adjusted);
+    }
+
+    private bool CanAddInterval(TimeSpan duration)
+    {
+        return elapsedWorkTime + duration <= TotalWorkTime;
     }
 }

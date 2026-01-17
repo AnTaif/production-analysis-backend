@@ -10,7 +10,6 @@ namespace ProductionAnalysis.Application.Implementation.Forms.Initialization.Str
 public class LessThanOnePerShiftInitializationStrategy(
     IFormRowDataFactory formRowDataFactory,
     IBreakProcessor breakProcessor,
-    IShiftTimeManager shiftTimeManager,
     IOperationService operationService,
     ICleanupOperationHandler cleanupHandler,
     IFormRowEndTimeExtractor endTimeExtractor
@@ -18,8 +17,6 @@ public class LessThanOnePerShiftInitializationStrategy(
     : OperationOrProductInitializationStrategyBase(operationService, cleanupHandler, endTimeExtractor, breakProcessor),
         IRowInitializationStrategy
 {
-    private readonly IBreakProcessor breakProcessor = breakProcessor;
-
     public override bool CanHandle(PaType paType)
     {
         return paType == PaType.LessThanOnePerShift;
@@ -30,8 +27,8 @@ public class LessThanOnePerShiftInitializationStrategy(
         var operationContext =
             context.FormContext.Require<OperationOrProductContext>(FormContextAccessor.OperationOrProductContextKey);
         var relatedOperations = GetRelatedOperations(operationContext, context.AllOperations);
+        var worktimeTracker = context.WorkTimeTracker;
 
-        var workTimeTracker = new WorkTimeTracker(shiftTimeManager);
         var shiftStartMinutes = context.ShiftStartTime.TotalMinutes();
 
         var rows = new List<FormRowData>();
@@ -41,29 +38,21 @@ public class LessThanOnePerShiftInitializationStrategy(
         var operationIndex = 0;
         var operationsList = relatedOperations.ToList();
 
-        while (operationIndex < operationsList.Count && !workTimeTracker.IsComplete)
+        while (operationIndex < operationsList.Count && !worktimeTracker.IsComplete)
         {
             var nextBreak = GetNextBreak(context.SortedSchedules, breakIndex);
 
             if (ShouldProcessBreak(nextBreak, currentTime))
             {
-                var elapsedWorkTimeBeforeBreak = workTimeTracker.ElapsedWorkTime;
-                var elapsedWorkTimeForBreak = elapsedWorkTimeBeforeBreak;
-                var breakResult = breakProcessor.ProcessBreak(
+                var breakResult = ProcessBreakWithTracking(
                     nextBreak!,
                     context.AuxiliaryOperations,
                     context.Indicators,
                     null,
+                    worktimeTracker,
                     ref order,
                     ref currentTime,
-                    ref elapsedWorkTimeForBreak,
                     isFirst: false);
-
-                var workTimeUsed = elapsedWorkTimeForBreak - elapsedWorkTimeBeforeBreak;
-                if (workTimeUsed > TimeSpan.Zero)
-                {
-                    workTimeTracker.Add(workTimeUsed);
-                }
 
                 rows.AddRange(breakResult.Rows);
                 breakIndex++;
@@ -72,17 +61,22 @@ public class LessThanOnePerShiftInitializationStrategy(
 
             var operation = operationsList[operationIndex];
             var operationDuration = operation.Duration ?? TimeSpan.Zero;
-            var adjustedDuration = workTimeTracker.GetAdjustedDuration(operationDuration);
-
-            if (adjustedDuration <= TimeSpan.Zero)
-                break;
-
-            var operationEndTime = currentTime.Add(adjustedDuration);
+            var operationEndTime = currentTime.Add(operationDuration);
 
             if (ShouldTrimOperationForBreak(nextBreak, operationEndTime))
             {
                 operationEndTime = nextBreak!.StartTime;
-                adjustedDuration = TimeHelper.CalculateDurationAcrossMidnight(currentTime, operationEndTime);
+                operationDuration = TimeHelper.CalculateDurationAcrossMidnight(currentTime, operationEndTime);
+            }
+
+            var actualDuration = worktimeTracker.AddAndGetActual(operationDuration);
+
+            if (actualDuration <= TimeSpan.Zero)
+                break;
+
+            if (actualDuration < operationDuration)
+            {
+                operationEndTime = TimeHelper.AdjustForMidnight(currentTime, actualDuration);
             }
 
             var operationRow = formRowDataFactory.CreateOperationTimeRow(
@@ -98,7 +92,6 @@ public class LessThanOnePerShiftInitializationStrategy(
 
             rows.Add(operationRow);
             currentTime = operationEndTime;
-            workTimeTracker.Add(adjustedDuration);
             operationIndex++;
         }
 

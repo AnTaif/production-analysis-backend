@@ -66,6 +66,38 @@ public abstract class RowInitializationStrategyBase(
             isLast);
     }
 
+    protected BreakProcessingResult ProcessBreakWithTracking(
+        ShiftScheduleDto breakSchedule,
+        Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
+        InitializedIndicators indicators,
+        ProductContext? productContext,
+        IWorkTimeTracker workTimeTracker,
+        ref short order,
+        ref TimeOnly currentTime,
+        bool isFirst = false)
+    {
+        var elapsedWorkTimeBeforeBreak = workTimeTracker.ElapsedWorkTime;
+        var elapsedWorkTimeForBreak = elapsedWorkTimeBeforeBreak;
+
+        var breakResult = breakProcessor.ProcessBreak(
+            breakSchedule,
+            auxiliaryOperations,
+            indicators,
+            productContext,
+            ref order,
+            ref currentTime,
+            ref elapsedWorkTimeForBreak,
+            isFirst);
+
+        var workTimeUsed = elapsedWorkTimeForBreak - elapsedWorkTimeBeforeBreak;
+        if (workTimeUsed > TimeSpan.Zero)
+        {
+            workTimeTracker.Add(workTimeUsed);
+        }
+
+        return breakResult;
+    }
+
     private RowInitializationContext CreateFilteredContext(RowInitializationContext originalContext)
     {
         var filteredSchedules = cleanupHandler.FilterOutCleanup(originalContext.SortedSchedules);
@@ -78,7 +110,8 @@ public abstract class RowInitializationStrategyBase(
             FormContext = originalContext.FormContext,
             AuxiliaryOperations = originalContext.AuxiliaryOperations,
             AllOperations = originalContext.AllOperations,
-            Indicators = originalContext.Indicators
+            Indicators = originalContext.Indicators,
+            WorkTimeTracker = originalContext.WorkTimeTracker
         };
     }
 

@@ -1,5 +1,6 @@
 using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Application.Domain.Templates;
+using ProductionAnalysis.Application.Implementation.Forms.Initialization.Services;
 using ProductionAnalysis.Client.Models.Dictionaries;
 
 namespace ProductionAnalysis.Application.Implementation.Forms.Initialization;
@@ -13,4 +14,5 @@ public class RowInitializationContext
     public Dictionary<int, AuxiliaryOperationDto> AuxiliaryOperations { get; init; } = new();
     public ICollection<OperationDto> AllOperations { get; init; } = new List<OperationDto>();
     public InitializedIndicators Indicators { get; init; } = null!;
+    public IWorkTimeTracker WorkTimeTracker { get; init; } = null!;
 }

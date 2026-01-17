@@ -65,7 +65,7 @@ public class FormRowInitializer(
         return await unitOfWork.Dictionaries.SelectOperationsAsync();
     }
 
-    private static RowInitializationContext CreateContext(
+    private RowInitializationContext CreateContext(
         TimeOnly shiftStartTime,
         List<ShiftScheduleDto> sortedSchedules,
         Template template,
@@ -83,7 +83,8 @@ public class FormRowInitializer(
             FormContext = formContext ?? new Dictionary<string, FormContext>(),
             AuxiliaryOperations = auxiliaryOperations,
             AllOperations = allOperations,
-            Indicators = initializedIndicators
+            Indicators = initializedIndicators,
+            WorkTimeTracker = new WorkTimeTracker()
         };
     }
 }

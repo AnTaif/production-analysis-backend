@@ -7,11 +7,10 @@ namespace ProductionAnalysis.Application.Implementation.Forms.Initialization.Str
 public class SingleProductWithWorkstationCapacityInitializationStrategy(
     IFormRowDataFactory formRowDataFactory,
     IBreakProcessor breakProcessor,
-    IShiftTimeManager shiftTimeManager,
     ICleanupOperationHandler cleanupOperationHandler,
     IFormRowEndTimeExtractor endTimeExtractor
 )
-    : SingleProductInitializationStrategyBase(formRowDataFactory, breakProcessor, shiftTimeManager,
+    : SingleProductInitializationStrategyBase(formRowDataFactory, breakProcessor,
         cleanupOperationHandler, endTimeExtractor)
 {
     public override bool CanHandle(PaType paType)
