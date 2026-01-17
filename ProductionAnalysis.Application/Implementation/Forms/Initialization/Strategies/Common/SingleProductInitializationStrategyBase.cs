@@ -38,18 +38,17 @@ public abstract class SingleProductInitializationStrategyBase(
         Dictionary<int, AuxiliaryOperationDto> auxiliaryOperations,
         ProductContext productContext)
     {
-        var totalWorkTime = shiftTimeManager.GetTotalWorkTime();
+        var workTimeTracker = new WorkTimeTracker(shiftTimeManager);
         var rows = new List<FormRowData>();
         var currentTime = shiftStartTime;
-        var elapsedWorkTime = TimeSpan.Zero;
         var breakIndex = 0;
         short order = 1;
         var hasWorkRows = false;
 
-        while (!shiftTimeManager.IsWorkTimeComplete(elapsedWorkTime, totalWorkTime))
+        while (!workTimeTracker.IsComplete)
         {
             var nextBreak = GetNextBreak(sortedBreaks, breakIndex);
-            var remainingWorkTime = totalWorkTime - elapsedWorkTime;
+            var remainingWorkTime = workTimeTracker.RemainingWorkTime;
             var workIntervalDuration = shiftTimeManager.CalculateWorkIntervalDuration(remainingWorkTime);
             var workIntervalEndTime = TimeHelper.AdjustForMidnight(currentTime, workIntervalDuration);
 
@@ -57,6 +56,8 @@ public abstract class SingleProductInitializationStrategyBase(
             {
                 var isFirst = !hasWorkRows && currentTime >= nextBreak!.StartTime;
 
+                var elapsedWorkTimeBeforeBreak = workTimeTracker.ElapsedWorkTime;
+                var elapsedWorkTimeForBreak = elapsedWorkTimeBeforeBreak;
                 var breakResult = breakProcessor.ProcessBreak(
                     nextBreak!,
                     auxiliaryOperations,
@@ -64,22 +65,27 @@ public abstract class SingleProductInitializationStrategyBase(
                     productContext,
                     ref order,
                     ref currentTime,
-                    ref elapsedWorkTime,
+                    ref elapsedWorkTimeForBreak,
                     isFirst);
+
+                var workTimeUsed = elapsedWorkTimeForBreak - elapsedWorkTimeBeforeBreak;
+                if (workTimeUsed > TimeSpan.Zero)
+                {
+                    workTimeTracker.Add(workTimeUsed);
+                }
 
                 rows.AddRange(breakResult.Rows);
                 breakIndex++;
             }
             else
             {
-                if (!shiftTimeManager.CanAddWorkInterval(elapsedWorkTime, workIntervalDuration))
-                {
-                    var adjustedRemainingWorkTime = shiftTimeManager.GetRemainingWorkTime(elapsedWorkTime);
-                    if (adjustedRemainingWorkTime <= TimeSpan.Zero)
-                        break;
+                var adjustedDuration = workTimeTracker.GetAdjustedDuration(workIntervalDuration);
+                if (adjustedDuration <= TimeSpan.Zero)
+                    break;
 
-                    workIntervalDuration = adjustedRemainingWorkTime;
-                    workIntervalEndTime = TimeHelper.AdjustForMidnight(currentTime, workIntervalDuration);
+                if (adjustedDuration < workIntervalDuration)
+                {
+                    workIntervalEndTime = TimeHelper.AdjustForMidnight(currentTime, adjustedDuration);
                 }
 
                 var workRow = formRowDataFactory.CreateWorkRow(
@@ -93,7 +99,7 @@ public abstract class SingleProductInitializationStrategyBase(
                 rows.Add(workRow);
                 hasWorkRows = true;
                 currentTime = workIntervalEndTime;
-                elapsedWorkTime = elapsedWorkTime.Add(workIntervalDuration);
+                workTimeTracker.Add(adjustedDuration);
             }
         }
 

@@ -34,10 +34,14 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
         short globalOrder = 1;
         var currentTime = context.ShiftStartTime;
         var globalBreakIndex = 0;
+        var workTimeTracker = new WorkTimeTracker(shiftTimeManager);
 
         var productsList = multiProducts.Products.ToList();
         for (var i = 0; i < productsList.Count; i++)
         {
+            if (workTimeTracker.IsComplete)
+                break;
+
             var productContext = productsList[i];
             var isLastProduct = i == productsList.Count - 1;
 
@@ -49,6 +53,7 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                 productContext,
                 globalBreakIndex,
                 isLastProduct,
+                workTimeTracker,
                 ref globalOrder);
 
             allRows.AddRange(productRows);
@@ -89,21 +94,20 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
         ProductContext productContext,
         int startBreakIndex,
         bool isLastProduct,
+        IWorkTimeTracker workTimeTracker,
         ref short order)
     {
-        var totalWorkTime = shiftTimeManager.GetTotalWorkTime();
         var rows = new List<FormRowData>();
         var currentTime = shiftStartTime;
-        var elapsedWorkTime = TimeSpan.Zero;
         var breakIndex = startBreakIndex;
         var localOrder = order;
         var hasWorkRows = false;
         var accumulatedPlan = 0;
 
-        while (!shiftTimeManager.IsWorkTimeComplete(elapsedWorkTime, totalWorkTime))
+        while (!workTimeTracker.IsComplete)
         {
             var nextBreak = GetNextBreak(sortedBreaks, breakIndex);
-            var remainingWorkTime = totalWorkTime - elapsedWorkTime;
+            var remainingWorkTime = workTimeTracker.RemainingWorkTime;
             var workIntervalDuration = shiftTimeManager.CalculateWorkIntervalDuration(remainingWorkTime);
             var preliminaryEndTime = TimeHelper.AdjustForMidnight(currentTime, workIntervalDuration);
 
@@ -111,6 +115,8 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
             {
                 var isFirst = !hasWorkRows && currentTime >= nextBreak!.StartTime;
 
+                var elapsedWorkTimeBeforeBreak = workTimeTracker.ElapsedWorkTime;
+                var elapsedWorkTimeForBreak = elapsedWorkTimeBeforeBreak;
                 var breakResult = breakProcessor.ProcessBreak(
                     nextBreak,
                     auxiliaryOperations,
@@ -118,8 +124,14 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                     productContext,
                     ref localOrder,
                     ref currentTime,
-                    ref elapsedWorkTime,
+                    ref elapsedWorkTimeForBreak,
                     isFirst);
+
+                var workTimeUsed = elapsedWorkTimeForBreak - elapsedWorkTimeBeforeBreak;
+                if (workTimeUsed > TimeSpan.Zero)
+                {
+                    workTimeTracker.Add(workTimeUsed);
+                }
 
                 rows.AddRange(breakResult.Rows);
                 breakIndex++;
@@ -141,15 +153,14 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                     break;
 
                 var workDuration = TimeHelper.CalculateDurationAcrossMidnight(currentTime, workIntervalEndTime);
+                var adjustedDuration = workTimeTracker.GetAdjustedDuration(workDuration);
 
-                if (!shiftTimeManager.CanAddWorkInterval(elapsedWorkTime, workDuration))
+                if (adjustedDuration <= TimeSpan.Zero)
+                    break;
+
+                if (adjustedDuration < workDuration)
                 {
-                    var adjustedRemainingWorkTime = shiftTimeManager.GetRemainingWorkTime(elapsedWorkTime);
-                    if (adjustedRemainingWorkTime <= TimeSpan.Zero)
-                        break;
-
-                    workIntervalEndTime = TimeHelper.AdjustForMidnight(currentTime, adjustedRemainingWorkTime);
-                    workDuration = adjustedRemainingWorkTime;
+                    workIntervalEndTime = TimeHelper.AdjustForMidnight(currentTime, adjustedDuration);
                     intervalPlan = planCalculator.Calculate(currentTime, workIntervalEndTime, productContext);
 
                     if (intervalPlan <= 0)
@@ -168,7 +179,7 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                 hasWorkRows = true;
                 accumulatedPlan += intervalPlan;
                 currentTime = workIntervalEndTime;
-                elapsedWorkTime = elapsedWorkTime.Add(workDuration);
+                workTimeTracker.Add(adjustedDuration);
 
                 if (accumulatedPlan >= productContext.DailyRate)
                     break;

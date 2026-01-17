@@ -31,24 +31,25 @@ public class LessThanOnePerHourInitializationStrategy(
             context.FormContext.Require<OperationOrProductContext>(FormContextAccessor.OperationOrProductContextKey);
         var relatedOperations = GetRelatedOperations(operationContext, context.AllOperations);
 
-        var totalWorkTime = shiftTimeManager.GetTotalWorkTime();
+        var workTimeTracker = new WorkTimeTracker(shiftTimeManager);
         var cycleDuration = OperationService.CalculateCycleDuration(relatedOperations);
 
         var rows = new List<FormRowData>();
         var currentTime = context.ShiftStartTime;
-        var elapsedWorkTime = TimeSpan.Zero;
         var breakIndex = 0;
         short order = 1;
 
-        while (!shiftTimeManager.IsWorkTimeComplete(elapsedWorkTime, totalWorkTime))
+        while (!workTimeTracker.IsComplete)
         {
             var nextBreak = GetNextBreak(context.SortedSchedules, breakIndex);
-            var remainingWorkTime = totalWorkTime - elapsedWorkTime;
+            var remainingWorkTime = workTimeTracker.RemainingWorkTime;
             var timeUntilBreak =
                 timeIntervalCalculator.CalculateTimeUntilBreak(currentTime, nextBreak, remainingWorkTime);
 
             if (ShouldProcessBreak(nextBreak, timeUntilBreak, cycleDuration))
             {
+                var elapsedWorkTimeBeforeBreak = workTimeTracker.ElapsedWorkTime;
+                var elapsedWorkTimeForBreak = elapsedWorkTimeBeforeBreak;
                 var breakResult = breakProcessor.ProcessBreak(
                     nextBreak!,
                     context.AuxiliaryOperations,
@@ -56,8 +57,14 @@ public class LessThanOnePerHourInitializationStrategy(
                     null,
                     ref order,
                     ref currentTime,
-                    ref elapsedWorkTime,
+                    ref elapsedWorkTimeForBreak,
                     isFirst: false);
+
+                var workTimeUsed = elapsedWorkTimeForBreak - elapsedWorkTimeBeforeBreak;
+                if (workTimeUsed > TimeSpan.Zero)
+                {
+                    workTimeTracker.Add(workTimeUsed);
+                }
 
                 rows.AddRange(breakResult.Rows);
                 breakIndex++;
@@ -65,17 +72,12 @@ public class LessThanOnePerHourInitializationStrategy(
             else if (remainingWorkTime.TotalSeconds >= cycleDuration)
             {
                 var cycleDurationSpan = TimeSpan.FromSeconds(cycleDuration);
+                var adjustedDuration = workTimeTracker.GetAdjustedDuration(cycleDurationSpan);
 
-                if (!shiftTimeManager.CanAddWorkInterval(elapsedWorkTime, cycleDurationSpan))
-                {
-                    var adjustedRemainingWorkTime = shiftTimeManager.GetRemainingWorkTime(elapsedWorkTime);
-                    if (adjustedRemainingWorkTime <= TimeSpan.Zero)
-                        break;
+                if (adjustedDuration <= TimeSpan.Zero)
+                    break;
 
-                    cycleDurationSpan = adjustedRemainingWorkTime;
-                }
-
-                var cycleEndTime = currentTime.Add(cycleDurationSpan);
+                var cycleEndTime = currentTime.Add(adjustedDuration);
 
                 var cycleRows = formRowDataFactory.CreateOperationCycleRows(
                     ref order,
@@ -89,7 +91,7 @@ public class LessThanOnePerHourInitializationStrategy(
 
                 rows.AddRange(cycleRows);
                 currentTime = cycleEndTime;
-                elapsedWorkTime = elapsedWorkTime.Add(cycleDurationSpan);
+                workTimeTracker.Add(adjustedDuration);
             }
             else
             {
@@ -106,6 +108,7 @@ public class LessThanOnePerHourInitializationStrategy(
                     relatedOperations);
 
                 rows.AddRange(cycleRows);
+                workTimeTracker.Add(remainingWorkTime);
                 break;
             }
         }
