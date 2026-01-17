@@ -118,12 +118,10 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
     {
         var rows = new List<FormRowData>();
         var workTimeValue = FormatTimeRange(startTime, endTime);
-        var planValue = "1"; // В плане всегда 1 шт. в рамках полного цикла под-операций
+        const string planValue = "1"; // В плане всегда 1 шт. в рамках полного цикла под-операций
 
-        // Генерируем уникальный ключ группы для группировки строк
         var groupKey = order;
 
-        // Создаем отдельную строку для каждой под-операции
         var operationList = operations.ToList();
         for (var i = 0; i < operationList.Count; i++)
         {
@@ -133,17 +131,14 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
                 CreateFormRowValueData(workTimeIndicator, workTimeValue)
             };
 
-            // План одинаковый для всех строк цикла
             if (planIndicator is not null) values.Add(CreateFormRowValueData(planIndicator, planValue));
 
-            // Наименование операции - только для текущей операции
             if (operationNameIndicator is not null)
             {
                 var operationName = $"{i + 1}. {operation.Name}";
                 values.Add(CreateFormRowValueData(operationNameIndicator, operationName));
             }
 
-            // Время операции - только для текущей операции
             if (operationTimeIndicator is not null)
             {
                 var operationTime = operation.Duration.HasValue
@@ -156,7 +151,7 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
             {
                 Order = order++,
                 IsAuxiliaryOperation = false,
-                GroupKey = groupKey, // Все строки одной группы имеют одинаковый GroupKey
+                GroupKey = groupKey,
                 Values = values
             });
         }
@@ -177,14 +172,13 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
     {
         var values = new List<FormRowValueData>();
 
-        // Наименование операции
         if (operationNameIndicator is not null)
+        {
             values.Add(CreateFormRowValueData(operationNameIndicator, operation.Name));
+        }
 
-        // Время начала план
         if (startTimePlanIndicator is not null)
         {
-            // Если индикатор имеет тип Time, сохраняем TimeOnly, иначе сохраняем минуты
             if (startTimePlanIndicator.ValueType == FieldValueTypes.Time)
             {
                 values.Add(CreateFormRowValueData(startTimePlanIndicator, startTime));
@@ -196,10 +190,8 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
             }
         }
 
-        // Время окончания план
         if (endTimePlanIndicator is not null)
         {
-            // Если индикатор имеет тип Time, сохраняем TimeOnly, иначе сохраняем минуты
             if (endTimePlanIndicator.ValueType == FieldValueTypes.Time)
             {
                 values.Add(CreateFormRowValueData(endTimePlanIndicator, endTime));
@@ -211,7 +203,6 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
             }
         }
 
-        // План во времени (время операции в минутах)
         if (planMinutesIndicator is not null)
         {
             var planMinutes = operation.Duration.HasValue

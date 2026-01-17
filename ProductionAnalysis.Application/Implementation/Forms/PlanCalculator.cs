@@ -14,7 +14,10 @@ public class PlanCalculator : IPlanCalculator
     {
         var workDuration = endTime - startTime;
 
-        if (workDuration <= TimeSpan.MinValue) return 0;
+        if (workDuration <= TimeSpan.MinValue)
+        {
+            return 0;
+        }
 
         if (productContext.WorkstationCapacity is > 0)
         {
@@ -28,6 +31,6 @@ public class PlanCalculator : IPlanCalculator
             return (int)plan;
         }
 
-        return 0;
+        throw new Exception("Invalid context");
     }
 }

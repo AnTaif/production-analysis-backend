@@ -34,9 +34,10 @@ public class FormRowValueFilter : IFormRowValueFilter
         {
             if (!indicatorsDict.TryGetValue(indicatorId, out var indicator)
                 || !UpdatableInputTypes.Contains(indicator.InputType))
+            {
                 continue;
+            }
 
-            // Если индикатор имеет тип Time и значение - строка, конвертируем в TimeOnly
             var processedValue = value;
             if (indicator.ValueType == FieldValueTypes.Time && value is string stringValue)
             {

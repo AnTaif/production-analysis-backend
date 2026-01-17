@@ -7,7 +7,7 @@ namespace ProductionAnalysis.Application.Implementation.Forms;
 
 public interface IFormRowFormulaCalculator
 {
-    Task<ICollection<FormRowValueData>> CalculateFormulaValuesAsync(
+    ICollection<FormRowValueData> CalculateFormulaValues(
         FormRow row,
         Template template,
         ICollection<int> updatedIndicatorIds,
@@ -17,7 +17,7 @@ public interface IFormRowFormulaCalculator
 [RegisterScoped]
 public class FormRowFormulaCalculator(IFormulaCalculator formulaCalculator) : IFormRowFormulaCalculator
 {
-    public Task<ICollection<FormRowValueData>> CalculateFormulaValuesAsync(
+    public ICollection<FormRowValueData> CalculateFormulaValues(
         FormRow row,
         Template template,
         ICollection<int> updatedIndicatorIds,
@@ -33,33 +33,37 @@ public class FormRowFormulaCalculator(IFormulaCalculator formulaCalculator) : IF
         var formulaValuesToUpdate = new List<FormRowValueData>();
         foreach (var (indicatorId, calculatedValue) in calculatedValues)
         {
-            if (currentValues.TryGetValue(indicatorId, out var oldValue) &&
-                AreValuesEqual(oldValue, calculatedValue)) continue;
+            if (currentValues.TryGetValue(indicatorId, out var oldValue)
+                && ValueComparer.AreEqual(oldValue, calculatedValue))
+            {
+                continue;
+            }
 
-            var formulaIndicator = template.Indicators.FirstOrDefault(i => i.Id == indicatorId);
-            if (formulaIndicator is { InputType: FieldInputTypes.Formula })
+            var indicator = template.IndicatorsByIds[indicatorId];
+            if (indicator is { InputType: FieldInputTypes.Formula })
+            {
                 formulaValuesToUpdate.Add(new FormRowValueData
                 {
                     IndicatorId = indicatorId,
                     Value = calculatedValue
                 });
+            }
         }
 
-        return Task.FromResult<ICollection<FormRowValueData>>(formulaValuesToUpdate);
+        return formulaValuesToUpdate;
     }
 
     private static Dictionary<int, object> ParseRowValuesToDictionary(Dictionary<string, FormRowValue> rowValues)
     {
         var result = new Dictionary<int, object>();
         foreach (var (key, rowValue) in rowValues)
+        {
             if (int.TryParse(key, out var indicatorId))
+            {
                 result[indicatorId] = rowValue.Value;
+            }
+        }
 
         return result;
-    }
-
-    private static bool AreValuesEqual(object? value1, object? value2)
-    {
-        return ValueComparer.AreEqual(value1, value2);
     }
 }

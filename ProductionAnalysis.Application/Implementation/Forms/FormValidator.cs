@@ -27,7 +27,6 @@ public class FormValidator(
             CreateFormRequest request,
             Guid creatorId)
     {
-        // Валидация запроса с помощью FluentValidation
         var validationResult = await requestValidator.ValidateAsync(request);
         if (!validationResult.IsValid)
         {
@@ -39,7 +38,6 @@ public class FormValidator(
             return ServiceError.BadRequest(string.Join("; ", errorMessages));
         }
 
-        // Проверка существования зависимостей
         var paTypeId = (int)request.PaType;
         var template = await unitOfWork.Templates.FindLatestVerAsync(paTypeId);
         if (template is null)

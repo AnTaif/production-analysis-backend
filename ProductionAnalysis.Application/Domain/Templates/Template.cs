@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using ProductionAnalysis.Application.Domain.Forms;
 
 namespace ProductionAnalysis.Application.Domain.Templates;
@@ -16,6 +17,7 @@ public class Template
         PaType = paType;
         Version = version;
         Indicators = indicators;
+        IndicatorsByIds = Indicators.ToFrozenDictionary(x => x.Id);
     }
 
     public int Id { get; }
@@ -23,4 +25,5 @@ public class Template
     public PaType PaType { get; }
     public int Version { get; }
     public ICollection<Indicator> Indicators { get; }
+    public IReadOnlyDictionary<int, Indicator> IndicatorsByIds { get; }
 }

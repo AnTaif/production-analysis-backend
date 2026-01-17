@@ -17,13 +17,11 @@ public interface IFormulaCalculator
 }
 
 [RegisterScoped]
-public class FormulaCalculator : IFormulaCalculator
+public partial class FormulaCalculator : IFormulaCalculator
 {
-    private static readonly Regex IndicatorReferenceRegex = new(@"indicator_(\d+)", RegexOptions.Compiled);
-
-    // Поддержка вложенных ключей: context.product.cycleTime, context.cycleTime и т.д.
-    private static readonly Regex ContextReferenceRegex = new(@"context\.([\w.]+)", RegexOptions.Compiled);
-    private static readonly Regex TimeToMinutesFunctionRegex = new(@"timeToMinutes\(([^)]+)\)", RegexOptions.Compiled);
+    private static readonly Regex IndicatorReferenceRegex = CompiledIndicatorReferenceRegex();
+    private static readonly Regex ContextReferenceRegex = CompiledContextReferenceRegex();
+    private static readonly Regex TimeToMinutesFunctionRegex = CompiledTimeToMinutesFunctionRegex();
 
     public Dictionary<int, object> CalculateFormulas(
         Dictionary<int, object> currentValues,
@@ -155,7 +153,7 @@ public class FormulaCalculator : IFormulaCalculator
             .ToList();
     }
 
-    private string ConvertToNumericString(object value)
+    private static string ConvertToNumericString(object value)
     {
         return value switch
         {
@@ -170,7 +168,7 @@ public class FormulaCalculator : IFormulaCalculator
         };
     }
 
-    private object? EvaluateExpression(string expression)
+    private static object? EvaluateExpression(string expression)
     {
         try
         {
@@ -188,16 +186,23 @@ public class FormulaCalculator : IFormulaCalculator
         }
     }
 
-    private object? GetContextValue(string contextKey, Dictionary<string, FormContext>? formContext)
+    private static object? GetContextValue(string contextKey, Dictionary<string, FormContext>? formContext)
     {
-        if (formContext == null) return 0;
+        if (formContext == null)
+        {
+            return 0;
+        }
 
-        // Поддержка вложенных ключей через точку (например, product.cycleTime)
         var keys = contextKey.Split('.');
-        if (keys.Length == 0) return 0;
+        if (keys.Length == 0)
+        {
+            return 0;
+        }
 
-        // Первый ключ - это ключ контекста в словаре
-        if (!formContext.TryGetValue(keys[0], out var context)) return 0;
+        if (!formContext.TryGetValue(keys[0], out var context))
+        {
+            return 0;
+        }
 
         // Если это ProductContext и запрашивается свойство
         if (context is ProductContext productContext)
@@ -252,4 +257,13 @@ public class FormulaCalculator : IFormulaCalculator
 
         return 0;
     }
+
+    [GeneratedRegex(@"indicator_(\d+)", RegexOptions.Compiled)]
+    private static partial Regex CompiledIndicatorReferenceRegex();
+
+    [GeneratedRegex(@"context\.([\w.]+)", RegexOptions.Compiled)]
+    private static partial Regex CompiledContextReferenceRegex();
+
+    [GeneratedRegex(@"timeToMinutes\(([^)]+)\)", RegexOptions.Compiled)]
+    private static partial Regex CompiledTimeToMinutesFunctionRegex();
 }

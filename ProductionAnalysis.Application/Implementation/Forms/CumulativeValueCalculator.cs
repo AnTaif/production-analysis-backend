@@ -17,12 +17,14 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
     {
         var (cumulativeIndicators, baseIndicatorMap) =
             GetCumulativeIndicatorsWithBase(form.TemplateSnapshot.Indicators);
-        if (cumulativeIndicators.Count == 0) return new Dictionary<short, ICollection<FormRowValueData>>();
+        if (cumulativeIndicators.Count == 0)
+        {
+            return new Dictionary<short, ICollection<FormRowValueData>>();
+        }
 
         var updatedRow = GetWorkRows(form.Rows).FirstOrDefault(r => r.Order == fromRowOrder);
         if (updatedRow == null) return new Dictionary<short, ICollection<FormRowValueData>>();
 
-        // Получаем все строки того же продукта, начиная с обновленной строки
         var productId = updatedRow.ProductId;
         var workRows = GetWorkRows(form.Rows)
             .Where(r => r.ProductId == productId && r.Order >= fromRowOrder)
@@ -31,7 +33,6 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
 
         if (workRows.Count == 0) return new Dictionary<short, ICollection<FormRowValueData>>();
 
-        // Находим предыдущую строку того же продукта
         var previousWorkRow = FindPreviousWorkRow(form.Rows, fromRowOrder, productId);
         var cumulativeValuesByIndicator = BuildInitialCumulativeValues(previousWorkRow, cumulativeIndicators);
         var valuesToUpdateByRow = new Dictionary<short, ICollection<FormRowValueData>>();
@@ -55,7 +56,6 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
         var (cumulativeIndicators, baseIndicatorMap) = GetCumulativeIndicatorsWithBase(indicators);
         if (cumulativeIndicators.Count == 0) return;
 
-        // Группируем строки по продуктам для отдельного расчета накопительных значений
         var rowsByProduct = rows
             .Where(r => !r.IsAuxiliaryOperation)
             .GroupBy(r => r.ProductId)
@@ -71,17 +71,14 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
             {
                 if (!baseIndicatorMap.TryGetValue(cumulativeIndicator.Id, out var baseIndicatorId)) continue;
 
-                // Получаем значение базового индикатора
                 var baseValueData = row.Values.FirstOrDefault(v => v.IndicatorId == baseIndicatorId);
                 if (baseValueData == null) continue;
 
                 if (!TryParseIntValue(baseValueData.Value, out var baseValue)) continue;
 
-                // Вычисляем накопительное значение
                 var previousCumulative = cumulativeValuesByIndicator.GetValueOrDefault(cumulativeIndicator.Id, 0);
                 var cumulativeValue = previousCumulative + baseValue;
 
-                // Создаем или обновляем значение накопительного индикатора
                 var cumulativeValueData = row.Values.FirstOrDefault(v => v.IndicatorId == cumulativeIndicator.Id);
                 if (cumulativeValueData == null)
                 {
@@ -111,7 +108,6 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
         var baseIndicatorMap = new Dictionary<int, int>();
         foreach (var cumulativeIndicator in cumulativeIndicators)
         {
-            // ValueSelector содержит ID базового индикатора
             if (int.TryParse(cumulativeIndicator.ValueSelector, out var baseIndicatorId))
             {
                 baseIndicatorMap[cumulativeIndicator.Id] = baseIndicatorId;
@@ -168,13 +164,11 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
         {
             if (!baseIndicatorMap.TryGetValue(cumulativeIndicator.Id, out var baseIndicatorId)) continue;
 
-            // Получаем значение базового индикатора
             var baseIndicatorKey = baseIndicatorId.ToString();
             if (!row.Values.TryGetValue(baseIndicatorKey, out var baseRowValue)) continue;
 
             if (!TryParseIntValue(baseRowValue.Value, out var baseValue)) continue;
 
-            // Вычисляем накопительное значение
             var previousCumulative = cumulativeValuesByIndicator.GetValueOrDefault(cumulativeIndicator.Id, 0);
             var cumulativeValue = previousCumulative + baseValue;
 
