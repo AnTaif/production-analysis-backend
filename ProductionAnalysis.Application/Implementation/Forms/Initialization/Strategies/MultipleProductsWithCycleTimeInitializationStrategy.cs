@@ -98,6 +98,8 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
         var localOrder = order;
         var hasWorkRows = false; // Отслеживаем, были ли созданы рабочие строки
         var accumulatedPlan = 0; // Накопленный план для текущего продукта
+        const int cleanupOperationId = 3; // ID операции "Уборка 15 мин"
+        const int retoolingOperationId = 4; // ID операции "Переналадка 15 мин"
 
         while (!shiftTimeManager.IsWorkTimeComplete(elapsedWorkTime, totalWorkTime))
         {
@@ -105,6 +107,27 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
             var remainingWorkTime = totalWorkTime - elapsedWorkTime;
             var workIntervalDuration = shiftTimeManager.CalculateWorkIntervalDuration(remainingWorkTime);
             var workIntervalEndTime = currentTime.Add(workIntervalDuration);
+
+            // Проверяем, не переходит ли время через полночь
+            // Если workIntervalEndTime < currentTime, значит перешли через полночь
+            // В этом случае ограничиваем до конца дня
+            if (workIntervalEndTime < currentTime)
+            {
+                var timeUntilMidnight = TimeSpan.FromDays(1) - TimeSpan.FromTicks(currentTime.Ticks);
+                if (timeUntilMidnight < workIntervalDuration)
+                {
+                    workIntervalDuration = timeUntilMidnight;
+                }
+
+                // Вычисляем время до полуночи
+                var minutesUntilMidnight = (int)timeUntilMidnight.TotalMinutes;
+                workIntervalEndTime = currentTime.AddMinutes(minutesUntilMidnight);
+                // Если все еще переходим через полночь, ограничиваем до 23:59
+                if (workIntervalEndTime < currentTime)
+                {
+                    workIntervalEndTime = new TimeOnly(23, 59);
+                }
+            }
 
             if (nextBreak != null && breakProcessor.ShouldInsertBreak(currentTime, nextBreak, workIntervalEndTime))
             {
@@ -146,9 +169,36 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                         var remainingDuration = TimeSpan.FromSeconds(remainingSeconds);
                         var limitedEndTime = currentTime.Add(remainingDuration);
 
+                        // Проверяем переход через полночь
+                        if (limitedEndTime < currentTime)
+                        {
+                            var timeUntilMidnight = TimeSpan.FromDays(1) - TimeSpan.FromTicks(currentTime.Ticks);
+                            if (timeUntilMidnight < remainingDuration)
+                            {
+                                var minutesUntilMidnight = (int)timeUntilMidnight.TotalMinutes;
+                                limitedEndTime = currentTime.AddMinutes(minutesUntilMidnight);
+                                if (limitedEndTime < currentTime)
+                                {
+                                    limitedEndTime = new TimeOnly(23, 59);
+                                }
+                            }
+                        }
+
                         // Ограничиваем также и по оставшемуся рабочему времени смены
                         // Вычисляем максимальное время окончания на основе оставшегося рабочего времени
                         var maxEndTimeByWorkTime = currentTime.Add(remainingWorkTime);
+
+                        // Проверяем переход через полночь для maxEndTimeByWorkTime
+                        if (maxEndTimeByWorkTime < currentTime)
+                        {
+                            var timeUntilMidnight = TimeSpan.FromDays(1) - TimeSpan.FromTicks(currentTime.Ticks);
+                            var minutesUntilMidnight = (int)timeUntilMidnight.TotalMinutes;
+                            maxEndTimeByWorkTime = currentTime.AddMinutes(minutesUntilMidnight);
+                            if (maxEndTimeByWorkTime < currentTime)
+                            {
+                                maxEndTimeByWorkTime = new TimeOnly(23, 59);
+                            }
+                        }
 
                         // Берем минимальное из двух ограничений
                         workIntervalEndTime = limitedEndTime < maxEndTimeByWorkTime
@@ -172,6 +222,19 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                 {
                     // Даже если не превышаем dailyRate, нужно убедиться, что не превышаем оставшееся рабочее время
                     var maxEndTimeByWorkTime = currentTime.Add(remainingWorkTime);
+
+                    // Проверяем переход через полночь
+                    if (maxEndTimeByWorkTime < currentTime)
+                    {
+                        var timeUntilMidnight = TimeSpan.FromDays(1) - TimeSpan.FromTicks(currentTime.Ticks);
+                        var minutesUntilMidnight = (int)timeUntilMidnight.TotalMinutes;
+                        maxEndTimeByWorkTime = currentTime.AddMinutes(minutesUntilMidnight);
+                        if (maxEndTimeByWorkTime < currentTime)
+                        {
+                            maxEndTimeByWorkTime = new TimeOnly(23, 59);
+                        }
+                    }
+
                     if (workIntervalEndTime > maxEndTimeByWorkTime)
                     {
                         workIntervalEndTime = maxEndTimeByWorkTime;
@@ -199,6 +262,13 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
                 accumulatedPlan += intervalPlan; // Обновляем накопленный план
 
                 var workDuration = workIntervalEndTime - currentTime;
+                // Если workDuration отрицательный, значит перешли через полночь
+                if (workDuration < TimeSpan.Zero)
+                {
+                    workDuration = TimeSpan.FromDays(1) - TimeSpan.FromTicks(currentTime.Ticks) +
+                                   TimeSpan.FromTicks(workIntervalEndTime.Ticks);
+                }
+
                 currentTime = workIntervalEndTime;
                 elapsedWorkTime = elapsedWorkTime.Add(workDuration);
 
@@ -210,20 +280,90 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
             }
         }
 
-        // Обрабатываем оставшиеся перерывы только для последнего продукта
+        // Обрабатываем оставшиеся перерывы
+        // Перерывы должны быть распределены по времени, а не все в конце
+        // Для последнего продукта добавляем все оставшиеся перерывы
+        // Для не последнего продукта проверяем, есть ли перерывы, которые должны быть перед переналадкой
         var remainingBreakRows = new List<FormRowData>();
-        if (isLastProduct)
+        var remainingBreaks = sortedBreaks.Skip(breakIndex).ToList();
+
+        if (remainingBreaks.Count > 0)
         {
-            remainingBreakRows = ProcessRemainingBreaks(
-                sortedBreaks,
-                breakIndex,
-                localOrder,
-                auxiliaryOperations,
-                indicators,
-                breakProcessor,
-                productContext,
-                isLast: true).ToList(); // Все оставшиеся перерывы - последние
-            rows.AddRange(remainingBreakRows);
+            if (isLastProduct)
+            {
+                // Для последнего продукта добавляем все оставшиеся перерывы, отсортированные по времени
+                var sortedRemainingBreaks = remainingBreaks.OrderBy(b => b.StartTime).ToList();
+                remainingBreakRows = breakProcessor.ProcessRemainingBreaks(
+                    sortedRemainingBreaks,
+                    localOrder,
+                    auxiliaryOperations,
+                    indicators,
+                    productContext,
+                    isLast: true).ToList();
+                rows.AddRange(remainingBreakRows);
+            }
+            else
+            {
+                // Для не последнего продукта проверяем, есть ли перерывы, которые должны быть перед переналадкой
+                // "Уборка" должна быть перед переналадкой, если она еще не была обработана
+                // Проверяем перерывы, которые должны быть до текущего времени + время переналадки
+                var retoolingDuration = auxiliaryOperations.TryGetValue(retoolingOperationId, out var retoolingOp)
+                    ? retoolingOp.Duration
+                    : TimeSpan.FromMinutes(15);
+                var timeBeforeRetooling = currentTime.Add(retoolingDuration);
+
+                // Проверяем переход через полночь
+                if (timeBeforeRetooling < currentTime)
+                {
+                    var timeUntilMidnight = TimeSpan.FromDays(1) - TimeSpan.FromTicks(currentTime.Ticks);
+                    var minutesUntilMidnight = (int)timeUntilMidnight.TotalMinutes;
+                    timeBeforeRetooling = currentTime.AddMinutes(minutesUntilMidnight);
+                    if (timeBeforeRetooling < currentTime)
+                    {
+                        timeBeforeRetooling = new TimeOnly(23, 59);
+                    }
+                }
+
+                // Находим перерывы, которые должны быть перед переналадкой
+                // Это перерывы, которые по времени должны быть до переналадки
+                var breaksBeforeRetooling = remainingBreaks
+                    .Where(b =>
+                    {
+                        // Проверяем, попадает ли перерыв по времени до переналадки
+                        // Учитываем переход через полночь
+                        if (b.StartTime < currentTime)
+                        {
+                            // Перерыв уже прошел, не добавляем
+                            return false;
+                        }
+
+                        // Если перерыв - это "Уборка", и она должна быть перед переналадкой
+                        if (b.AuxiliaryOperationId == cleanupOperationId)
+                        {
+                            return b.StartTime <= timeBeforeRetooling;
+                        }
+
+                        // Для других перерывов проверяем, попадают ли они в интервал до переналадки
+                        return b.StartTime <= timeBeforeRetooling;
+                    })
+                    .OrderBy(b => b.StartTime)
+                    .ToList();
+
+                if (breaksBeforeRetooling.Count > 0)
+                {
+                    // Добавляем перерывы, которые должны быть перед переналадкой
+                    var breaksToAdd = breakProcessor.ProcessRemainingBreaks(
+                        breaksBeforeRetooling,
+                        localOrder,
+                        auxiliaryOperations,
+                        indicators,
+                        productContext,
+                        isLast: false).ToList();
+                    rows.AddRange(breaksToAdd);
+                    localOrder += (short)breaksToAdd.Count;
+                    breakIndex += breaksToAdd.Count;
+                }
+            }
         }
 
         // Вычисляем время окончания: берем максимальное время из оставшихся перерывов или текущее время
@@ -231,12 +371,24 @@ public class MultipleProductsWithCycleTimeInitializationStrategy(
         if (isLastProduct && remainingBreakRows.Count > 0)
         {
             // Находим максимальное время окончания из оставшихся перерывов
-            var remainingBreaks = sortedBreaks.Skip(breakIndex).ToList();
             foreach (var breakSchedule in remainingBreaks)
             {
                 if (auxiliaryOperations.TryGetValue(breakSchedule.AuxiliaryOperationId, out var breakOperation))
                 {
                     var breakEndTime = breakSchedule.StartTime.Add(breakOperation.Duration);
+                    // Проверяем переход через полночь
+                    if (breakEndTime < breakSchedule.StartTime)
+                    {
+                        var timeUntilMidnight =
+                            TimeSpan.FromDays(1) - TimeSpan.FromTicks(breakSchedule.StartTime.Ticks);
+                        var minutesUntilMidnight = (int)timeUntilMidnight.TotalMinutes;
+                        breakEndTime = breakSchedule.StartTime.AddMinutes(minutesUntilMidnight);
+                        if (breakEndTime < breakSchedule.StartTime)
+                        {
+                            breakEndTime = new TimeOnly(23, 59);
+                        }
+                    }
+
                     if (breakEndTime > endTime)
                     {
                         endTime = breakEndTime;

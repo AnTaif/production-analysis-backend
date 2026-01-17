@@ -41,6 +41,15 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
 {
     public bool ShouldInsertBreak(TimeOnly currentTime, ShiftScheduleDto breakSchedule, TimeOnly intervalEnd)
     {
+        // Проверяем, попадает ли перерыв в интервал
+        // Учитываем переход через полночь: если intervalEnd < currentTime, значит перешли через полночь
+        if (intervalEnd < currentTime)
+        {
+            // Переход через полночь: перерыв попадает в интервал, если он после currentTime или до intervalEnd
+            return breakSchedule.StartTime >= currentTime || breakSchedule.StartTime < intervalEnd;
+        }
+
+        // Обычный случай: перерыв попадает в интервал, если он между currentTime и intervalEnd
         return currentTime <= breakSchedule.StartTime && breakSchedule.StartTime < intervalEnd;
     }
 
@@ -114,8 +123,9 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
             var breakMetaInfo = auxiliaryOperations[breakSchedule.AuxiliaryOperationId];
             var breakEndTime = breakSchedule.StartTime.Add(breakMetaInfo.Duration);
 
-            // Если операция последняя, то ProductId = null
-            var operationProductContext = isLast ? null : productContext;
+            // Если есть productContext, используем его (для одного продукта или для перерывов во время работы продукта)
+            // ProductId = null только если это действительно последняя операция после всех продуктов и нет productContext
+            var operationProductContext = productContext;
 
             var breakRow = formRowDataFactory.CreateBreakRow(
                 order++,
