@@ -104,9 +104,10 @@ public abstract class BaseIntegrationTest
 
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserDbo>>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        var formsService = scope.ServiceProvider.GetRequiredService<IFormsService>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<PaDataSeeder>>();
 
-        var testDataSeeder = new TestDataSeeder(DbContext, userManager, roleManager, logger);
+        var testDataSeeder = new TestDataSeeder(DbContext, userManager, roleManager, formsService, logger);
         await testDataSeeder.SeedAllAsync();
 
         DataBuilder = new TestDataBuilder(DbContext, userManager);
