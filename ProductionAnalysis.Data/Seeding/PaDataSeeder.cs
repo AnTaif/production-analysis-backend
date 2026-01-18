@@ -1242,7 +1242,7 @@ public class PaDataSeeder(
             FormDate = today.AddDays(-4),
             OperationOrProduct = new OperationOrProductContextRequest
             {
-                ProductId = 7 // Втулка
+                OperationId = 7 // Втулка
             }
         };
 
