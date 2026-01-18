@@ -42,9 +42,6 @@ public class FormDboConfiguration : IEntityTypeConfiguration<FormDbo>
             .HasForeignKey(x => x.DepartmentId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Property(x => x.AssigneeId)
-            .HasColumnName("ExecutorId");
-
         builder.HasOne<EmployeeDbo>()
             .WithMany()
             .HasForeignKey(x => x.AssigneeId)

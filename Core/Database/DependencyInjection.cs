@@ -27,7 +27,12 @@ public static class DependencyInjection
             options.Password = dbOptions.Password;
         });
 
-        services.AddDbContext<TContext>(options => { options.UseNpgsql(dbOptions.GetConnectionString()); });
+        services.AddDbContext<TContext>(options =>
+        {
+            options
+                .UseNpgsql(dbOptions.GetConnectionString())
+                .UseSnakeCaseNamingConvention();
+        });
     }
 
     public static void AddDataSeeder<TDataSeeder>(this IServiceCollection services)

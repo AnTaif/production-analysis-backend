@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ProductionAnalysis.Data.Context;
@@ -11,9 +12,11 @@ using ProductionAnalysis.Data.Context;
 namespace ProductionAnalysis.Data.Migrations
 {
     [DbContext(typeof(PaDbContext))]
-    partial class PaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260118204340_snakeCaseMigration")]
+    partial class snakeCaseMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -619,7 +622,7 @@ namespace ProductionAnalysis.Data.Migrations
 
                     b.Property<int>("AssigneeId")
                         .HasColumnType("integer")
-                        .HasColumnName("assignee_id");
+                        .HasColumnName("executor_id");
 
                     b.Property<string>("Context")
                         .IsRequired()
@@ -675,7 +678,7 @@ namespace ProductionAnalysis.Data.Migrations
                         .HasName("pk_forms");
 
                     b.HasIndex("AssigneeId")
-                        .HasDatabaseName("ix_forms_assignee_id");
+                        .HasDatabaseName("ix_forms_executor_id");
 
                     b.HasIndex("CreatorId")
                         .HasDatabaseName("ix_forms_creator_id");
@@ -1026,7 +1029,7 @@ namespace ProductionAnalysis.Data.Migrations
                         .HasForeignKey("AssigneeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_forms_employees_assignee_id");
+                        .HasConstraintName("fk_forms_employees_executor_id");
 
                     b.HasOne("ProductionAnalysis.Data.Models.UserDbo", null)
                         .WithMany()
