@@ -130,9 +130,9 @@ public partial class FormulaCalculator : IFormulaCalculator
             expression = IndicatorReferenceRegex.Replace(expression, match =>
             {
                 var indicatorId = int.Parse(match.Groups[1].Value);
-                if (currentValues.TryGetValue(indicatorId, out var value)) return ConvertToNumericString(value);
-
-                return "0";
+                return currentValues.TryGetValue(indicatorId, out var value)
+                    ? ConvertToNumericString(value)
+                    : "0";
             });
 
             // Вычисляем выражение
@@ -162,6 +162,9 @@ public partial class FormulaCalculator : IFormulaCalculator
             double d => d.ToString("G", CultureInfo.InvariantCulture),
             decimal dec => dec.ToString("G", CultureInfo.InvariantCulture),
             float f => f.ToString("G", CultureInfo.InvariantCulture),
+            TimeOnly time => (time.Hour * 60 + time.Minute).ToString(),
+            string s when TimeOnly.TryParse(s, out var timeOnly) =>
+                (timeOnly.Hour * 60 + timeOnly.Minute).ToString(),
             string s when double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out var num) =>
                 num.ToString("G", CultureInfo.InvariantCulture),
             _ => "0"

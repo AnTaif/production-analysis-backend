@@ -951,7 +951,7 @@ public class PaDataSeeder(
                 ValueType = FieldValueTypes.Text,
                 InputType = FieldInputTypes.Formula,
                 ValueSelector = null,
-                Formula = "indicator_17 - indicator_16",
+                Formula = "(indicator_15 - indicator_13) - (indicator_14 - indicator_12)",
                 HasSummation = true
             },
             // Накопительные индикаторы
