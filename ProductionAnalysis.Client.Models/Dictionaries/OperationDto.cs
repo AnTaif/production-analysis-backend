@@ -8,4 +8,5 @@ public record OperationDto
     public OperationBasedOnType BasedOnType { get; init; }
     public int? BasedOperationId { get; init; }
     public int? BasedProductId { get; init; }
+    public ICollection<OperationDto> SubOperations { get; init; } = new List<OperationDto>();
 }

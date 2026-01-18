@@ -69,10 +69,21 @@ public class DictionariesRepository(
 
     public async Task<ICollection<OperationDto>> SelectOperationsAsync()
     {
-        var dbos = await dbContext.Operations
+        var allDbos = await dbContext.Operations.ToListAsync();
+        var allOperations = allDbos.Select(o => o.ToDto()).ToList();
+
+        var parentOperations = allOperations
             .Where(o => o.BasedOperationId == null && o.BasedProductId == null)
-            .ToListAsync();
-        return dbos.Select(o => o.ToDto()).ToList();
+            .Select(parentOp =>
+            {
+                var subOperations = allOperations
+                    .Where(o => o.BasedOperationId == parentOp.Id)
+                    .ToList();
+                return parentOp with { SubOperations = subOperations };
+            })
+            .ToList();
+
+        return parentOperations;
     }
 
     public async Task<ICollection<OperationDto>> SelectAllOperationsAsync()
@@ -83,8 +94,20 @@ public class DictionariesRepository(
 
     public async Task<ICollection<ProductDto>> SelectProductsAsync()
     {
+        var allOperations = await dbContext.Operations.ToListAsync();
+        var allOperationsDto = allOperations.Select(o => o.ToDto()).ToList();
+
         var dbos = await dbContext.Products.ToListAsync();
-        return dbos.Select(d => d.ToDto()).ToList();
+        var products = dbos.Select(dbo =>
+        {
+            var productDto = dbo.ToDto();
+            var productOperations = allOperationsDto
+                .Where(o => o.BasedProductId == productDto.Id)
+                .ToList();
+            return productDto with { SubOperations = productOperations };
+        }).ToList();
+
+        return products;
     }
 
     public async Task<ICollection<ShiftDto>> SelectShiftsAsync()
