@@ -392,7 +392,7 @@ public class PaDataSeeder(
             new OperationDbo
             {
                 Id = 8,
-                Name = "Подсборка",
+                Name = "1. Подсборка",
                 DurationInSeconds = 900, // 15 мин
                 BasedOnType = 2,
                 BasedOperationId = 7,
@@ -401,7 +401,7 @@ public class PaDataSeeder(
             new OperationDbo
             {
                 Id = 9,
-                Name = "Установка",
+                Name = "2. Установка",
                 DurationInSeconds = 600, // 10 мин
                 BasedOnType = 2,
                 BasedOperationId = 7,
@@ -410,7 +410,7 @@ public class PaDataSeeder(
             new OperationDbo
             {
                 Id = 10,
-                Name = "Настройка",
+                Name = "3. Настройка",
                 DurationInSeconds = 600, // 10 мин
                 BasedOnType = 2,
                 BasedOperationId = 7,
@@ -420,7 +420,7 @@ public class PaDataSeeder(
             new OperationDbo
             {
                 Id = 11,
-                Name = "Установка рамы",
+                Name = "1. Установка рамы",
                 DurationInSeconds = 3300, // 55 мин
                 BasedOnType = 3,
                 BasedOperationId = null,
@@ -429,7 +429,7 @@ public class PaDataSeeder(
             new OperationDbo
             {
                 Id = 12,
-                Name = "Установка гидросистемы",
+                Name = "2. Установка гидросистемы",
                 DurationInSeconds = 2100, // 35 мин
                 BasedOnType = 3,
                 BasedOperationId = null,
@@ -438,7 +438,7 @@ public class PaDataSeeder(
             new OperationDbo
             {
                 Id = 13,
-                Name = "Установка двигателя",
+                Name = "3. Установка двигателя",
                 DurationInSeconds = 1800, // 30 мин
                 BasedOnType = 3,
                 BasedOperationId = null,
@@ -447,7 +447,7 @@ public class PaDataSeeder(
             new OperationDbo
             {
                 Id = 14,
-                Name = "Установка переднего моста",
+                Name = "4. Установка переднего моста",
                 DurationInSeconds = 1800, // 30 мин
                 BasedOnType = 3,
                 BasedOperationId = null,
@@ -456,7 +456,7 @@ public class PaDataSeeder(
             new OperationDbo
             {
                 Id = 15,
-                Name = "Установка кабины",
+                Name = "5. Установка кабины",
                 DurationInSeconds = 2400, // 40 мин
                 BasedOnType = 3,
                 BasedOperationId = null,
@@ -465,7 +465,7 @@ public class PaDataSeeder(
             new OperationDbo
             {
                 Id = 16,
-                Name = "Подключение аппаратуры",
+                Name = "6. Подключение аппаратуры",
                 DurationInSeconds = 2400, // 40 мин
                 BasedOnType = 3,
                 BasedOperationId = null,
@@ -474,7 +474,7 @@ public class PaDataSeeder(
             new OperationDbo
             {
                 Id = 17,
-                Name = "Соединение шарнира",
+                Name = "7. Соединение шарнира",
                 DurationInSeconds = 2700, // 45 мин
                 BasedOnType = 3,
                 BasedOperationId = null,
@@ -483,7 +483,7 @@ public class PaDataSeeder(
             new OperationDbo
             {
                 Id = 18,
-                Name = "Установка гидроцилиндров",
+                Name = "8. Установка гидроцилиндров",
                 DurationInSeconds = 5100, // 85 мин
                 BasedOnType = 3,
                 BasedOperationId = null,
@@ -492,7 +492,7 @@ public class PaDataSeeder(
             new OperationDbo
             {
                 Id = 19,
-                Name = "Разводка электрики",
+                Name = "9. Разводка электрики",
                 DurationInSeconds = 3000, // 50 мин
                 BasedOnType = 3,
                 BasedOperationId = null,
@@ -501,28 +501,31 @@ public class PaDataSeeder(
             new OperationDbo
             {
                 Id = 20,
-                Name = "Подключение электрики",
+                Name = "10. Подключение электрики",
                 DurationInSeconds = 2400, // 40 мин
                 BasedOnType = 3,
                 BasedOperationId = null,
                 BasedProductId = 1
             },
+
+            // Базовая операция
             new OperationDbo
             {
                 Id = 21,
                 Name = "Сборка кабины автопогрузчика",
-                DurationInSeconds = 60 * 60 * 2,
+                DurationInSeconds = 9999999,
                 BasedOnType = 1,
                 BasedOperationId = null,
                 BasedProductId = null,
             },
+            // Под-операции 21
             new OperationDbo
             {
                 Id = 22,
                 Name = "1. Установка рамы",
                 DurationInSeconds = 60 * 55,
                 BasedOnType = 2,
-                BasedOperationId = 22,
+                BasedOperationId = 21,
                 BasedProductId = null
             },
             new OperationDbo
@@ -531,7 +534,7 @@ public class PaDataSeeder(
                 Name = "2. Установка гидросистемы",
                 DurationInSeconds = 60 * 35,
                 BasedOnType = 2,
-                BasedOperationId = 22,
+                BasedOperationId = 21,
                 BasedProductId = null
             },
             new OperationDbo
@@ -540,7 +543,7 @@ public class PaDataSeeder(
                 Name = "3. Установка двигателя",
                 DurationInSeconds = 60 * 30,
                 BasedOnType = 2,
-                BasedOperationId = 22,
+                BasedOperationId = 21,
                 BasedProductId = null
             },
             new OperationDbo
@@ -549,7 +552,7 @@ public class PaDataSeeder(
                 Name = "4. Установка переднего моста",
                 DurationInSeconds = 60 * 40,
                 BasedOnType = 2,
-                BasedOperationId = 22,
+                BasedOperationId = 21,
                 BasedProductId = null
             },
             new OperationDbo
@@ -558,7 +561,7 @@ public class PaDataSeeder(
                 Name = "5. Установка кабины",
                 DurationInSeconds = 60 * 40,
                 BasedOnType = 2,
-                BasedOperationId = 22,
+                BasedOperationId = 21,
                 BasedProductId = null
             },
             new OperationDbo
@@ -567,7 +570,7 @@ public class PaDataSeeder(
                 Name = "6. Подключение аппаратуры",
                 DurationInSeconds = 60 * 40,
                 BasedOnType = 2,
-                BasedOperationId = 22,
+                BasedOperationId = 21,
                 BasedProductId = null
             },
             new OperationDbo
@@ -576,7 +579,7 @@ public class PaDataSeeder(
                 Name = "7. Соединение шарнина с рамой",
                 DurationInSeconds = 60 * 45,
                 BasedOnType = 2,
-                BasedOperationId = 22,
+                BasedOperationId = 21,
                 BasedProductId = null
             },
             new OperationDbo
@@ -585,7 +588,7 @@ public class PaDataSeeder(
                 Name = "8. Установка гидроцилиндров",
                 DurationInSeconds = 60 * 135,
                 BasedOnType = 2,
-                BasedOperationId = 22,
+                BasedOperationId = 21,
                 BasedProductId = null
             },
             new OperationDbo
@@ -594,7 +597,7 @@ public class PaDataSeeder(
                 Name = "9. Разводка электирики",
                 DurationInSeconds = 60 * 50,
                 BasedOnType = 2,
-                BasedOperationId = 22,
+                BasedOperationId = 21,
                 BasedProductId = null
             },
             new OperationDbo
@@ -603,7 +606,7 @@ public class PaDataSeeder(
                 Name = "10. Подключение электирики",
                 DurationInSeconds = 60 * 40,
                 BasedOnType = 2,
-                BasedOperationId = 22,
+                BasedOperationId = 21,
                 BasedProductId = null
             }
         );
@@ -1239,7 +1242,7 @@ public class PaDataSeeder(
             FormDate = today.AddDays(-4),
             OperationOrProduct = new OperationOrProductContextRequest
             {
-                ProductId = 1 // Втулка
+                ProductId = 7 // Втулка
             }
         };
 
@@ -1254,7 +1257,7 @@ public class PaDataSeeder(
             FormDate = today.AddDays(-5),
             OperationOrProduct = new OperationOrProductContextRequest
             {
-                OperationId = 22 // Установка прибора
+                OperationId = 21
             }
         };
 
@@ -1364,7 +1367,7 @@ public class PaDataSeeder(
             FormDate = today.AddDays(-10),
             OperationOrProduct = new OperationOrProductContextRequest
             {
-                OperationId = 12 // Установка гидросистемы
+                OperationId = 7
             }
         };
 
@@ -1383,7 +1386,7 @@ public class PaDataSeeder(
             FormDate = today.AddDays(-11),
             OperationOrProduct = new OperationOrProductContextRequest
             {
-                OperationId = 7 // Установка прибора
+                OperationId = 21
             }
         };
 
