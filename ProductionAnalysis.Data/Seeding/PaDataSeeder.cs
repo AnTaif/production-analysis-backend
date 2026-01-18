@@ -948,7 +948,7 @@ public class PaDataSeeder(
             {
                 Id = 18,
                 Name = "Отклонен, мин",
-                ValueType = FieldValueTypes.Text,
+                ValueType = FieldValueTypes.Number,
                 InputType = FieldInputTypes.Formula,
                 ValueSelector = null,
                 Formula = "(indicator_15 - indicator_13) - (indicator_14 - indicator_12)",
