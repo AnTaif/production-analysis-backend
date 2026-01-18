@@ -131,10 +131,8 @@ public class FormsService(
             }
         }
 
-        // Собираем все ID смен
         var shiftIds = forms.Select(f => f.ShiftId).Distinct().ToHashSet();
 
-        // Загружаем все продукты, операции и смены одним запросом
         var allProducts = await unitOfWork.Dictionaries.SelectProductsAsync();
         var allOperations = await unitOfWork.Dictionaries.SelectOperationsAsync();
         var allShifts = await unitOfWork.Dictionaries.SelectShiftsAsync();

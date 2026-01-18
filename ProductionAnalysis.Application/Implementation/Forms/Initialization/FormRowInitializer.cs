@@ -33,7 +33,7 @@ public class FormRowInitializer(
     {
         var indicators = indicatorExtractor.Extract(template);
         var auxiliaryOperations = await LoadAuxiliaryOperationsAsync();
-        var allOperations = await LoadAllOperationsAsync();
+        var allOperations = await unitOfWork.Dictionaries.SelectAllOperationsAsync();
         var sortedBreaks = schedules.OrderBy(s => s.StartTime).ToList();
 
         var context = CreateContext(
@@ -58,11 +58,6 @@ public class FormRowInitializer(
     {
         var operations = await unitOfWork.Dictionaries.SelectAuxiliaryOperationsAsync();
         return operations.ToDictionary(ao => ao.Id);
-    }
-
-    private async Task<ICollection<OperationDto>> LoadAllOperationsAsync()
-    {
-        return await unitOfWork.Dictionaries.SelectOperationsAsync();
     }
 
     private RowInitializationContext CreateContext(

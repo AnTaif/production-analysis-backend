@@ -5,7 +5,6 @@ namespace ProductionAnalysis.Application.Implementation.Forms.Initialization.Ser
 
 public interface IOperationService
 {
-    Task<ICollection<OperationDto>> LoadOperationsAsync();
     ICollection<OperationDto> GetRelatedOperations(int operationId, ICollection<OperationDto> allOperations);
     ICollection<OperationDto> GetRelatedOperationsByProductId(int productId, ICollection<OperationDto> allOperations);
     double CalculateCycleDuration(ICollection<OperationDto> operations);
@@ -14,11 +13,6 @@ public interface IOperationService
 [RegisterScoped]
 public class OperationService(IPaUnitOfWork unitOfWork) : IOperationService
 {
-    public async Task<ICollection<OperationDto>> LoadOperationsAsync()
-    {
-        return await unitOfWork.Dictionaries.SelectOperationsAsync();
-    }
-
     public ICollection<OperationDto> GetRelatedOperations(int operationId, ICollection<OperationDto> allOperations)
     {
         var operationsById = allOperations.ToDictionary(op => op.Id);

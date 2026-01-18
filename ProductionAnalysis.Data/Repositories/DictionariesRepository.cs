@@ -69,6 +69,14 @@ public class DictionariesRepository(
 
     public async Task<ICollection<OperationDto>> SelectOperationsAsync()
     {
+        var dbos = await dbContext.Operations
+            .Where(o => o.BasedOperationId == null && o.BasedProductId == null)
+            .ToListAsync();
+        return dbos.Select(o => o.ToDto()).ToList();
+    }
+
+    public async Task<ICollection<OperationDto>> SelectAllOperationsAsync()
+    {
         var dbos = await dbContext.Operations.ToListAsync();
         return dbos.Select(o => o.ToDto()).ToList();
     }

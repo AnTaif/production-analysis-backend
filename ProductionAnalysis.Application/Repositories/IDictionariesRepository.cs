@@ -13,6 +13,7 @@ public interface IDictionariesRepository
     Task<ICollection<EnterpriseDto>> SelectEnterprisesAsync();
     Task<ICollection<AuxiliaryOperationDto>> SelectAuxiliaryOperationsAsync();
     Task<ICollection<OperationDto>> SelectOperationsAsync();
+    Task<ICollection<OperationDto>> SelectAllOperationsAsync();
     Task<ICollection<ProductDto>> SelectProductsAsync();
     Task<ICollection<ShiftDto>> SelectShiftsAsync();
     Task<ShiftDto?> SelectShiftByIdAsync(int shiftId);
