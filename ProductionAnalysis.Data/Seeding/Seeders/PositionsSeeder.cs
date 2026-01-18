@@ -15,19 +15,19 @@ public class PositionsSeeder(PaDbContext dbContext)
             new PositionDbo
             {
                 Id = 1,
-                Name = "Бригадир",
+                Name = "Оператор",
                 Role = Roles.Operator
             },
             new PositionDbo
             {
                 Id = 2,
-                Name = "Кладовщик",
+                Name = "Начальник участка",
                 Role = Roles.DepartmentHead
             },
             new PositionDbo
             {
                 Id = 3,
-                Name = "Мастер",
+                Name = "Аналитик",
                 Role = Roles.Analyst
             },
             new PositionDbo
@@ -35,18 +35,6 @@ public class PositionsSeeder(PaDbContext dbContext)
                 Id = 4,
                 Name = "Администратор",
                 Role = Roles.Admin
-            },
-            new PositionDbo
-            {
-                Id = 5,
-                Name = "Оператор",
-                Role = Roles.JustEmployee
-            },
-            new PositionDbo
-            {
-                Id = 6,
-                Name = "Старший оператор",
-                Role = Roles.JustEmployee
             },
             new PositionDbo
             {
@@ -58,12 +46,6 @@ public class PositionsSeeder(PaDbContext dbContext)
             {
                 Id = 8,
                 Name = "Инженер",
-                Role = Roles.JustEmployee
-            },
-            new PositionDbo
-            {
-                Id = 9,
-                Name = "Контролер качества",
                 Role = Roles.JustEmployee
             },
             new PositionDbo
