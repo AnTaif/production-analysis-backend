@@ -506,6 +506,105 @@ public class PaDataSeeder(
                 BasedOnType = 3,
                 BasedOperationId = null,
                 BasedProductId = 1
+            },
+            new OperationDbo
+            {
+                Id = 21,
+                Name = "Сборка кабины автопогрузчика",
+                DurationInSeconds = 60 * 60 * 2,
+                BasedOnType = 1,
+                BasedOperationId = null,
+                BasedProductId = null,
+            },
+            new OperationDbo
+            {
+                Id = 22,
+                Name = "1. Установка рамы",
+                DurationInSeconds = 60 * 55,
+                BasedOnType = 2,
+                BasedOperationId = 22,
+                BasedProductId = null
+            },
+            new OperationDbo
+            {
+                Id = 23,
+                Name = "2. Установка гидросистемы",
+                DurationInSeconds = 60 * 35,
+                BasedOnType = 2,
+                BasedOperationId = 22,
+                BasedProductId = null
+            },
+            new OperationDbo
+            {
+                Id = 24,
+                Name = "3. Установка двигателя",
+                DurationInSeconds = 60 * 30,
+                BasedOnType = 2,
+                BasedOperationId = 22,
+                BasedProductId = null
+            },
+            new OperationDbo
+            {
+                Id = 25,
+                Name = "4. Установка переднего моста",
+                DurationInSeconds = 60 * 40,
+                BasedOnType = 2,
+                BasedOperationId = 22,
+                BasedProductId = null
+            },
+            new OperationDbo
+            {
+                Id = 26,
+                Name = "5. Установка кабины",
+                DurationInSeconds = 60 * 40,
+                BasedOnType = 2,
+                BasedOperationId = 22,
+                BasedProductId = null
+            },
+            new OperationDbo
+            {
+                Id = 27,
+                Name = "6. Подключение аппаратуры",
+                DurationInSeconds = 60 * 40,
+                BasedOnType = 2,
+                BasedOperationId = 22,
+                BasedProductId = null
+            },
+            new OperationDbo
+            {
+                Id = 28,
+                Name = "7. Соединение шарнина с рамой",
+                DurationInSeconds = 60 * 45,
+                BasedOnType = 2,
+                BasedOperationId = 22,
+                BasedProductId = null
+            },
+            new OperationDbo
+            {
+                Id = 29,
+                Name = "8. Установка гидроцилиндров",
+                DurationInSeconds = 60 * 135,
+                BasedOnType = 2,
+                BasedOperationId = 22,
+                BasedProductId = null
+            },
+            new OperationDbo
+            {
+                Id = 30,
+                Name = "9. Разводка электирики",
+                DurationInSeconds = 60 * 50,
+                BasedOnType = 2,
+                BasedOperationId = 22,
+                BasedProductId = null
+            },
+            new OperationDbo
+            {
+                Id = 31,
+                Name = "10. Подключение электирики",
+                DurationInSeconds = 60 * 40,
+                BasedOnType = 2,
+                BasedOperationId = 22,
+                BasedProductId = null
             }
         );
 
@@ -1155,7 +1254,7 @@ public class PaDataSeeder(
             FormDate = today.AddDays(-5),
             OperationOrProduct = new OperationOrProductContextRequest
             {
-                OperationId = 7 // Установка прибора
+                OperationId = 22 // Установка прибора
             }
         };
 
