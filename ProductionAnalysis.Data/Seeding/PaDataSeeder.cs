@@ -1097,8 +1097,8 @@ public class PaDataSeeder(
 
         AddIndicatorsToTemplate(template5,
             [
-                operationName, startTimePlan, startTimeFact, endTimePlan, endTimeFact, planMinutes, factMinutes,
-                deviationMinutes, deviationMinutesCumulative, downtime, downtimeResponsible,
+                operationName, startTimePlan, startTimeFact, endTimePlan, endTimeFact,
+                deviationMinutes, deviationMinutesCumulative, downtimeResponsible,
                 downTimeReasonsGroup, downtimeReasonAndActionsTaken
             ]
         );
