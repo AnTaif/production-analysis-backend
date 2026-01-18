@@ -81,7 +81,7 @@ public class CreateFormTests : FormsTestBase
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
         // Act
-        var request = CreateLessThanOnePerHourFormRequest(shift.Id, 1, 4);
+        var request = CreateLessThanOnePerHourFormRequest(shift.Id, 1, 1);
         var result = await FormsService.CreateAsync(request, user.Id);
         result.IsSuccess.Should().BeTrue();
 
@@ -144,7 +144,7 @@ public class CreateFormTests : FormsTestBase
         var shift = await DbContext.Shifts.FirstAsync(s => s.Id == 1);
 
         // Act
-        var request = CreateLessThanOnePerShiftFormRequest(shift.Id, 1, 4);
+        var request = CreateLessThanOnePerShiftFormRequest(shift.Id, 1, 7);
         var result = await FormsService.CreateAsync(request, user.Id);
         result.IsSuccess.Should().BeTrue();
 

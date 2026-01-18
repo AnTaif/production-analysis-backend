@@ -25,7 +25,7 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
                 FirstName = "Иван",
                 LastName = "Иванов",
                 MiddleName = "Иванович",
-                Position = "Бригадир",
+                PositionId = 1, // Бригадир
                 Email = "operator@mail.ru",
                 DepartmentId = 1,
                 UserId = operatorUser?.Id
@@ -36,7 +36,7 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
                 FirstName = "Петр",
                 LastName = "Петров",
                 MiddleName = "Петрович",
-                Position = "Кладовщик",
+                PositionId = 2, // Кладовщик
                 Email = "departmentHead@mail.ru",
                 DepartmentId = 1,
                 UserId = departmentHeadUser?.Id
@@ -47,7 +47,7 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
                 FirstName = "Алексей",
                 LastName = "Сидоров",
                 MiddleName = "Алексеевич",
-                Position = "Мастер",
+                PositionId = 3, // Мастер
                 Email = "analyst@mail.ru",
                 DepartmentId = 2,
                 UserId = analystUser?.Id
@@ -58,7 +58,7 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
                 FirstName = "Admin",
                 LastName = "LastName",
                 MiddleName = "MiddleName",
-                Position = "Администратор",
+                PositionId = 4, // Администратор
                 Email = "admin@mail.ru",
                 DepartmentId = 1,
                 UserId = adminUser?.Id
@@ -69,7 +69,7 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
                 FirstName = "Сергей",
                 LastName = "Кузнецов",
                 MiddleName = "Сергеевич",
-                Position = "Оператор",
+                PositionId = 5, // Оператор
                 Email = "kuznetsov@mail.ru",
                 DepartmentId = 1,
                 UserId = null
@@ -80,7 +80,7 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
                 FirstName = "Дмитрий",
                 LastName = "Смирнов",
                 MiddleName = "Дмитриевич",
-                Position = "Старший оператор",
+                PositionId = 6, // Старший оператор
                 Email = "smirnov@mail.ru",
                 DepartmentId = 1,
                 UserId = null
@@ -91,7 +91,7 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
                 FirstName = "Андрей",
                 LastName = "Попов",
                 MiddleName = "Андреевич",
-                Position = "Технолог",
+                PositionId = 7, // Технолог
                 Email = "popov@mail.ru",
                 DepartmentId = 2,
                 UserId = null
@@ -102,7 +102,7 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
                 FirstName = "Михаил",
                 LastName = "Соколов",
                 MiddleName = "Михайлович",
-                Position = "Инженер",
+                PositionId = 8, // Инженер
                 Email = "sokolov@mail.ru",
                 DepartmentId = 2,
                 UserId = null
@@ -113,7 +113,7 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
                 FirstName = "Елена",
                 LastName = "Волкова",
                 MiddleName = "Владимировна",
-                Position = "Контролер качества",
+                PositionId = 9, // Контролер качества
                 Email = "volkova@mail.ru",
                 DepartmentId = 2,
                 UserId = null
@@ -124,7 +124,7 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
                 FirstName = "Николай",
                 LastName = "Лебедев",
                 MiddleName = "Николаевич",
-                Position = "Наладчик",
+                PositionId = 10, // Наладчик
                 Email = "lebedev@mail.ru",
                 DepartmentId = 1,
                 UserId = null
@@ -135,7 +135,7 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
                 FirstName = "Владимир",
                 LastName = "Новиков",
                 MiddleName = "Владимирович",
-                Position = "Сварщик",
+                PositionId = 11, // Сварщик
                 Email = "novikov@mail.ru",
                 DepartmentId = 3,
                 UserId = null
@@ -146,7 +146,7 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
                 FirstName = "Олег",
                 LastName = "Морозов",
                 MiddleName = "Олегович",
-                Position = "Токарь",
+                PositionId = 12, // Токарь
                 Email = "morozov@mail.ru",
                 DepartmentId = 3,
                 UserId = null

@@ -15,8 +15,9 @@ public class EmployeeDbo
     [MaxLength(255)]
     public string? MiddleName { get; set; }
 
-    [MaxLength(255)]
-    public required string Position { get; set; }
+    public int PositionId { get; set; }
+
+    public PositionDbo? Position { get; set; }
 
     [MaxLength(255)]
     public string? Email { get; set; }

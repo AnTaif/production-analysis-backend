@@ -26,6 +26,7 @@ public class PaDataSeeder(
         var usersSeeder = new UsersSeeder(dbContext, userManager);
         var enterprisesSeeder = new EnterprisesSeeder(dbContext);
         var departmentsSeeder = new DepartmentsSeeder(dbContext);
+        var positionsSeeder = new PositionsSeeder(dbContext);
         var downtimeReasonGroupsSeeder = new DowntimeReasonGroupsSeeder(dbContext);
         var employeesSeeder = new EmployeesSeeder(dbContext, userManager);
         var auxiliaryOperationsSeeder = new AuxiliaryOperationsSeeder(dbContext);
@@ -41,6 +42,7 @@ public class PaDataSeeder(
         await usersSeeder.SeedAsync();
         await enterprisesSeeder.SeedAsync();
         await departmentsSeeder.SeedAsync();
+        await positionsSeeder.SeedAsync();
         await downtimeReasonGroupsSeeder.SeedAsync();
         await employeesSeeder.SeedAsync();
         await auxiliaryOperationsSeeder.SeedAsync();

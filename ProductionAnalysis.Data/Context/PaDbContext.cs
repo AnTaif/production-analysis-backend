@@ -20,6 +20,7 @@ public class PaDbContext(DbContextOptions<PaDbContext> options)
     public DbSet<DowntimeReasonGroupDbo> DowntimeReasonGroups { get; set; }
     public DbSet<EmployeeDbo> Employees { get; set; }
     public DbSet<EnterpriseDbo> Enterprises { get; set; }
+    public DbSet<PositionDbo> Positions { get; set; }
     public DbSet<AuxiliaryOperationDbo> AuxiliaryOperations { get; set; }
     public DbSet<OperationDbo> Operations { get; set; }
     public DbSet<ProductDbo> Products { get; set; }

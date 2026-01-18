@@ -26,6 +26,16 @@ public static class DictionariesConverter
         };
     }
 
+    public static PositionDto ToDto(this PositionDbo dbo)
+    {
+        return new PositionDto
+        {
+            Id = dbo.Id,
+            Name = dbo.Name,
+            Role = dbo.Role
+        };
+    }
+
     public static EmployeeDto ToDto(this EmployeeDbo dbo)
     {
         var fullName = new FullName(dbo.LastName, dbo.FirstName, dbo.MiddleName);
@@ -34,7 +44,7 @@ public static class DictionariesConverter
         {
             Id = dbo.Id,
             FullName = fullName.ToString(),
-            Position = dbo.Position,
+            Position = dbo.Position?.Name ?? string.Empty,
             Email = dbo.Email,
             DepartmentId = dbo.DepartmentId,
             UserId = dbo.UserId,

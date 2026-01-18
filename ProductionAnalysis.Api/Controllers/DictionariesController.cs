@@ -45,6 +45,15 @@ public class DictionariesController(
         return Ok(dtos);
     }
 
+    [HttpGet("positions")]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerablePositionDtoExample))]
+    [ProducesResponseType<IEnumerable<PositionDto>>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPositions()
+    {
+        var dtos = await dictionariesService.GetPositionsAsync();
+        return Ok(dtos);
+    }
+
     [HttpGet("enterprises")]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerableEnterpriseDtoExample))]
     [ProducesResponseType<IEnumerable<EnterpriseDto>>(StatusCodes.Status200OK)]

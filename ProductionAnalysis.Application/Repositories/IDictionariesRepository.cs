@@ -14,6 +14,8 @@ public interface IDictionariesRepository
     Task<EmployeeDto?> UpdateEmployeeAsync(int employeeId, UpdateEmployeeRequest request);
     Task<bool> DeleteEmployeeAsync(int employeeId);
     Task<bool> DepartmentExistsAsync(int departmentId);
+    Task<bool> PositionExistsAsync(int positionId);
+    Task<ICollection<PositionDto>> SelectPositionsAsync();
     Task<ICollection<EnterpriseDto>> SelectEnterprisesAsync();
     Task<ICollection<AuxiliaryOperationDto>> SelectAuxiliaryOperationsAsync();
     Task<ICollection<OperationDto>> SelectOperationsAsync();

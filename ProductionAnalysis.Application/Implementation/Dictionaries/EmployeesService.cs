@@ -22,6 +22,12 @@ public class EmployeesService(IPaUnitOfWork unitOfWork) : IEmployeesService
             return ServiceError.NotFound($"Department with id {request.DepartmentId} not found");
         }
 
+        var positionExists = await unitOfWork.Dictionaries.PositionExistsAsync(request.PositionId);
+        if (!positionExists)
+        {
+            return ServiceError.NotFound($"Position with id {request.PositionId} not found");
+        }
+
         var employee = await unitOfWork.Dictionaries.CreateEmployeeAsync(request);
         return employee;
     }
@@ -38,6 +44,12 @@ public class EmployeesService(IPaUnitOfWork unitOfWork) : IEmployeesService
         if (!departmentExists)
         {
             return ServiceError.NotFound($"Department with id {request.DepartmentId} not found");
+        }
+
+        var positionExists = await unitOfWork.Dictionaries.PositionExistsAsync(request.PositionId);
+        if (!positionExists)
+        {
+            return ServiceError.NotFound($"Position with id {request.PositionId} not found");
         }
 
         var updatedEmployee = await unitOfWork.Dictionaries.UpdateEmployeeAsync(employeeId, request);

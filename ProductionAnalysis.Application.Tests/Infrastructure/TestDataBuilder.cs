@@ -42,7 +42,7 @@ public class TestDataBuilder(PaDbContext dbContext, UserManager<UserDbo> userMan
             DepartmentId = departmentId,
             FirstName = "Test",
             LastName = "User",
-            Position = "Test-Position"
+            PositionId = 1
         };
 
         dbContext.Employees.Add(employee);

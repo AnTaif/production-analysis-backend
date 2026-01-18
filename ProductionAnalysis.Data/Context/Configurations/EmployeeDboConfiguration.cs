@@ -17,6 +17,10 @@ public class EmployeeDboConfiguration : IEntityTypeConfiguration<EmployeeDbo>
             .WithMany()
             .HasForeignKey(e => e.DepartmentId);
 
+        builder.HasOne<PositionDbo>(e => e.Position)
+            .WithMany()
+            .HasForeignKey(e => e.PositionId);
+
         builder.HasOne<UserDbo>(e => e.User)
             .WithMany()
             .HasForeignKey(e => e.UserId);

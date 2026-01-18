@@ -12,7 +12,7 @@ public class CreateEmployeeRequestExample : IExamplesProvider<CreateEmployeeRequ
             FirstName = "Сергей",
             LastName = "Кузнецов",
             MiddleName = "Сергеевич",
-            Position = "Оператор",
+            PositionId = 5, // Оператор
             Email = "kuznetsov@mail.ru",
             DepartmentId = 1
         };

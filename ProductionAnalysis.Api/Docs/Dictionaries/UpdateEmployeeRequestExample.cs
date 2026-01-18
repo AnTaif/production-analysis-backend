@@ -12,7 +12,7 @@ public class UpdateEmployeeRequestExample : IExamplesProvider<UpdateEmployeeRequ
             FirstName = "Сергей",
             LastName = "Кузнецов",
             MiddleName = "Сергеевич",
-            Position = "Старший оператор",
+            PositionId = 6, // Старший оператор
             Email = "kuznetsov@mail.ru",
             DepartmentId = 1
         };

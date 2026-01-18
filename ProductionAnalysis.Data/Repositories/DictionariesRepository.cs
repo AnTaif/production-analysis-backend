@@ -25,13 +25,16 @@ public class DictionariesRepository(
 
     public async Task<ICollection<EmployeeDto>> SelectEmployeesAsync()
     {
-        var dbos = await dbContext.Employees.ToListAsync();
+        var dbos = await dbContext.Employees
+            .Include(e => e.Position)
+            .ToListAsync();
         return dbos.Select(e => e.ToDto()).ToList();
     }
 
     public async Task<ICollection<EmployeeDto>> SelectEmployeesByDepartmentIdAsync(int departmentId)
     {
         var dbos = await dbContext.Employees
+            .Include(e => e.Position)
             .Where(e => e.DepartmentId == departmentId)
             .ToListAsync();
         return dbos.Select(e => e.ToDto()).ToList();
@@ -40,6 +43,7 @@ public class DictionariesRepository(
     public async Task<EmployeeDto?> FindEmployeeByUserIdAsync(Guid userId)
     {
         var employee = await dbContext.Employees
+            .Include(e => e.Position)
             .FirstOrDefaultAsync(e => e.UserId == userId);
 
         return employee?.ToDto();
@@ -48,6 +52,7 @@ public class DictionariesRepository(
     public async Task<EmployeeDto?> FindEmployeeByIdAsync(int employeeId)
     {
         var employee = await dbContext.Employees
+            .Include(e => e.Position)
             .FirstOrDefaultAsync(e => e.Id == employeeId);
 
         return employee?.ToDto();
@@ -60,7 +65,7 @@ public class DictionariesRepository(
             FirstName = request.FirstName,
             LastName = request.LastName,
             MiddleName = request.MiddleName,
-            Position = request.Position,
+            PositionId = request.PositionId,
             Email = request.Email,
             DepartmentId = request.DepartmentId
         };
@@ -68,12 +73,18 @@ public class DictionariesRepository(
         dbContext.Employees.Add(employee);
         await dbContext.SaveChangesAsync();
 
+        // Загружаем Position для корректного маппинга
+        await dbContext.Entry(employee)
+            .Reference(e => e.Position)
+            .LoadAsync();
+
         return employee.ToDto();
     }
 
     public async Task<EmployeeDto?> UpdateEmployeeAsync(int employeeId, UpdateEmployeeRequest request)
     {
         var employee = await dbContext.Employees
+            .Include(e => e.Position)
             .FirstOrDefaultAsync(e => e.Id == employeeId);
 
         if (employee == null)
@@ -82,7 +93,7 @@ public class DictionariesRepository(
         employee.FirstName = request.FirstName;
         employee.LastName = request.LastName;
         employee.MiddleName = request.MiddleName;
-        employee.Position = request.Position;
+        employee.PositionId = request.PositionId;
         employee.Email = request.Email;
         employee.DepartmentId = request.DepartmentId;
 
@@ -108,6 +119,17 @@ public class DictionariesRepository(
     public async Task<bool> DepartmentExistsAsync(int departmentId)
     {
         return await dbContext.Departments.AnyAsync(d => d.Id == departmentId);
+    }
+
+    public async Task<bool> PositionExistsAsync(int positionId)
+    {
+        return await dbContext.Positions.AnyAsync(p => p.Id == positionId);
+    }
+
+    public async Task<ICollection<PositionDto>> SelectPositionsAsync()
+    {
+        var dbos = await dbContext.Positions.ToListAsync();
+        return dbos.Select(p => p.ToDto()).ToList();
     }
 
     public async Task<ICollection<EnterpriseDto>> SelectEnterprisesAsync()

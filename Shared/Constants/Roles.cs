@@ -8,6 +8,7 @@ public static class Roles
     public const string DepartmentHead = "DepartmentHead";
     public const string Analyst = "Analyst";
     public const string Admin = "Admin";
+    public const string JustEmployee = "JustEmployee";
 
     public static IReadOnlyCollection<string> GetRoles()
     {

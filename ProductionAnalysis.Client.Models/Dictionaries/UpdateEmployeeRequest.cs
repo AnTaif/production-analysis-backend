@@ -15,9 +15,8 @@ public record UpdateEmployeeRequest
     [MaxLength(255)]
     public string? MiddleName { get; init; }
 
-    [Required]
-    [MaxLength(255)]
-    public required string Position { get; init; }
+    [Range(1, int.MaxValue)]
+    public int PositionId { get; init; }
 
     [MaxLength(255)]
     [EmailAddress]

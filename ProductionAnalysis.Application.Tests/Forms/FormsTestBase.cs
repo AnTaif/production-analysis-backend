@@ -95,8 +95,7 @@ public abstract class FormsTestBase : BaseIntegrationTest
         };
     }
 
-    protected static CreateFormRequest CreateLessThanOnePerHourFormRequest(int shiftId, int assigneeId,
-        int operationId = 4)
+    protected static CreateFormRequest CreateLessThanOnePerHourFormRequest(int shiftId, int assigneeId, int productId)
     {
         return new CreateFormRequest
         {
@@ -106,13 +105,13 @@ public abstract class FormsTestBase : BaseIntegrationTest
             FormDate = DateTime.UtcNow.Date,
             OperationOrProduct = new OperationOrProductContextRequest
             {
-                OperationId = operationId
+                ProductId = productId
             }
         };
     }
 
     protected static CreateFormRequest CreateLessThanOnePerShiftFormRequest(int shiftId, int assigneeId,
-        int operationId = 4)
+        int operationId)
     {
         return new CreateFormRequest
         {
