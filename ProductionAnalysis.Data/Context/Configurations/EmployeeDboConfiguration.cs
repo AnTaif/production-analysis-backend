@@ -13,6 +13,10 @@ public class EmployeeDboConfiguration : IEntityTypeConfiguration<EmployeeDbo>
 
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.Id)
+            .ValueGeneratedOnAdd()
+            .UseIdentityColumn();
+
         builder.HasOne<DepartmentDbo>()
             .WithMany()
             .HasForeignKey(e => e.DepartmentId);
