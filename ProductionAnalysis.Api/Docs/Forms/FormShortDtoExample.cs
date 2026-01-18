@@ -23,6 +23,7 @@ public class FormShortDtoExample : IExamplesProvider<FormShortDto>
                 Id = 15,
                 FullName = "Иванов Иван Иванович",
                 Position = "Бригадир",
+                Email = "ivanov@mail.ru",
                 DepartmentId = 2,
                 UserId = Guid.Parse("12345678-1234-1234-1234-123456789012")
             },
@@ -31,6 +32,7 @@ public class FormShortDtoExample : IExamplesProvider<FormShortDto>
                 Id = 20,
                 FullName = "Петров Пётр Петрович",
                 Position = "Оператор",
+                Email = "petrov@mail.ru",
                 DepartmentId = 2,
                 UserId = null
             },
@@ -64,6 +66,7 @@ public class PaginatedFormShortDtoExample : IExamplesProvider<PaginatedResponse<
                         Id = 15,
                         FullName = "Иванов Иван Иванович",
                         Position = "Бригадир",
+                        Email = "ivanov@mail.ru",
                         DepartmentId = 2,
                         UserId = Guid.Parse("12345678-1234-1234-1234-123456789012")
                     },
@@ -72,6 +75,7 @@ public class PaginatedFormShortDtoExample : IExamplesProvider<PaginatedResponse<
                         Id = 20,
                         FullName = "Петров Пётр Петрович",
                         Position = "Оператор",
+                        Email = "petrov@mail.ru",
                         DepartmentId = 2,
                         UserId = null
                     },
@@ -98,6 +102,7 @@ public class PaginatedFormShortDtoExample : IExamplesProvider<PaginatedResponse<
                         Id = 15,
                         FullName = "Иванов Иван Иванович",
                         Position = "Бригадир",
+                        Email = "ivanov@mail.ru",
                         DepartmentId = 2,
                         UserId = Guid.Parse("12345678-1234-1234-1234-123456789012")
                     },
@@ -106,6 +111,7 @@ public class PaginatedFormShortDtoExample : IExamplesProvider<PaginatedResponse<
                         Id = 21,
                         FullName = "Сидоров Алексей Алексеевич",
                         Position = "Старший оператор",
+                        Email = "sidorov@mail.ru",
                         DepartmentId = 2,
                         UserId = Guid.Parse("87654321-4321-4321-4321-210987654321")
                     },

@@ -18,6 +18,9 @@ public class EmployeeDbo
     [MaxLength(255)]
     public required string Position { get; set; }
 
+    [MaxLength(255)]
+    public string? Email { get; set; }
+
     public int DepartmentId { get; set; }
 
     public Guid? UserId { get; set; }

@@ -26,6 +26,7 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
                 LastName = "Иванов",
                 MiddleName = "Иванович",
                 Position = "Бригадир",
+                Email = "operator@mail.ru",
                 DepartmentId = 1,
                 UserId = operatorUser?.Id
             },
@@ -36,6 +37,7 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
                 LastName = "Петров",
                 MiddleName = "Петрович",
                 Position = "Кладовщик",
+                Email = "departmentHead@mail.ru",
                 DepartmentId = 1,
                 UserId = departmentHeadUser?.Id
             },
@@ -46,6 +48,7 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
                 LastName = "Сидоров",
                 MiddleName = "Алексеевич",
                 Position = "Мастер",
+                Email = "analyst@mail.ru",
                 DepartmentId = 2,
                 UserId = analystUser?.Id
             },
@@ -56,8 +59,97 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
                 LastName = "LastName",
                 MiddleName = "MiddleName",
                 Position = "Администратор",
+                Email = "admin@mail.ru",
                 DepartmentId = 1,
                 UserId = adminUser?.Id
+            },
+            new EmployeeDbo
+            {
+                Id = 5,
+                FirstName = "Сергей",
+                LastName = "Кузнецов",
+                MiddleName = "Сергеевич",
+                Position = "Оператор",
+                Email = "kuznetsov@mail.ru",
+                DepartmentId = 1,
+                UserId = null
+            },
+            new EmployeeDbo
+            {
+                Id = 6,
+                FirstName = "Дмитрий",
+                LastName = "Смирнов",
+                MiddleName = "Дмитриевич",
+                Position = "Старший оператор",
+                Email = "smirnov@mail.ru",
+                DepartmentId = 1,
+                UserId = null
+            },
+            new EmployeeDbo
+            {
+                Id = 7,
+                FirstName = "Андрей",
+                LastName = "Попов",
+                MiddleName = "Андреевич",
+                Position = "Технолог",
+                Email = "popov@mail.ru",
+                DepartmentId = 2,
+                UserId = null
+            },
+            new EmployeeDbo
+            {
+                Id = 8,
+                FirstName = "Михаил",
+                LastName = "Соколов",
+                MiddleName = "Михайлович",
+                Position = "Инженер",
+                Email = "sokolov@mail.ru",
+                DepartmentId = 2,
+                UserId = null
+            },
+            new EmployeeDbo
+            {
+                Id = 9,
+                FirstName = "Елена",
+                LastName = "Волкова",
+                MiddleName = "Владимировна",
+                Position = "Контролер качества",
+                Email = "volkova@mail.ru",
+                DepartmentId = 2,
+                UserId = null
+            },
+            new EmployeeDbo
+            {
+                Id = 10,
+                FirstName = "Николай",
+                LastName = "Лебедев",
+                MiddleName = "Николаевич",
+                Position = "Наладчик",
+                Email = "lebedev@mail.ru",
+                DepartmentId = 1,
+                UserId = null
+            },
+            new EmployeeDbo
+            {
+                Id = 11,
+                FirstName = "Владимир",
+                LastName = "Новиков",
+                MiddleName = "Владимирович",
+                Position = "Сварщик",
+                Email = "novikov@mail.ru",
+                DepartmentId = 3,
+                UserId = null
+            },
+            new EmployeeDbo
+            {
+                Id = 12,
+                FirstName = "Олег",
+                LastName = "Морозов",
+                MiddleName = "Олегович",
+                Position = "Токарь",
+                Email = "morozov@mail.ru",
+                DepartmentId = 3,
+                UserId = null
             }
         );
     }
