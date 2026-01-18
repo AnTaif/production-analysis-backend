@@ -1,16 +1,20 @@
 ﻿using Core.Auth;
+using Core.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProductionAnalysis.Api.Docs.Dictionaries;
 using ProductionAnalysis.Application.Implementation.Dictionaries;
 using ProductionAnalysis.Client.Models.Dictionaries;
+using Shared.Constants;
 using Swashbuckle.AspNetCore.Filters;
 
 namespace ProductionAnalysis.Api.Controllers;
 
 [ApiController]
 [Route("dictionaries")]
-public class DictionariesController(IDictionariesService dictionariesService) : ControllerBase
+public class DictionariesController(
+    IDictionariesService dictionariesService,
+    IEmployeesService employeesService) : ControllerBase
 {
     [HttpGet("departments")]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EnumerableDepartmentDtoExample))]
@@ -84,5 +88,44 @@ public class DictionariesController(IDictionariesService dictionariesService) : 
     {
         var dtos = await dictionariesService.GetShiftsAsync();
         return Ok(dtos);
+    }
+
+    [HttpPost("employees")]
+    [Authorize(Roles = Roles.Admin)]
+    [SwaggerRequestExample(typeof(CreateEmployeeRequest), typeof(CreateEmployeeRequestExample))]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EmployeeDtoExample))]
+    [ProducesResponseType<EmployeeDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<string>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EmployeeDto>> CreateEmployee(CreateEmployeeRequest request)
+    {
+        var result = await employeesService.CreateEmployeeAsync(request);
+        return result.ToActionResult(this);
+    }
+
+    [HttpPut("employees/{employeeId:int}")]
+    [Authorize(Roles = Roles.Admin)]
+    [SwaggerRequestExample(typeof(UpdateEmployeeRequest), typeof(UpdateEmployeeRequestExample))]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(EmployeeDtoExample))]
+    [ProducesResponseType<EmployeeDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<string>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EmployeeDto>> UpdateEmployee(
+        [FromRoute]
+        int employeeId,
+        UpdateEmployeeRequest request)
+    {
+        var result = await employeesService.UpdateEmployeeAsync(employeeId, request);
+        return result.ToActionResult(this);
+    }
+
+    [HttpDelete("employees/{employeeId:int}")]
+    [Authorize(Roles = Roles.Admin)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<string>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> DeleteEmployee([FromRoute] int employeeId)
+    {
+        var result = await employeesService.DeleteEmployeeAsync(employeeId);
+        return result.ToActionResult(this);
     }
 }

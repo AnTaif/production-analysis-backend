@@ -1,17 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using ProductionAnalysis.Application.Repositories;
 using ProductionAnalysis.Client.Models.Dictionaries;
 using ProductionAnalysis.Data.Context;
 using ProductionAnalysis.Data.Converters;
-using ProductionAnalysis.Data.Models;
+using ProductionAnalysis.Data.Models.Dictionaries;
 
 namespace ProductionAnalysis.Data.Repositories;
 
 [RegisterScoped]
 public class DictionariesRepository(
-    PaDbContext dbContext,
-    UserManager<UserDbo> userManager) : IDictionariesRepository
+    PaDbContext dbContext) : IDictionariesRepository
 {
     public async Task<ICollection<DepartmentDto>> SelectDepartmentsAsync()
     {
@@ -53,6 +51,63 @@ public class DictionariesRepository(
             .FirstOrDefaultAsync(e => e.Id == employeeId);
 
         return employee?.ToDto();
+    }
+
+    public async Task<EmployeeDto> CreateEmployeeAsync(CreateEmployeeRequest request)
+    {
+        var employee = new EmployeeDbo
+        {
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            MiddleName = request.MiddleName,
+            Position = request.Position,
+            Email = request.Email,
+            DepartmentId = request.DepartmentId
+        };
+
+        dbContext.Employees.Add(employee);
+        await dbContext.SaveChangesAsync();
+
+        return employee.ToDto();
+    }
+
+    public async Task<EmployeeDto?> UpdateEmployeeAsync(int employeeId, UpdateEmployeeRequest request)
+    {
+        var employee = await dbContext.Employees
+            .FirstOrDefaultAsync(e => e.Id == employeeId);
+
+        if (employee == null)
+            return null;
+
+        employee.FirstName = request.FirstName;
+        employee.LastName = request.LastName;
+        employee.MiddleName = request.MiddleName;
+        employee.Position = request.Position;
+        employee.Email = request.Email;
+        employee.DepartmentId = request.DepartmentId;
+
+        await dbContext.SaveChangesAsync();
+
+        return employee.ToDto();
+    }
+
+    public async Task<bool> DeleteEmployeeAsync(int employeeId)
+    {
+        var employee = await dbContext.Employees
+            .FirstOrDefaultAsync(e => e.Id == employeeId);
+
+        if (employee == null)
+            return false;
+
+        dbContext.Employees.Remove(employee);
+        await dbContext.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<bool> DepartmentExistsAsync(int departmentId)
+    {
+        return await dbContext.Departments.AnyAsync(d => d.Id == departmentId);
     }
 
     public async Task<ICollection<EnterpriseDto>> SelectEnterprisesAsync()

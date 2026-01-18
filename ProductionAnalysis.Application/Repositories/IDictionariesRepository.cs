@@ -10,6 +10,10 @@ public interface IDictionariesRepository
     Task<ICollection<EmployeeDto>> SelectEmployeesByDepartmentIdAsync(int departmentId);
     Task<EmployeeDto?> FindEmployeeByUserIdAsync(Guid userId);
     Task<EmployeeDto?> FindEmployeeByIdAsync(int employeeId);
+    Task<EmployeeDto> CreateEmployeeAsync(CreateEmployeeRequest request);
+    Task<EmployeeDto?> UpdateEmployeeAsync(int employeeId, UpdateEmployeeRequest request);
+    Task<bool> DeleteEmployeeAsync(int employeeId);
+    Task<bool> DepartmentExistsAsync(int departmentId);
     Task<ICollection<EnterpriseDto>> SelectEnterprisesAsync();
     Task<ICollection<AuxiliaryOperationDto>> SelectAuxiliaryOperationsAsync();
     Task<ICollection<OperationDto>> SelectOperationsAsync();
