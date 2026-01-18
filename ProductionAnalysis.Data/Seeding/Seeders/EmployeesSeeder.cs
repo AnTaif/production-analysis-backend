@@ -21,7 +21,6 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
         dbContext.Employees.AddRange(
             new EmployeeDbo
             {
-                Id = 1,
                 FirstName = "Иван",
                 LastName = "Иванов",
                 MiddleName = "Иванович",
@@ -32,7 +31,6 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
             },
             new EmployeeDbo
             {
-                Id = 2,
                 FirstName = "Петр",
                 LastName = "Петров",
                 MiddleName = "Петрович",
@@ -43,7 +41,6 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
             },
             new EmployeeDbo
             {
-                Id = 3,
                 FirstName = "Алексей",
                 LastName = "Сидоров",
                 MiddleName = "Алексеевич",
@@ -54,7 +51,6 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
             },
             new EmployeeDbo
             {
-                Id = 4,
                 FirstName = "Admin",
                 LastName = "LastName",
                 MiddleName = "MiddleName",
@@ -65,7 +61,6 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
             },
             new EmployeeDbo
             {
-                Id = 5,
                 FirstName = "Сергей",
                 LastName = "Кузнецов",
                 MiddleName = "Сергеевич",
@@ -76,7 +71,6 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
             },
             new EmployeeDbo
             {
-                Id = 6,
                 FirstName = "Дмитрий",
                 LastName = "Смирнов",
                 MiddleName = "Дмитриевич",
@@ -87,7 +81,6 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
             },
             new EmployeeDbo
             {
-                Id = 7,
                 FirstName = "Андрей",
                 LastName = "Попов",
                 MiddleName = "Андреевич",
@@ -98,7 +91,6 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
             },
             new EmployeeDbo
             {
-                Id = 8,
                 FirstName = "Михаил",
                 LastName = "Соколов",
                 MiddleName = "Михайлович",
@@ -109,7 +101,6 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
             },
             new EmployeeDbo
             {
-                Id = 9,
                 FirstName = "Елена",
                 LastName = "Волкова",
                 MiddleName = "Владимировна",
@@ -120,7 +111,6 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
             },
             new EmployeeDbo
             {
-                Id = 10,
                 FirstName = "Николай",
                 LastName = "Лебедев",
                 MiddleName = "Николаевич",
@@ -131,7 +121,6 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
             },
             new EmployeeDbo
             {
-                Id = 11,
                 FirstName = "Владимир",
                 LastName = "Новиков",
                 MiddleName = "Владимирович",
@@ -142,7 +131,6 @@ public class EmployeesSeeder(PaDbContext dbContext, UserManager<UserDbo> userMan
             },
             new EmployeeDbo
             {
-                Id = 12,
                 FirstName = "Олег",
                 LastName = "Морозов",
                 MiddleName = "Олегович",

@@ -26,7 +26,17 @@ public class FormsSeeder(
             return;
         }
 
-        const int operatorUserId = 1;
+        // Находим сотрудника-оператора по email
+        var operatorEmployee = await dbContext.Employees
+            .FirstOrDefaultAsync(e => e.Email == "operator@mail.ru");
+
+        if (operatorEmployee == null)
+        {
+            logger.LogWarning("Operator employee not found, skipping forms seeding");
+            return;
+        }
+
+        var operatorUserId = operatorEmployee.Id;
 
         var today = DateTime.UtcNow.Date;
 
