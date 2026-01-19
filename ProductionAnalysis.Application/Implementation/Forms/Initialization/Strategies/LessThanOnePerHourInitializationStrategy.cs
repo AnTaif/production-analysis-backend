@@ -1,3 +1,4 @@
+using Core.Time;
 using ProductionAnalysis.Application.Domain.Forms;
 using ProductionAnalysis.Application.Domain.Forms.Context;
 using ProductionAnalysis.Application.Implementation.Forms.Initialization.Services;
@@ -67,15 +68,19 @@ public class LessThanOnePerHourInitializationStrategy(
 
                 var cycleEndTime = currentTime.Add(actualDuration);
 
+                var shiftStartMinutes = context.ShiftStartTime.TotalMinutes();
                 var cycleRows = formRowDataFactory.CreateOperationCycleRows(
                     ref order,
                     context.Indicators.WorkTime!,
                     context.Indicators.Plan,
                     context.Indicators.OperationName,
                     context.Indicators.OperationTime,
+                    context.Indicators.StartTimePlan,
+                    context.Indicators.EndTimePlan,
                     currentTime,
                     cycleEndTime,
-                    relatedOperations);
+                    relatedOperations,
+                    shiftStartMinutes);
 
                 rows.AddRange(cycleRows);
             }
@@ -84,15 +89,19 @@ public class LessThanOnePerHourInitializationStrategy(
                 var actualDuration = worktimeTracker.AdvanceWorktime(remainingWorkTime);
                 var cycleEndTime = currentTime.Add(actualDuration);
 
+                var shiftStartMinutes = context.ShiftStartTime.TotalMinutes();
                 var cycleRows = formRowDataFactory.CreateOperationCycleRows(
                     ref order,
                     context.Indicators.WorkTime!,
                     context.Indicators.Plan,
                     context.Indicators.OperationName,
                     context.Indicators.OperationTime,
+                    context.Indicators.StartTimePlan,
+                    context.Indicators.EndTimePlan,
                     currentTime,
                     cycleEndTime,
-                    relatedOperations);
+                    relatedOperations,
+                    shiftStartMinutes);
 
                 rows.AddRange(cycleRows);
                 break;

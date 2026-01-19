@@ -86,7 +86,8 @@ public class TemplatesSeeder(PaDbContext dbContext)
 
         AddIndicatorsToTemplate(template4,
             [
-                worktime, operationName, operationTime, plan, planCumulative, fact, factCumulative,
+                worktime, operationName, startTimePlan, startTimeFact, endTimePlan, endTimeFact,
+                plan, planCumulative, fact, factCumulative,
                 deviation, deviationCumulative, downtime, downtimeResponsible,
                 downTimeReasonsGroup, downtimeReasonAndActionsTaken
             ]
