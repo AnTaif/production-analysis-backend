@@ -26,7 +26,13 @@ public class LessThanOnePerShiftInitializationStrategy(
     {
         var operationContext =
             context.FormContext.Require<OperationOrProductContext>(FormContextAccessor.OperationOrProductContextKey);
-        var relatedOperations = GetRelatedOperations(operationContext, context.AllOperations);
+        var allRelatedOperations = GetRelatedOperations(operationContext, context.AllOperations);
+
+        // Для типа 5 ПА используем только под-операции, исключая саму операцию из контекста
+        var relatedOperations = operationContext is { IsOperationBased: true, OperationId: not null }
+            ? allRelatedOperations.Where(op => op.Id != operationContext.OperationId.Value).ToList()
+            : allRelatedOperations;
+
         var worktimeTracker = context.WorkTimeTracker;
 
         var shiftStartMinutes = context.ShiftStartTime.TotalMinutes();

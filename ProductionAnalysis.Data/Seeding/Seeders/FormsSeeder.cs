@@ -100,7 +100,7 @@ public class FormsSeeder(
 
         await formsService.CreateAsync(form3Request, departmentHeadUser.Id);
 
-        // PA Type 4: LessThanOnePerHour (с операцией)
+        // PA Type 4: LessThanOnePerHour
         var form4Request = new CreateFormRequest
         {
             PaType = PaTypeDto.LessThanOnePerHour,
@@ -109,13 +109,13 @@ public class FormsSeeder(
             FormDate = today.AddDays(-3),
             OperationOrProduct = new OperationOrProductContextRequest
             {
-                OperationId = 7 // Установка прибора
+                OperationId = 7
             }
         };
 
         await formsService.CreateAsync(form4Request, departmentHeadUser.Id);
 
-        // PA Type 4: LessThanOnePerHour (с продуктом)
+        // PA Type 4: LessThanOnePerHour
         var form4ProductRequest = new CreateFormRequest
         {
             PaType = PaTypeDto.LessThanOnePerHour,
@@ -124,7 +124,7 @@ public class FormsSeeder(
             FormDate = today.AddDays(-4),
             OperationOrProduct = new OperationOrProductContextRequest
             {
-                OperationId = 7 // Втулка
+                OperationId = 7
             }
         };
 
