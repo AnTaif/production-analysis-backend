@@ -1,5 +1,6 @@
 ﻿using Core.Database;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ProductionAnalysis.Application.Implementation.Forms;
 using ProductionAnalysis.Data.Context;
@@ -55,6 +56,62 @@ public class PaDataSeeder(
 
         await dbContext.SaveChangesAsync();
 
+        await SyncSequencesAsync();
+
         await formsSeeder.SeedAsync();
+
+        await SyncSequencesAsync();
+    }
+
+    private async Task SyncSequencesAsync()
+    {
+        var sequences = new[]
+        {
+            ("enterprises", "enterprises_id_seq"),
+            ("departments", "departments_id_seq"),
+            ("positions", "positions_id_seq"),
+            ("downtime_reason_groups", "downtime_reason_groups_id_seq"),
+            ("employees", "employees_id_seq"),
+            ("auxiliary_operations", "auxiliary_operations_id_seq"),
+            ("operations", "operations_id_seq"),
+            ("products", "products_id_seq"),
+            ("shifts", "shifts_id_seq"),
+            ("shift_schedules", "shift_schedules_id_seq"),
+            ("indicators", "indicators_id_seq"),
+            ("templates", "templates_id_seq")
+        };
+
+        foreach (var (tableName, sequenceName) in sequences)
+        {
+            try
+            {
+                var sql = $@"
+                    DO $$
+                    DECLARE
+                        max_id INTEGER;
+                    BEGIN
+                        -- Проверяем существование последовательности
+                        IF EXISTS (SELECT 1 FROM pg_class WHERE relname = '{sequenceName}') THEN
+                            -- Получаем максимальный ID из таблицы
+                            SELECT COALESCE(MAX(id), 0) INTO max_id FROM {tableName};
+                            
+                            -- Устанавливаем значение последовательности
+                            -- GREATEST гарантирует, что значение будет >= 1, даже если max_id = 0
+                            PERFORM setval('{sequenceName}', GREATEST(max_id, 1), true);
+                        END IF;
+                    END $$;";
+
+                await dbContext.Database.ExecuteSqlRawAsync(sql);
+
+                logger.LogInformation("Synced sequence {SequenceName} for table {TableName}",
+                    sequenceName, tableName);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex,
+                    "Failed to sync sequence {SequenceName} for table {TableName}. Error: {ErrorMessage}",
+                    sequenceName, tableName, ex.Message);
+            }
+        }
     }
 }

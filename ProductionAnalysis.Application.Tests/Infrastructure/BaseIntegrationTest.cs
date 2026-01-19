@@ -30,6 +30,11 @@ public abstract class BaseIntegrationTest
     protected PaDbContext DbContext { get; private set; } = null!;
     protected TestDataBuilder DataBuilder { get; private set; } = null!;
 
+    protected T GetService<T>() where T : notnull
+    {
+        return scope!.ServiceProvider.GetRequiredService<T>();
+    }
+
     [OneTimeSetUp]
     public static async Task OneTimeSetUp()
     {

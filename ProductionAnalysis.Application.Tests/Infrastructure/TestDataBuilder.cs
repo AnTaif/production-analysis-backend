@@ -51,15 +51,20 @@ public class TestDataBuilder(PaDbContext dbContext, UserManager<UserDbo> userMan
         return employee;
     }
 
-    public async Task<DepartmentDbo> CreateDepartmentAsync(int id = 1, string name = "Test Department")
+    public async Task<DepartmentDbo> CreateDepartmentAsync(int id = 1, string name = "Test Department",
+        int? enterpriseId = null)
     {
-        await CreateEnterpriseAsync();
+        if (enterpriseId == null)
+        {
+            await CreateEnterpriseAsync();
+            enterpriseId = 1;
+        }
 
         var department = new DepartmentDbo
         {
             Id = id,
             Name = name,
-            EnterpriseId = 1
+            EnterpriseId = enterpriseId.Value
         };
 
         dbContext.Departments.Add(department);
