@@ -84,7 +84,8 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
             breakEndTime,
             breakMetaInfo.Name,
             breakSchedule.AuxiliaryOperationId,
-            operationProductContext);
+            operationProductContext,
+            indicators.OperationName);
 
         rows.Add(breakRow);
         currentTime = breakEndTime;
@@ -119,7 +120,8 @@ public class BreakProcessor(IFormRowDataFactory formRowDataFactory) : IBreakProc
                 breakEndTime,
                 breakMetaInfo.Name,
                 breakSchedule.AuxiliaryOperationId,
-                productContext);
+                productContext,
+                indicators.OperationName);
 
             rows.Add(breakRow);
         }

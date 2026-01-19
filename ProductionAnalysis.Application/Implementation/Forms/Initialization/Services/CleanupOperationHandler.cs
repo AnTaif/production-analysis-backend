@@ -57,6 +57,7 @@ public class CleanupOperationHandler(IFormRowDataFactory formRowDataFactory) : I
             endTime,
             cleanupOperation.Name,
             AuxiliaryOperationIds.Cleanup,
-            null);
+            null,
+            indicators.OperationName);
     }
 }

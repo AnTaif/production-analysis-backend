@@ -24,7 +24,11 @@ public interface IFormRowDataFactory
         TimeOnly endTime,
         string operationName,
         int auxiliaryOperationId,
-        ProductContext? productContext = null);
+        ProductContext? productContext = null,
+        Indicator? operationNameIndicator = null,
+        Indicator? startTimePlanIndicator = null,
+        Indicator? endTimePlanIndicator = null,
+        int shiftStartMinutes = 0);
 
     ICollection<FormRowData> CreateOperationCycleRows(
         ref short order,
@@ -92,13 +96,50 @@ public class FormRowDataFactory(IPlanCalculator planCalculator) : IFormRowDataFa
         TimeOnly endTime,
         string operationName,
         int auxiliaryOperationId,
-        ProductContext? productContext = null)
+        ProductContext? productContext = null,
+        Indicator? operationNameIndicator = null,
+        Indicator? startTimePlanIndicator = null,
+        Indicator? endTimePlanIndicator = null,
+        int shiftStartMinutes = 0)
     {
         var values = new List<FormRowValueData>();
 
         if (workTimeIndicator is not null)
+        {
             values.Add(CreateFormRowValueData(workTimeIndicator,
                 FormatTimeRange(startTime, endTime) + " " + operationName));
+        }
+        else if (operationNameIndicator is not null)
+        {
+            // Для типов ПА без workTime индикатора используем operationName
+            values.Add(CreateFormRowValueData(operationNameIndicator, operationName));
+        }
+
+        if (startTimePlanIndicator is not null)
+        {
+            if (startTimePlanIndicator.ValueType == FieldValueTypes.Time)
+            {
+                values.Add(CreateFormRowValueData(startTimePlanIndicator, startTime));
+            }
+            else
+            {
+                var startMinutes = startTime.Hour * 60 + startTime.Minute - shiftStartMinutes;
+                values.Add(CreateFormRowValueData(startTimePlanIndicator, startMinutes.ToString()));
+            }
+        }
+
+        if (endTimePlanIndicator is not null)
+        {
+            if (endTimePlanIndicator.ValueType == FieldValueTypes.Time)
+            {
+                values.Add(CreateFormRowValueData(endTimePlanIndicator, endTime));
+            }
+            else
+            {
+                var endMinutes = endTime.Hour * 60 + endTime.Minute - shiftStartMinutes;
+                values.Add(CreateFormRowValueData(endTimePlanIndicator, endMinutes.ToString()));
+            }
+        }
 
         return new FormRowData
         {

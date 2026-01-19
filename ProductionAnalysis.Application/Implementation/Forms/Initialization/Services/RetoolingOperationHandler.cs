@@ -34,6 +34,7 @@ public class RetoolingOperationHandler(IFormRowDataFactory formRowDataFactory) :
             endTime,
             retoolingOperation.Name,
             AuxiliaryOperationIds.Retooling,
-            null);
+            null,
+            indicators.OperationName);
     }
 }
