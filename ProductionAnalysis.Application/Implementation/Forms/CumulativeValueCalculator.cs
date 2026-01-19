@@ -65,35 +65,64 @@ public class CumulativeValueCalculator : ICumulativeValueCalculator
         {
             var workRows = productGroup.OrderBy(r => r.Order).ToList();
             var cumulativeValuesByIndicator = new Dictionary<int, int>();
+            var groupCumulativeValues = new Dictionary<int?, Dictionary<int, int>>();
 
             foreach (var row in workRows)
-            foreach (var cumulativeIndicator in cumulativeIndicators)
             {
-                if (!baseIndicatorMap.TryGetValue(cumulativeIndicator.Id, out var baseIndicatorId)) continue;
+                var isFirstInGroup = row.GroupKey.HasValue && !groupCumulativeValues.ContainsKey(row.GroupKey);
 
-                var baseValueData = row.Values.FirstOrDefault(v => v.IndicatorId == baseIndicatorId);
-                if (baseValueData == null) continue;
-
-                if (!TryParseIntValue(baseValueData.Value, out var baseValue)) continue;
-
-                var previousCumulative = cumulativeValuesByIndicator.GetValueOrDefault(cumulativeIndicator.Id, 0);
-                var cumulativeValue = previousCumulative + baseValue;
-
-                var cumulativeValueData = row.Values.FirstOrDefault(v => v.IndicatorId == cumulativeIndicator.Id);
-                if (cumulativeValueData == null)
+                foreach (var cumulativeIndicator in cumulativeIndicators)
                 {
-                    row.Values.Add(new FormRowValueData
+                    if (!baseIndicatorMap.TryGetValue(cumulativeIndicator.Id, out var baseIndicatorId)) continue;
+
+                    var baseValueData = row.Values.FirstOrDefault(v => v.IndicatorId == baseIndicatorId);
+                    if (baseValueData == null) continue;
+
+                    if (!TryParseIntValue(baseValueData.Value, out var baseValue)) continue;
+
+                    int cumulativeValue;
+
+                    // Для строк с GroupKey базовое значение учитывается только один раз (для первой строки группы)
+                    if (row.GroupKey.HasValue && !isFirstInGroup)
                     {
-                        IndicatorId = cumulativeIndicator.Id,
-                        Value = cumulativeValue
-                    });
-                }
-                else
-                {
-                    cumulativeValueData.Value = cumulativeValue;
-                }
+                        // Для остальных строк группы используем сохраненное накопительное значение группы
+                        var groupValues = groupCumulativeValues[row.GroupKey];
+                        cumulativeValue = groupValues.GetValueOrDefault(cumulativeIndicator.Id, 0);
+                    }
+                    else
+                    {
+                        // Для строк без GroupKey или для первой строки группы учитываем базовое значение
+                        var previousCumulative =
+                            cumulativeValuesByIndicator.GetValueOrDefault(cumulativeIndicator.Id, 0);
+                        cumulativeValue = previousCumulative + baseValue;
+                        cumulativeValuesByIndicator[cumulativeIndicator.Id] = cumulativeValue;
 
-                cumulativeValuesByIndicator[cumulativeIndicator.Id] = cumulativeValue;
+                        // Сохраняем накопительное значение для группы (если это первая строка группы)
+                        if (row.GroupKey.HasValue && isFirstInGroup)
+                        {
+                            if (!groupCumulativeValues.ContainsKey(row.GroupKey))
+                            {
+                                groupCumulativeValues[row.GroupKey] = new Dictionary<int, int>();
+                            }
+
+                            groupCumulativeValues[row.GroupKey][cumulativeIndicator.Id] = cumulativeValue;
+                        }
+                    }
+
+                    var cumulativeValueData = row.Values.FirstOrDefault(v => v.IndicatorId == cumulativeIndicator.Id);
+                    if (cumulativeValueData == null)
+                    {
+                        row.Values.Add(new FormRowValueData
+                        {
+                            IndicatorId = cumulativeIndicator.Id,
+                            Value = cumulativeValue
+                        });
+                    }
+                    else
+                    {
+                        cumulativeValueData.Value = cumulativeValue;
+                    }
+                }
             }
         }
     }

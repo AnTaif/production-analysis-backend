@@ -27,7 +27,13 @@ public class LessThanOnePerHourInitializationStrategy(
     {
         var operationContext =
             context.FormContext.Require<OperationOrProductContext>(FormContextAccessor.OperationOrProductContextKey);
-        var relatedOperations = GetRelatedOperations(operationContext, context.AllOperations);
+        var allRelatedOperations = GetRelatedOperations(operationContext, context.AllOperations);
+
+        // Для типа 4 ПА используем только под-операции, исключая саму операцию из контекста
+        var relatedOperations = operationContext is { IsOperationBased: true, OperationId: not null }
+            ? allRelatedOperations.Where(op => op.Id != operationContext.OperationId.Value).ToList()
+            : allRelatedOperations;
+
         var worktimeTracker = context.WorkTimeTracker;
 
         var cycleDuration = OperationService.CalculateCycleDuration(relatedOperations);
@@ -86,24 +92,7 @@ public class LessThanOnePerHourInitializationStrategy(
             }
             else
             {
-                var actualDuration = worktimeTracker.AdvanceWorktime(remainingWorkTime);
-                var cycleEndTime = currentTime.Add(actualDuration);
-
-                var shiftStartMinutes = context.ShiftStartTime.TotalMinutes();
-                var cycleRows = formRowDataFactory.CreateOperationCycleRows(
-                    ref order,
-                    context.Indicators.WorkTime!,
-                    context.Indicators.Plan,
-                    context.Indicators.OperationName,
-                    context.Indicators.OperationTime,
-                    context.Indicators.StartTimePlan,
-                    context.Indicators.EndTimePlan,
-                    currentTime,
-                    cycleEndTime,
-                    relatedOperations,
-                    shiftStartMinutes);
-
-                rows.AddRange(cycleRows);
+                // Если цикл не помещается в оставшееся время, не добавляем его и завершаем смену
                 break;
             }
         }

@@ -196,7 +196,9 @@ public static class FormsConverter
             [
                 IndicatorConstants.WorktimeId,
                 IndicatorConstants.PlanId,
-                IndicatorConstants.PlanCumulativeId
+                IndicatorConstants.PlanCumulativeId,
+                IndicatorConstants.FactId,
+                IndicatorConstants.FactCumulativeId
             ];
         }
 

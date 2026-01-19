@@ -42,7 +42,7 @@ public class OperationsSeeder(PaDbContext dbContext)
             {
                 Id = 7,
                 Name = "Установка прибора",
-                DurationInSeconds = 2100, // 35 мин (общий цикл)
+                DurationInSeconds = null,
                 BasedOnType = 1,
                 BasedOperationId = null,
                 BasedProductId = null
@@ -52,7 +52,7 @@ public class OperationsSeeder(PaDbContext dbContext)
             {
                 Id = 8,
                 Name = "1. Подсборка",
-                DurationInSeconds = 900, // 15 мин
+                DurationInSeconds = 25 * 60,
                 BasedOnType = 2,
                 BasedOperationId = 7,
                 BasedProductId = null
@@ -60,8 +60,8 @@ public class OperationsSeeder(PaDbContext dbContext)
             new OperationDbo
             {
                 Id = 9,
-                Name = "2. Установка",
-                DurationInSeconds = 600, // 10 мин
+                Name = "2. Установка детали 1",
+                DurationInSeconds = 15 * 60,
                 BasedOnType = 2,
                 BasedOperationId = 7,
                 BasedProductId = null
@@ -69,8 +69,26 @@ public class OperationsSeeder(PaDbContext dbContext)
             new OperationDbo
             {
                 Id = 10,
-                Name = "3. Настройка",
-                DurationInSeconds = 600, // 10 мин
+                Name = "3. Установка детали 2",
+                DurationInSeconds = 20 * 60,
+                BasedOnType = 2,
+                BasedOperationId = 7,
+                BasedProductId = null
+            },
+            new OperationDbo
+            {
+                Id = 11,
+                Name = "4. Установка детали 3",
+                DurationInSeconds = 30 * 60,
+                BasedOnType = 2,
+                BasedOperationId = 7,
+                BasedProductId = null
+            },
+            new OperationDbo
+            {
+                Id = 12,
+                Name = "5. Настройка",
+                DurationInSeconds = 20 * 60,
                 BasedOnType = 2,
                 BasedOperationId = 7,
                 BasedProductId = null

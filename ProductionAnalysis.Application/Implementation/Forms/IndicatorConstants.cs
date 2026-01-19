@@ -4,7 +4,9 @@ public static class IndicatorConstants
 {
     public const int WorktimeId = 1;
     public const int PlanId = 2;
+    public const int FactId = 3;
     public const int PlanCumulativeId = 19;
+    public const int FactCumulativeId = 20;
     public const int OperationNameId = 10;
     public const int OperationTimeId = 11;
     public const int StartTimePlanId = 12;
