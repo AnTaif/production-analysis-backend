@@ -288,6 +288,20 @@ public class FormsService(
             return ServiceError.NotFound($"Department with id {form.DepartmentId} not found");
         }
 
+        // Загружаем создателя
+        var creator = await unitOfWork.Dictionaries.FindEmployeeByUserIdAsync(form.CreatorId);
+        if (creator == null)
+        {
+            return ServiceError.NotFound($"Creator with id {form.CreatorId} not found");
+        }
+
+        // Загружаем исполнителя
+        var assignee = await unitOfWork.Dictionaries.FindEmployeeByIdAsync(form.AssigneeId);
+        if (assignee == null)
+        {
+            return ServiceError.NotFound($"Assignee with id {form.AssigneeId} not found");
+        }
+
         // Собираем ID продуктов и операций из контекста
         var productIds = new HashSet<int>();
         var operationIds = new HashSet<int>();
@@ -332,7 +346,7 @@ public class FormsService(
             .Where(o => operationIds.Contains(o.Id))
             .ToDictionary(o => o.Id, o => o.Name);
 
-        return form.ToDto(shift, department, productsById, operationsById);
+        return form.ToDto(shift, department, creator, assignee, productsById, operationsById);
     }
 
     public async Task<Result<ICollection<FormRowDto>>> GetFormRowsAsync(int formId)

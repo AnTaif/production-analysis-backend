@@ -200,6 +200,24 @@ public class FormDtoExample : IExamplesProvider<FormDto>
                 Id = 1,
                 Name = "Цех №1",
                 EnterpriseId = 1
+            },
+            Creator = new EmployeeDto
+            {
+                Id = 15,
+                FullName = "Иванов Иван Иванович",
+                Position = "Бригадир",
+                Email = "ivanov@mail.ru",
+                DepartmentId = 1,
+                UserId = Guid.Parse("12345678-1234-1234-1234-123456789012")
+            },
+            Assignee = new EmployeeDto
+            {
+                Id = 20,
+                FullName = "Петров Пётр Петрович",
+                Position = "Оператор",
+                Email = "petrov@mail.ru",
+                DepartmentId = 1,
+                UserId = null
             }
         };
     }

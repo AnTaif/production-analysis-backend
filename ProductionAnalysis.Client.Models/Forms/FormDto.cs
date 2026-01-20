@@ -10,6 +10,8 @@ public record FormDto
     public DateTime CreationDate { get; init; }
     public DateTime UpdateDate { get; init; }
     public DateTime FormDate { get; init; }
+    public required EmployeeDto Creator { get; init; }
+    public required EmployeeDto Assignee { get; init; }
     public required ShiftDto Shift { get; init; }
     public required DepartmentDto Department { get; init; }
     public required FormContextDto Context { get; init; }

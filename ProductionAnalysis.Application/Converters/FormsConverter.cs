@@ -88,6 +88,8 @@ public static class FormsConverter
         this Form form,
         ShiftDto shift,
         DepartmentDto department,
+        EmployeeDto creator,
+        EmployeeDto assignee,
         Dictionary<int, string>? productsById = null,
         Dictionary<int, string>? operationsById = null)
     {
@@ -112,6 +114,7 @@ public static class FormsConverter
             CreationDate = form.CreationDate,
             UpdateDate = form.UpdateDate,
             FormDate = form.FormDate,
+            Creator = creator,
             Context = new FormContextDto
             {
                 Product = productDto,
@@ -122,7 +125,8 @@ public static class FormsConverter
             Template = template,
             TotalValues = form.TotalValues,
             Shift = shift,
-            Department = department
+            Department = department,
+            Assignee = assignee
         };
     }
 
